@@ -64,6 +64,21 @@ extension Model2 {
                UIDragItem(itemProvider: itemProvider)
            ]
        }
+    func dragSections(for section: Int) -> [UIDragItem] {
+        let placeName = modelList2[section].title
+
+            let data = placeName.data(using: .utf8)
+            let itemProvider = NSItemProvider()
+            
+            itemProvider.registerDataRepresentation(forTypeIdentifier: kUTTypePlainText as String, visibility: .all) { completion in
+                completion(data, nil)
+                return nil
+            }
+
+            return [
+                UIDragItem(itemProvider: itemProvider)
+            ]
+    }
 }
 extension Model {
     /// The traditional method for rearranging rows in a table view.
@@ -105,4 +120,6 @@ extension Model {
             UIDragItem(itemProvider: itemProvider)
         ]
     }
+    
+
 }

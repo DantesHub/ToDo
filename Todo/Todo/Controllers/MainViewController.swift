@@ -204,13 +204,16 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
 //        
 //    }
      func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        print(indexPath.section)
         pickUp = tableView
         if tableView == mainTableView {
             return model.dragItems(for: indexPath)
         } else {
-            return model2.dragItems(for: indexPath)
+            return model2.dragSections(for: indexPath.section)
         }
     }
+  
+    
     /**
          A drop proposal from a table view includes two items: a drop operation,
          typically .move or .copy; and an intent, which declares the action the
@@ -246,6 +249,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
     */
     func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
         let destinationIndexPath: IndexPath
+        print("here")
         if let indexPath = coordinator.destinationIndexPath {
             destinationIndexPath = indexPath
         } else {
@@ -273,28 +277,23 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
 //        return true
 //    }
      func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        if sourceIndexPath.section == destinationIndexPath.section {
             model.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
-        } else {
-            return
-        }
-
     }
+
     
 
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 40
     }
+    
+    
+    
     @objc func groupExpandClose(button: UIButton) {
-        print("Trying to expand and close section for grouplist...")
-        
         let section = button.tag
-        
         // we'll try to close the section first by deleting the rows
         var indexPaths = [IndexPath]()
         for row in model2.modelList2[section].lists.indices {
-            print(0, row)
             let indexPath = IndexPath(row: row, section: section)
             indexPaths.append(indexPath)
         }
@@ -307,14 +306,8 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
               button.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi), for: UIControl.State.normal)
         } else {
             secondTableView.insertRows(at: indexPaths, with: .fade)
-              button.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi), for: UIControl.State.normal)
+              button.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi/2), for: UIControl.State.normal)
         }
-    }
-    @objc func tappedListArrow() {
-        print("tappedListArrow")
-    }
-    @objc func tappedGroupArrow() {
-        print("tappedGroupArrow")
     }
     
 }
