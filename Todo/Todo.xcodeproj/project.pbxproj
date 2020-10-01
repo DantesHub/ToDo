@@ -22,6 +22,7 @@
 		FE7AE2DE2515595100D889DD /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7AE2DD2515595100D889DD /* List.swift */; };
 		FE7AE2E025166E3100D889DD /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7AE2DF25166E3100D889DD /* Model.swift */; };
 		FE7AE2E22516821600D889DD /* ListGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7AE2E12516821600D889DD /* ListGroupView.swift */; };
+		FE7C7653252559FA000549A1 /* SelfSizedTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7C7652252559FA000549A1 /* SelfSizedTableView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +45,7 @@
 		FE7AE2DD2515595100D889DD /* List.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
 		FE7AE2DF25166E3100D889DD /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		FE7AE2E12516821600D889DD /* ListGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListGroupView.swift; sourceTree = "<group>"; };
+		FE7C7652252559FA000549A1 /* SelfSizedTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfSizedTableView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +125,7 @@
 		FE7AE2CE25152C6C00D889DD /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				FE7C7652252559FA000549A1 /* SelfSizedTableView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -286,6 +289,7 @@
 				FE7AE2D425152ED300D889DD /* Extensions.swift in Sources */,
 				FE7AE2BB25152A0300D889DD /* MainViewController.swift in Sources */,
 				FE7AE2B725152A0300D889DD /* AppDelegate.swift in Sources */,
+				FE7C7653252559FA000549A1 /* SelfSizedTableView.swift in Sources */,
 				FE7AE2DC2515586D00D889DD /* ListGroup.swift in Sources */,
 				FE7AE2B925152A0300D889DD /* SceneDelegate.swift in Sources */,
 				FE7AE2C125152A0300D889DD /* Todo.xcdatamodeld in Sources */,
