@@ -26,6 +26,7 @@
 		FEAEAE5E2527B08F003FD07D /* HorizontalBorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAEAE5D2527B08F003FD07D /* HorizontalBorder.swift */; };
 		FEAEAE602527C0D9003FD07D /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAEAE5F2527C0D9003FD07D /* TestViewController.swift */; };
 		FEAEAE62252BBAA2003FD07D /* MainMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAEAE61252BBAA2003FD07D /* MainMenuCell.swift */; };
+		FEAEAE64252BC141003FD07D /* MainMenuTop.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAEAE63252BC141003FD07D /* MainMenuTop.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +53,7 @@
 		FEAEAE5D2527B08F003FD07D /* HorizontalBorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalBorder.swift; sourceTree = "<group>"; };
 		FEAEAE5F2527C0D9003FD07D /* TestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
 		FEAEAE61252BBAA2003FD07D /* MainMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuCell.swift; sourceTree = "<group>"; };
+		FEAEAE63252BC141003FD07D /* MainMenuTop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuTop.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +126,7 @@
 			children = (
 				FE7AE2DA2515586100D889DD /* RealmObjects */,
 				FE7AE2DF25166E3100D889DD /* Model.swift */,
+				FEAEAE63252BC141003FD07D /* MainMenuTop.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -292,6 +295,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FE7AE2E025166E3100D889DD /* Model.swift in Sources */,
+				FEAEAE64252BC141003FD07D /* MainMenuTop.swift in Sources */,
 				FEAEAE62252BBAA2003FD07D /* MainMenuCell.swift in Sources */,
 				FE7AE2D225152E9700D889DD /* Constants.swift in Sources */,
 				FE7AE2E22516821600D889DD /* ListGroupView.swift in Sources */,

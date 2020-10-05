@@ -10,12 +10,12 @@ import UIKit
 import TinyConstraints
 
 class MainMenuCell: UITableViewCell {
-    let cellImage = UIImageView()
-    let cellTitle = UILabel()
-    let count = UILabel()
+    var cellImage = UIImageView()
+    var cellTitle = UILabel()
+    var count = UILabel()
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.addSubview(cellImage)
         self.addSubview(cellTitle)
         self.addSubview(count)
@@ -25,14 +25,18 @@ class MainMenuCell: UITableViewCell {
         
         cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: 20).isActive = true
         cellTitle.centerY(to: self)
+        cellTitle.font = UIFont(name: "OpenSans-Regular", size: 20)
+        cellTitle.textColor = UIColor.black
         
         count.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
+        count.font = UIFont(name: "OpenSans-Regular", size: 15)
+        count.text = "2"
+        count.textColor = UIColor.gray
         count.centerY(to: self)
     }
 
-//    override func setSelected(_ selected: Bool, animated: Bool) {
-//        super.setSelected(selected, animated: animated)
-//        
-//    }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
 }

@@ -20,7 +20,7 @@ class MainViewController: UIViewController {
     var testArray = ["Fdafasd", "fdafas", "fdasf"]
     var isGroupsExpanded = true
     var isListsExpanded = true
-    var topList = ["Important", "Planned", "All Tasks"]
+    var topList = [MainMenuTop(imgName: "star", title: "Important"), MainMenuTop(imgName: "calendarOne", title: "Planned"), MainMenuTop(imgName: "infinity", title: "All Tasks")]
     lazy var contentViewSize = CGSize(width: self.view.frame.width, height: self.view.frame.height + 400)
     var model = Model()
     var model2 = Model2()
@@ -69,11 +69,11 @@ class MainViewController: UIViewController {
         //constrain width of stack view to width of self.view, NOT scroll view
         self.stackView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true;
         stackView.addArrangedSubview(topTableView)
-        topTableView.register(UITableViewCell.self, forCellReuseIdentifier: "topCell")
+        topTableView.register(MainMenuCell.self, forCellReuseIdentifier: "topCell")
         topTableView.dataSource = self
         topTableView.delegate = self
-   
-        topTableView.estimatedRowHeight = 20
+        topTableView.rowHeight = 70
+        topTableView.height(210)
         topTableView.allowsSelection = false
         topTableView.separatorStyle = .none
         topTableView.isScrollEnabled = false
@@ -155,7 +155,7 @@ class MainViewController: UIViewController {
         groupTableView.dragDelegate = self
         groupTableView.dropDelegate = self
         groupTableView.backgroundColor = .white
-        groupTableView.estimatedRowHeight = 40
+        groupTableView.rowHeight = 50
         groupTableView.allowsSelection = false
         groupTableView.separatorStyle = .none
     }
@@ -239,10 +239,8 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
                 return 0
             }
             return model2.modelList2[section].lists.count
-        } else if tableView == topTableView {
-            return 1
-        } else {
-            return 0
+        } else { //topTableView
+            return topList.count
         }
     }
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -257,7 +255,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             }
             return model2.modelList2.count
         } else {
-            return topList.count
+            return 1
         }
     }
     
@@ -293,25 +291,23 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = UITableViewCell(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50))
         
         if tableView == listTableView {
-            cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "listCell")
+            let cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "listCell")
             cell.textLabel?.text = model.modelList[indexPath.row]
-     
-            
+            return cell
         } else if tableView == groupTableView {
-            cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "groupCell")
+            let cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "groupCell")
             cell.textLabel?.text = model2.modelList2[indexPath.section].lists[indexPath.row]
-        } else if tableView == topTableView {
-            cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "topCell")
-            cell.textLabel?.text = "zingo"
+            return cell
+        } else {//topTableView
+            let cell = tableView.dequeueReusableCell(withIdentifier: "topCell", for: indexPath) as! MainMenuCell
+            cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 25, height: 25))
+            cell.cellTitle.text = topList[indexPath.row].title
             cell.isUserInteractionEnabled = true
-            let bingo = UIGestureRecognizer(target: self, action: #selector(ellipsisTapped))
-            cell.addGestureRecognizer(bingo)
+            return cell
         }
         
-        return cell
     }
     
 
@@ -390,8 +386,6 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         model.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
     }
-    
-    
     
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
