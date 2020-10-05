@@ -9,70 +9,98 @@
 import UIKit
 import TinyConstraints
 import MobileCoreServices
+import Layoutless
 
 class MainViewController: UIViewController {
     //MARK: - instace variables
-    var topTableView = UITableView()
+    var topTableView = SelfSizedTableView()
     var listTableView = SelfSizedTableView()
-    var groupTableView = UITableView(frame: CGRect(), style: .plain)
+    var groupTableView = SelfSizedTableView()
     var pickUp = UITableView()
     var testArray = ["Fdafasd", "fdafas", "fdasf"]
     var isGroupsExpanded = true
     var isListsExpanded = true
     var topList = ["Important", "Planned", "All Tasks"]
+    lazy var contentViewSize = CGSize(width: self.view.frame.width, height: self.view.frame.height + 400)
+    var model = Model()
+    var model2 = Model2()
+    var arw = UIImageView(image: UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 20, height: 20)).rotate(radians: .pi))
+    var listArw = UIImageView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
+    var groupHeader = UIView()
+    var listHeader = UIView()
+    lazy var scrollView: UIScrollView = {
+       let view = UIScrollView()
+       view.showsVerticalScrollIndicator = false
+       return view
+    }()
+    let stackView = UIStackView()
+    
+    
     //MARK: - instantiate
     override func viewDidLoad() {
         super.viewDidLoad()
         UIFont.overrideInitialize()
         configureNavBar()
         configureUI()
-        let label = UILabel()
-        label.text = "bing"
-        view.addSubview(label)
+
     }
-    var model = Model()
-    var model2 = Model2()
-    var arw = UIImageView(image: UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 20, height: 20)).rotate(radians: .pi))
-    var listArw = UIImageView()
-    var groupHeader = UIView()
-    var listHeader = UIView()
+
+    
     //MARK: - helper functions
     func configureUI() {
         view.backgroundColor = .white
-        view.addSubview(topTableView)
+        view.addSubview(scrollView)
+        scrollView.leadingToSuperview()
+        scrollView.trailingToSuperview()
+        scrollView.topToSuperview()
+        scrollView.bottomToSuperview()
         
+        
+        self.scrollView.addSubview(self.stackView)
+        self.stackView.translatesAutoresizingMaskIntoConstraints = false
+        self.stackView.axis = .vertical
+        self.stackView.spacing = 10;
+        //constrain stack view to scroll view
+        self.stackView.leadingAnchor.constraint(equalTo: self.scrollView.leadingAnchor).isActive = true;
+        self.stackView.topAnchor.constraint(equalTo: self.scrollView.topAnchor).isActive = true;
+        self.stackView.trailingAnchor.constraint(equalTo: self.scrollView.trailingAnchor).isActive = true;
+        self.stackView.bottomAnchor.constraint(equalTo: self.scrollView.bottomAnchor).isActive = true;
+        
+        //constrain width of stack view to width of self.view, NOT scroll view
+        self.stackView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true;
+        stackView.addArrangedSubview(topTableView)
         topTableView.register(UITableViewCell.self, forCellReuseIdentifier: "topCell")
         topTableView.dataSource = self
         topTableView.delegate = self
-        topTableView.height(view.frame.height/3)
-        topTableView.leading(to: view)
-        topTableView.trailing(to: view)
-        topTableView.topToSuperview()
+   
+        topTableView.estimatedRowHeight = 20
         topTableView.allowsSelection = false
         topTableView.separatorStyle = .none
+        topTableView.isScrollEnabled = false
+        self.topTableView.contentInset = UIEdgeInsets(top: 10,left: 0,bottom: 0,right: 0)
         
-         listHeader = UIView()
+        listHeader = UIView()
         listHeader.backgroundColor = .white
-        view.addSubview(listHeader)
-        listHeader.leadingToSuperview()
-        listHeader.trailingToSuperview()
-        listHeader.topAnchor.constraint(equalTo: topTableView.bottomAnchor,constant: 10).isActive = true
-        listHeader.height(30)
+        stackView.addArrangedSubview(listHeader)
+        listHeader.height(50)
         let label1 = UILabel()
-        view.addSubview(label1)
+        listHeader.addSubview(label1)
         label1.centerY(to: listHeader)
         label1.font = UIFont(name: "OpenSans-Regular", size: 20)
         label1.textColor = .blue
-        label1.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-        listArw = UIImageView(image: UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 20, height: 20)))
-        view.addSubview(listArw)
+        label1.leadingAnchor.constraint(equalTo: listHeader.leadingAnchor, constant: 20).isActive = true
+        listArw.image = UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 20, height: 20))
+        stackView.addSubview(listArw)
         listArw.image = listArw.image?.rotate(radians: .pi)
-        listArw.centerY(to: listHeader)
-        listArw.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+        listArw.centerY(to: self.listHeader)
+        listArw.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor, constant: -20).isActive = true
         label1.text = "Lists"
         let tapGestureRecognizer2 = UITapGestureRecognizer(target: self, action: #selector(handleListExpandClose))
         listArw.isUserInteractionEnabled = true
         listArw.addGestureRecognizer(tapGestureRecognizer2)
+
+        let hr = HorizontalBorder(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
+        listHeader.addSubview(hr)
         createListSection()
         createGroupSection()
     }
@@ -95,61 +123,56 @@ class MainViewController: UIViewController {
         
     }
     func createGroupSection() {
-         groupHeader = UIView()
+        print("calling create GroupSection")
+        groupHeader = UIView()
         groupHeader.backgroundColor = .white
-        view.addSubview(groupHeader)
-        groupHeader.leadingToSuperview()
-        groupHeader.trailingToSuperview()
-        groupHeader.topAnchor.constraint(equalTo: listTableView.bottomAnchor,constant: 10).isActive = true
-        groupHeader.height(30)
+        stackView.addArrangedSubview(groupHeader)
+        groupHeader.height(50)
         let label = UILabel()
-        view.addSubview(label)
+        stackView.addSubview(label)
         label.centerY(to: groupHeader)
         label.font = UIFont(name: "OpenSans-Regular", size: 20)
         label.textColor = .blue
-        label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
+        label.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 20).isActive = true
   
-        view.addSubview(arw)
+        scrollView.addSubview(arw)
         arw.centerY(to: groupHeader)
-        arw.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+        arw.height(20)
+        arw.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -20).isActive = true
         label.text = "Groups"
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleExpandClose))
         arw.isUserInteractionEnabled = true
         arw.addGestureRecognizer(tapGestureRecognizer)
 
-        view.addSubview(groupTableView)
+        let hr = HorizontalBorder(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
+        groupHeader.addSubview(hr)
+        
+        stackView.addArrangedSubview(groupTableView)
         groupTableView.register(UITableViewCell.self, forCellReuseIdentifier: "groupCell")
         groupTableView.dataSource = self
         groupTableView.delegate = self
         groupTableView.dragInteractionEnabled = true // Enable intra-app drags for iPhone.
         groupTableView.dragDelegate = self
         groupTableView.dropDelegate = self
-        groupTableView.height(view.frame.height/3)
-        groupTableView.leadingToSuperview()
-        groupTableView.trailingToSuperview()
-        groupTableView.topAnchor.constraint(equalTo: groupHeader.bottomAnchor).isActive = true
         groupTableView.backgroundColor = .white
+        groupTableView.estimatedRowHeight = 40
         groupTableView.allowsSelection = false
         groupTableView.separatorStyle = .none
     }
     
 
     func createListSection() {
-        view.addSubview(listTableView)
-           listTableView.register(UITableViewCell.self, forCellReuseIdentifier: "listCell")
-           listTableView.dataSource = self
-           listTableView.delegate = self
-           listTableView.dragInteractionEnabled = true // Enable intra-app drags for iPhone.
-           listTableView.dragDelegate = self
-           listTableView.dropDelegate = self
-           listTableView.leading(to: view)
-           listTableView.trailing(to: view)
-           listTableView.topToBottom(of: listHeader)
-//           listTableView.estimatedRowHeight = 0;
-           listTableView.backgroundColor = .white
-           listTableView.allowsSelection = false
-           listTableView.separatorStyle = .none
-           listTableView.estimatedRowHeight = 30
+        stackView.addArrangedSubview(listTableView)
+        listTableView.register(UITableViewCell.self, forCellReuseIdentifier: "listCell")
+        listTableView.dataSource = self
+        listTableView.delegate = self
+        listTableView.dragInteractionEnabled = true // Enable intra-app drags for iPhone.
+        listTableView.dragDelegate = self
+        listTableView.dropDelegate = self
+        listTableView.backgroundColor = .white
+        listTableView.allowsSelection = false
+        listTableView.separatorStyle = .none
+        listTableView.estimatedRowHeight = 40
     }
     
     @objc func handleListExpandClose() {
@@ -158,8 +181,8 @@ class MainViewController: UIViewController {
             indexPaths.append(IndexPath(row: row, section: 0))
         }
         isListsExpanded = !isListsExpanded
-        groupTableView.removeFromSuperview()
-        groupHeader.removeFromSuperview()
+        stackView.removeArrangedSubview(groupTableView)
+        stackView.removeArrangedSubview(groupHeader)
         if isListsExpanded {
             print("shine")
             listArw.image = listArw.image?.rotate(radians: .pi/2)
@@ -193,7 +216,9 @@ class MainViewController: UIViewController {
     }
     
     @objc func searchTapped() {
-        print("search Tapped")
+        let testController = UINavigationController(rootViewController: TestViewController())
+        testController.modalPresentationStyle = .fullScreen
+        self.present(testController, animated: true, completion: nil)
     }
     @objc func ellipsisTapped() {
         print("ellipsis Tapped")
@@ -228,7 +253,6 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             return 1
         } else if tableView == groupTableView {
             if isGroupsExpanded == false {
-                print("got here")
                 return 0
             }
             return model2.modelList2.count
@@ -269,7 +293,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell = UITableViewCell()
+        var cell = UITableViewCell(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50))
         
         if tableView == listTableView {
             cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "listCell")
@@ -282,6 +306,9 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
         } else if tableView == topTableView {
             cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "topCell")
             cell.textLabel?.text = "zingo"
+            cell.isUserInteractionEnabled = true
+            let bingo = UIGestureRecognizer(target: self, action: #selector(ellipsisTapped))
+            cell.addGestureRecognizer(bingo)
         }
         
         return cell
