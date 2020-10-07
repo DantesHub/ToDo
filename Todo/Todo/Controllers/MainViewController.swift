@@ -34,15 +34,15 @@ class MainViewController: UIViewController {
        return view
     }()
     let stackView = UIStackView()
-    
-    
+    let footerView = UIView()
+    let defaultColor = UIColor.blue
+    let groupIV = UIImageView()
     //MARK: - instantiate
     override func viewDidLoad() {
         super.viewDidLoad()
         UIFont.overrideInitialize()
         configureNavBar()
         configureUI()
-
     }
 
     
@@ -54,8 +54,8 @@ class MainViewController: UIViewController {
         scrollView.trailingToSuperview()
         scrollView.topToSuperview()
         scrollView.bottomToSuperview()
-        
-        
+        createFooter()
+
         self.scrollView.addSubview(self.stackView)
         self.stackView.translatesAutoresizingMaskIntoConstraints = false
         self.stackView.axis = .vertical
@@ -65,7 +65,7 @@ class MainViewController: UIViewController {
         self.stackView.topAnchor.constraint(equalTo: self.scrollView.topAnchor).isActive = true;
         self.stackView.trailingAnchor.constraint(equalTo: self.scrollView.trailingAnchor).isActive = true;
         self.stackView.bottomAnchor.constraint(equalTo: self.scrollView.bottomAnchor).isActive = true;
-        
+
         //constrain width of stack view to width of self.view, NOT scroll view
         self.stackView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true;
         stackView.addArrangedSubview(topTableView)
@@ -74,11 +74,11 @@ class MainViewController: UIViewController {
         topTableView.delegate = self
         topTableView.rowHeight = 70
         topTableView.height(210)
-        topTableView.allowsSelection = false
+        topTableView.allowsSelection = true
         topTableView.separatorStyle = .none
         topTableView.isScrollEnabled = false
         self.topTableView.contentInset = UIEdgeInsets(top: 10,left: 0,bottom: 0,right: 0)
-        
+
         listHeader = UIView()
         listHeader.backgroundColor = .white
         stackView.addArrangedSubview(listHeader)
@@ -104,6 +104,54 @@ class MainViewController: UIViewController {
         createListSection()
         createGroupSection()
     }
+    func createFooter() {
+        view.addSubview(footerView)
+        footerView.trailingToSuperview()
+        footerView.leadingToSuperview()
+        footerView.bottomToSuperview()
+        footerView.height(80)
+        footerView.backgroundColor = .white
+        
+        let tappedListImageRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddList))
+        let plusIV = UIImageView()
+        plusIV.image = UIImage(named: "plus")?.resize(targetSize: CGSize(width: 40, height: 40)).withTintColor(defaultColor)
+        footerView.addSubview(plusIV)
+        plusIV.centerY(to: footerView)
+        plusIV.leadingAnchor.constraint(equalTo: footerView.leadingAnchor, constant: 20).isActive = true
+        plusIV.addGestureRecognizer(tappedListImageRecognizer)
+        plusIV.isUserInteractionEnabled = true
+        
+        let tappedListLabelRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddList))
+        let newListLabel = UILabel()
+        newListLabel.font = UIFont(name: "OpenSans-Regular", size: 17)
+        newListLabel.text = "New List"
+        newListLabel.textColor = defaultColor
+        footerView.addSubview(newListLabel)
+        newListLabel.leadingAnchor.constraint(equalTo: plusIV.trailingAnchor, constant: 5).isActive = true
+        newListLabel.centerY(to: footerView)
+        newListLabel.addGestureRecognizer(tappedListLabelRecognizer)
+        newListLabel.isUserInteractionEnabled = true
+        
+        let tappedGroupImageRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddGroup))
+        groupIV.image = UIImage(named: "folderPlus")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
+        footerView.addSubview(groupIV)
+        groupIV.centerY(to: footerView)
+        groupIV.trailingAnchor.constraint(equalTo: footerView.trailingAnchor, constant: -20).isActive = true
+        groupIV.addGestureRecognizer(tappedGroupImageRecognizer)
+        groupIV.isUserInteractionEnabled = true
+        
+        let tappedGroupLabelRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddGroup))
+        let newGroupLabel = UILabel()
+        newGroupLabel.font = UIFont(name: "OpenSans-Regular", size: 17)
+        newGroupLabel.text = "New Group"
+        newGroupLabel.textColor = defaultColor
+        footerView.addSubview(newGroupLabel)
+        newGroupLabel.trailingAnchor.constraint(equalTo: groupIV.leadingAnchor, constant: -5).isActive = true
+        newGroupLabel.centerY(to: footerView)
+        newGroupLabel.addGestureRecognizer(tappedGroupLabelRecognizer)
+        newGroupLabel.isUserInteractionEnabled = true
+    }
+    
     func configureNavBar() {
         let label = UILabel()
         label.textColor = UIColor.white
@@ -123,7 +171,6 @@ class MainViewController: UIViewController {
         
     }
     func createGroupSection() {
-        print("calling create GroupSection")
         groupHeader = UIView()
         groupHeader.backgroundColor = .white
         stackView.addArrangedSubview(groupHeader)
@@ -135,7 +182,7 @@ class MainViewController: UIViewController {
         label.textColor = .blue
         label.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 20).isActive = true
   
-        scrollView.addSubview(arw)
+        view.addSubview(arw)
         arw.centerY(to: groupHeader)
         arw.height(20)
         arw.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -20).isActive = true
@@ -174,6 +221,14 @@ class MainViewController: UIViewController {
         listTableView.separatorStyle = .none
         listTableView.estimatedRowHeight = 40
     }
+    
+    @objc func tappedAddGroup() {
+        print("tappedGroup")
+    }
+    @objc func tappedAddList() {
+          print("tappedList")
+      }
+
     
     @objc func handleListExpandClose() {
         var indexPaths = [IndexPath]()
@@ -304,10 +359,15 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             let cell = tableView.dequeueReusableCell(withIdentifier: "topCell", for: indexPath) as! MainMenuCell
             cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 25, height: 25))
             cell.cellTitle.text = topList[indexPath.row].title
-            cell.isUserInteractionEnabled = true
+            cell.selectionStyle = .none
             return cell
         }
         
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if tableView == topTableView {
+            //
+        }
     }
     
 

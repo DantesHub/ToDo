@@ -11,7 +11,6 @@ import UIKit
 
 let superPurple = hexStringToUIColor(hex: "#A73CDE")
 
-
 func hexStringToUIColor (hex:String) -> UIColor {
     var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
     
