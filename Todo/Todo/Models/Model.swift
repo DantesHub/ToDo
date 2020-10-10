@@ -6,14 +6,14 @@ import UIKit
 struct Model {
     private(set) var modelList = [
         "Yosemite",
-        "Yellowstone",
-        "Theodore Roosevelt",
-        "Sequoia",
-        "Pinnacles",
-        "Mount Rainier",
-        "Mammoth Cave",
-        "Great Basin",
-        "Grand Canyon"
+//        "Yellowstone",
+//        "Theodore Roosevelt",
+//        "Sequoia",
+//        "Pinnacles",
+//        "Mount Rainier",
+//        "Mammoth Cave",
+//        "Great Basin",
+//        "Grand Canyon"
     ]
 }
 struct GroupList {

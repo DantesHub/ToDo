@@ -8,7 +8,9 @@
 
 import UIKit
 import CoreData
-
+import RealmSwift
+import Realm
+var uiRealm = try! Realm()
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
@@ -17,7 +19,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow()
         window?.rootViewController = UINavigationController(rootViewController: MainViewController())
         window?.makeKeyAndVisible()
-    
+        print(Realm.Configuration.defaultConfiguration.fileURL!)
+
         return true
     }
 

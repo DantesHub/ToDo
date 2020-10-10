@@ -10,7 +10,8 @@ import UIKit
 import TinyConstraints
 import MobileCoreServices
 import Layoutless
-
+import RealmSwift
+import Realm
 class MainViewController: UIViewController {
     //MARK: - instace variables
     var topTableView = SelfSizedTableView()
@@ -37,13 +38,20 @@ class MainViewController: UIViewController {
     let footerView = UIView()
     let defaultColor = UIColor.blue
     let groupIV = UIImageView()
+    var groups = [ListGroup]()
     //MARK: - instantiate
     override func viewDidLoad() {
         super.viewDidLoad()
+        let results = uiRealm.objects(ListGroup.self)
+        for result in results {
+            groups.append(result)
+        }
+        print(results)
         UIFont.overrideInitialize()
         configureNavBar()
         configureUI()
     }
+    
 
     
     //MARK: - helper functions
@@ -223,11 +231,38 @@ class MainViewController: UIViewController {
     }
     
     @objc func tappedAddGroup() {
-        print("tappedGroup")
+        let alertController = UIAlertController(title: "Add New Group", message: "", preferredStyle: UIAlertController.Style.alert)
+        alertController.addTextField { (textField : UITextField!) -> Void in
+            textField.placeholder = "Untitled Group"
+        }
+        let saveAction = UIAlertAction(title: "Save", style: UIAlertAction.Style.default, handler: { alert -> Void in
+            let firstTextField = alertController.textFields![0] as UITextField
+            let createdGroup = ListGroup()
+            createdGroup.name = firstTextField.text ?? "Untitled Groupr"
+            createdGroup.position = (self.groups.count - 1) + 1
+            try! uiRealm.write {
+                uiRealm.add(createdGroup)
+            }
+
+        })
+        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.default, handler: {
+            (action : UIAlertAction!) -> Void in })
+        
+        alertController.addAction(saveAction)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
     }
     @objc func tappedAddList() {
-          print("tappedList")
-      }
+        let controller = ListController()
+        controller.creating = true;
+//        let CreateListController = UINavigationController(rootViewController: controller)
+//        CreateListController.modalPresentationStyle = .fullScreen
+//        present(CreateListController,animated: true)
+        controller.navigationController?.isNavigationBarHidden = false
+        self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
+        self.navigationController?.pushViewController(controller, animated: false)
+    }
 
     
     @objc func handleListExpandClose() {
@@ -255,7 +290,7 @@ class MainViewController: UIViewController {
     @objc func handleExpandClose() {
         // we'll try to close the section first by deleting the rows
         var indexPaths = [Int]()
-        for row in model2.modelList2.indices {
+        for row in groups.indices {
             indexPaths.append(row)
         }
         let indexSet = IndexSet(indexPaths)
@@ -271,9 +306,8 @@ class MainViewController: UIViewController {
     }
     
     @objc func searchTapped() {
-        let testController = UINavigationController(rootViewController: TestViewController())
-        testController.modalPresentationStyle = .fullScreen
-        self.present(testController, animated: true, completion: nil)
+    
+        
     }
     @objc func ellipsisTapped() {
         print("ellipsis Tapped")
@@ -290,10 +324,10 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             }
             return 0
         } else if (tableView == groupTableView) {
-            if !model2.modelList2[section].isExpanded {
+            if !groups[section].isExpanded {
                 return 0
             }
-            return model2.modelList2[section].lists.count
+            return groups[section].lists.count
         } else { //topTableView
             return topList.count
         }
@@ -308,7 +342,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             if isGroupsExpanded == false {
                 return 0
             }
-            return model2.modelList2.count
+            return groups.count
         } else {
             return 1
         }
@@ -328,15 +362,24 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             label.font = UIFont(name: "OpenSans-Bold", size: 16)
             label.textColor = .black
             label.leadingAnchor.constraint(equalTo: folderImage.leadingAnchor, constant: 40).isActive = true
-            label.text = model2.modelList2[section].title
+            print(groups[section].name)
+            label.text = groups[section].name
             
-            let button = UIButton(type: .custom)
-            groupHeader.addSubview(button)
-            button.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi), for: UIControl.State.normal)
-            button.tag = section
-            button.addTarget(self, action: #selector(groupExpandClose), for: UIControl.Event.touchDown)
-            button.centerY(to: groupHeader)
-            button.trailingAnchor.constraint(equalTo: groupHeader.trailingAnchor, constant: -20).isActive = true
+            let arw = UIButton(type: .custom)
+            groupHeader.addSubview(arw)
+            arw.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi), for: UIControl.State.normal)
+            arw.tag = section
+            arw.addTarget(self, action: #selector(groupExpandClose), for: UIControl.Event.touchDown)
+            arw.centerY(to: groupHeader)
+            arw.trailingAnchor.constraint(equalTo: groupHeader.trailingAnchor, constant: -20).isActive = true
+            
+            
+            let elips = UIButton(type: .custom)
+            groupHeader.addSubview(elips)
+            elips.setImage(UIImage(named: "ellipsis")?.resize(targetSize: CGSize(width: 18, height: 18)), for: UIControl.State.normal)
+            elips.addTarget(self, action: #selector(groupElipsTapped), for: UIControl.Event.touchDown)
+            elips.centerY(to: groupHeader)
+            elips.trailingAnchor.constraint(equalTo: arw.trailingAnchor, constant: -30).isActive = true
         } else if tableView == listTableView {
             groupHeader = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 0))
         } else if tableView == topTableView {
@@ -353,7 +396,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             return cell
         } else if tableView == groupTableView {
             let cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "groupCell")
-            cell.textLabel?.text = model2.modelList2[indexPath.section].lists[indexPath.row]
+            cell.textLabel?.text = groups[indexPath.section].lists[indexPath.row].name
             return cell
         } else {//topTableView
             let cell = tableView.dequeueReusableCell(withIdentifier: "topCell", for: indexPath) as! MainMenuCell
@@ -455,21 +498,25 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             return 0
         }
     }
-    
+    @objc func groupElipsTapped() {
+        print("groupElipsTapped")
+    }
     
     
     @objc func groupExpandClose(button: UIButton) {
         let section = button.tag
         // we'll try to close the section first by deleting the rows
         var indexPaths = [IndexPath]()
-        for row in model2.modelList2[section].lists.indices {
+        for row in groups[section].lists.indices {
             let indexPath = IndexPath(row: row, section: section)
             indexPaths.append(indexPath)
         }
         
         
-        let isExpanded = model2.modelList2[section].isExpanded
-        model2.modelList2[section].isExpanded = !isExpanded
+        let isExpanded = groups[section].isExpanded
+        try! uiRealm.write {
+            groups[section].isExpanded = !isExpanded
+        }
         if isExpanded {
             groupTableView.deleteRows(at: indexPaths, with: .fade)
             button.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi/2), for: UIControl.State.normal)
