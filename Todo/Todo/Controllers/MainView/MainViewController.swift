@@ -12,6 +12,8 @@ import MobileCoreServices
 import Layoutless
 import RealmSwift
 import Realm
+var lists = [ListObject]()
+var defaultColor = UIColor.blue
 class MainViewController: UIViewController {
     //MARK: - instace variables
     var topTableView = SelfSizedTableView()
@@ -34,19 +36,23 @@ class MainViewController: UIViewController {
        view.showsVerticalScrollIndicator = false
        return view
     }()
+    let popUpCellId = "popUpCell"
     let stackView = UIStackView()
     let footerView = UIView()
-    let defaultColor = UIColor.blue
     let groupIV = UIImageView()
     var groups = [ListGroup]()
+    var containerView = UIView()
+    var slideUpView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        let cv = UICollectionView(frame: .zero
+        , collectionViewLayout: layout)
+        cv.backgroundColor = .white
+        return cv
+    }()
     //MARK: - instantiate
     override func viewDidLoad() {
         super.viewDidLoad()
-        let results = uiRealm.objects(ListGroup.self)
-        for result in results {
-            groups.append(result)
-        }
-        print(results)
+        getRealmData()
         UIFont.overrideInitialize()
         configureNavBar()
         configureUI()
@@ -55,6 +61,19 @@ class MainViewController: UIViewController {
 
     
     //MARK: - helper functions
+    func getRealmData() {
+        groups = []
+        lists = []
+        let results = uiRealm.objects(ListGroup.self)
+        for result in results {
+            groups.append(result)
+        }
+        let listResults = uiRealm.objects(ListObject.self)
+        for result in listResults {
+            lists.append(result)
+        }
+        print(listResults)
+    }
     func configureUI() {
         view.backgroundColor = .white
         view.addSubview(scrollView)
@@ -171,7 +190,6 @@ class MainViewController: UIViewController {
         let elipsis = UIBarButtonItem(title: "Play", style: .plain, target: self, action: #selector(ellipsisTapped))
         elipsis.image = UIImage(named: "ellipsis")?.resize(targetSize: CGSize(width: 25, height: 20))
         elipsis.imageInsets = UIEdgeInsets(top: 2, left: 0, bottom: 0, right: 10)
-        
         let search = UIBarButtonItem(title: "Play", style: .plain, target: self, action: #selector(searchTapped))
         search.imageInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: -10)
         search.image = UIImage(named: "search")?.resize(targetSize: CGSize(width: 25, height: 25))
@@ -207,10 +225,11 @@ class MainViewController: UIViewController {
         groupTableView.dataSource = self
         groupTableView.delegate = self
         groupTableView.dragInteractionEnabled = true // Enable intra-app drags for iPhone.
+        groupTableView.heightAnchor.constraint(greaterThanOrEqualToConstant: CGFloat(groups.count * 70)).isActive = true
         groupTableView.dragDelegate = self
         groupTableView.dropDelegate = self
         groupTableView.backgroundColor = .white
-        groupTableView.rowHeight = 50
+        groupTableView.rowHeight = 70
         groupTableView.allowsSelection = false
         groupTableView.separatorStyle = .none
     }
@@ -225,7 +244,7 @@ class MainViewController: UIViewController {
         listTableView.dragDelegate = self
         listTableView.dropDelegate = self
         listTableView.backgroundColor = .white
-        listTableView.allowsSelection = false
+        listTableView.allowsSelection = true
         listTableView.separatorStyle = .none
         listTableView.estimatedRowHeight = 40
     }
@@ -243,7 +262,8 @@ class MainViewController: UIViewController {
             try! uiRealm.write {
                 uiRealm.add(createdGroup)
             }
-
+            self.getRealmData()
+            self.groupTableView.reloadData()
         })
         let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.default, handler: {
             (action : UIAlertAction!) -> Void in })
@@ -267,7 +287,7 @@ class MainViewController: UIViewController {
     
     @objc func handleListExpandClose() {
         var indexPaths = [IndexPath]()
-        for row in model.modelList.indices {
+        for row in lists.indices {
             indexPaths.append(IndexPath(row: row, section: 0))
         }
         isListsExpanded = !isListsExpanded
@@ -320,7 +340,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if(tableView == listTableView){
             if isListsExpanded {
-                return model.modelList.count
+                return lists.count
             }
             return 0
         } else if (tableView == groupTableView) {
@@ -392,7 +412,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
         
         if tableView == listTableView {
             let cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "listCell")
-            cell.textLabel?.text = model.modelList[indexPath.row]
+            cell.textLabel?.text = lists[indexPath.row].name
             return cell
         } else if tableView == groupTableView {
             let cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "groupCell")
@@ -409,7 +429,25 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == topTableView {
-            //
+            print("topper")
+        } else if tableView == listTableView {
+            print("tapping")
+            let results = uiRealm.objects(ListGroup.self)
+            let resutls2 = uiRealm.objects(ListObject.self)
+            for result in results {
+                if result.name == "bingo" {
+                    for list in resutls2 {
+                        if list.name == "fsdaf" {
+                            print("added")
+                            try! uiRealm.write {
+                                result.lists.append(list)
+                            }
+                        }
+                    }
+                
+                }
+            }
+            
         }
     }
     
@@ -418,7 +456,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
         print(indexPath.section)
         pickUp = tableView
         if tableView == listTableView {
-            return model.dragItems(for: indexPath)
+            return lists.dragItems(for: indexPath)
         } else {
             return model2.dragSections(for: indexPath.section)
         }
@@ -471,12 +509,12 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
         
         coordinator.session.loadObjects(ofClass: NSString.self) { items in
             // Consume drag items.
-            let stringItems = items as! [String]
+            let stringItems = items as! [ListObject]
             
             var indexPaths = [IndexPath]()
             for (index, item) in stringItems.enumerated() {
                 let indexPath = IndexPath(row: destinationIndexPath.row + index, section: destinationIndexPath.section)
-                self.model.addItem(item, at: indexPath.row)
+                lists.addItem(item, at: indexPath.row)
                 indexPaths.append(indexPath)
             }
             
@@ -487,7 +525,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
     //        return true
     //    }
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        model.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
+        lists.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
     }
     
     
@@ -498,10 +536,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             return 0
         }
     }
-    @objc func groupElipsTapped() {
-        print("groupElipsTapped")
-    }
-    
+
     
     @objc func groupExpandClose(button: UIButton) {
         let section = button.tag

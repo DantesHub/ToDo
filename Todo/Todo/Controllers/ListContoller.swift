@@ -9,6 +9,7 @@
 import UIKit
 import Layoutless
 import TinyConstraints
+import RealmSwift
 class ListController: UIViewController {
     var creating = false;
     let bigTextField = UITextField()
@@ -18,6 +19,7 @@ class ListController: UIViewController {
     var lastKnowContentOfsset: CGFloat = 0
     var scrolledUp = false
     var tableViewTop : NSLayoutConstraint?
+    var listTitle = ""
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
@@ -32,24 +34,27 @@ class ListController: UIViewController {
     }
     
     func configureUI() {
+        configureNavBar()
         createTableHeader()
         createTableView()
     }
     func createTableHeader() {
         let headerView: UIView = UIView.init(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 100))
         view.addSubview(headerView)
-        if creating {
-            headerView.addSubview(bigTextField)
-            bigTextField.becomeFirstResponder()
-            bigTextField.font = UIFont(name: "OpenSans-Regular", size: 40)
-            
-            bigTextField.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20).isActive = true
-            bigTextField.centerY(to: headerView)
-            bigTextField.height(100)
-            bigTextField.placeholder = "Untitled List"
-            bigTextField.textColor = .black
-            bigTextField.text = "Fasfsa"
+        headerView.addSubview(bigTextField)
+        bigTextField.becomeFirstResponder()
+        bigTextField.delegate = self
+        bigTextField.font = UIFont(name: "OpenSans-Regular", size: 40)
+        bigTextField.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20).isActive = true
+        bigTextField.centerY(to: headerView)
+        bigTextField.height(100)
+        bigTextField.placeholder = "Untitled List"
+        bigTextField.textColor = .black
+        bigTextField.text = "Untitled List"
+        if !creating {
+            bigTextField.isUserInteractionEnabled = false
         }
+        
         self.tableView.tableHeaderView = headerView
     }
     func createTableView(top: CGFloat = -10) {
@@ -80,17 +85,14 @@ class ListController: UIViewController {
         if let swipeGesture = gesture as? UISwipeGestureRecognizer {
 
             switch swipeGesture.direction {
-            case .right:
-                print("Swiped right")
             case .down:
-                print("Swiped down")
                 self.tableView.tableHeaderView?.isHidden = false
                 tableViewTop?.constant = -10
-            case .left:
-                print("Swiped left")
+                self.navigationItem.title = ""
             case .up:
                 self.tableView.tableHeaderView?.isHidden = true
-                tableViewTop?.constant = -70
+                tableViewTop?.constant = -100
+                self.navigationItem.title = listTitle
             default:
                 break
             }
@@ -98,17 +100,40 @@ class ListController: UIViewController {
     }
     
     func configureNavBar() {
-          titleLabel.textColor = UIColor.white
-          titleLabel.text = ""
-          titleLabel.font = UIFont(name: "OpenSans-Regular", size: 18)
-          self.navigationItem.leftBarButtonItem = UIBarButtonItem.init(customView: titleLabel)
-          titleLabel.textColor = .blue
-          navigationController?.navigationBar.barTintColor = .white
-      }
-    
-    
+//          titleLabel.font = UIFont(name: "OpenSans-Regular", size: 18)
+//          self.navigationItem.leftBarButtonItem = UIBarButtonItem.init(customView: titleLabel)
+//          titleLabel.textColor = .blue
+//          navigationController?.navigationBar.barTintColor = .white
+    }
+}
+//MARK: - UITextField
+extension ListController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+           switch textField {
+           case bigTextField:
+               listTitle = bigTextField.text ?? "Untitled List"
+               bigTextField.resignFirstResponder()
+               bigTextField.isUserInteractionEnabled = false
+               let list = ListObject()
+               list.name = listTitle
+               //need to update realmData, maybe send notification
+               list.position = (lists.count - 1) + 1
+               try! uiRealm.write {
+                 uiRealm.add(list)
+                
+               }
+           default:
+               break
+           }
+           return true
+       }
+
+       func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+           return true
+       }
 }
 
+//MARK: - TableView
 extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
             return true

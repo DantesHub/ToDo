@@ -27,6 +27,9 @@
 		FEAEAE602527C0D9003FD07D /* ListContoller.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAEAE5F2527C0D9003FD07D /* ListContoller.swift */; };
 		FEAEAE62252BBAA2003FD07D /* MainMenuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAEAE61252BBAA2003FD07D /* MainMenuCell.swift */; };
 		FEAEAE64252BC141003FD07D /* MainMenuTop.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEAEAE63252BC141003FD07D /* MainMenuTop.swift */; };
+		FEBC2480253667390073EBB1 /* PopUpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBC247F253667390073EBB1 /* PopUpController.swift */; };
+		FEBC2483253668580073EBB1 /* MainPopUpcell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBC2482253668580073EBB1 /* MainPopUpcell.swift */; };
+		FEBC2485253668970073EBB1 /* BaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBC2484253668970073EBB1 /* BaseCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +57,9 @@
 		FEAEAE5F2527C0D9003FD07D /* ListContoller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListContoller.swift; sourceTree = "<group>"; };
 		FEAEAE61252BBAA2003FD07D /* MainMenuCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuCell.swift; sourceTree = "<group>"; };
 		FEAEAE63252BC141003FD07D /* MainMenuTop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuTop.swift; sourceTree = "<group>"; };
+		FEBC247F253667390073EBB1 /* PopUpController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpController.swift; sourceTree = "<group>"; };
+		FEBC2482253668580073EBB1 /* MainPopUpcell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPopUpcell.swift; sourceTree = "<group>"; };
+		FEBC2484253668970073EBB1 /* BaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,9 +140,11 @@
 		FE7AE2CE25152C6C00D889DD /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				FEBC2481253668310073EBB1 /* MainView */,
 				FE7C7652252559FA000549A1 /* SelfSizedTableView.swift */,
 				FEAEAE5D2527B08F003FD07D /* HorizontalBorder.swift */,
 				FEAEAE61252BBAA2003FD07D /* MainMenuCell.swift */,
+				FEBC2484253668970073EBB1 /* BaseCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -144,7 +152,7 @@
 		FE7AE2CF25152C7D00D889DD /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				FE7AE2BA25152A0300D889DD /* MainViewController.swift */,
+				FEBC247E253667130073EBB1 /* MainView */,
 				FE7AE2E12516821600D889DD /* ListGroupView.swift */,
 				FEAEAE5F2527C0D9003FD07D /* ListContoller.swift */,
 			);
@@ -176,6 +184,23 @@
 				FE7AE2DD2515595100D889DD /* List.swift */,
 			);
 			path = RealmObjects;
+			sourceTree = "<group>";
+		};
+		FEBC247E253667130073EBB1 /* MainView */ = {
+			isa = PBXGroup;
+			children = (
+				FE7AE2BA25152A0300D889DD /* MainViewController.swift */,
+				FEBC247F253667390073EBB1 /* PopUpController.swift */,
+			);
+			path = MainView;
+			sourceTree = "<group>";
+		};
+		FEBC2481253668310073EBB1 /* MainView */ = {
+			isa = PBXGroup;
+			children = (
+				FEBC2482253668580073EBB1 /* MainPopUpcell.swift */,
+			);
+			path = MainView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -298,14 +323,17 @@
 				FEAEAE64252BC141003FD07D /* MainMenuTop.swift in Sources */,
 				FEAEAE62252BBAA2003FD07D /* MainMenuCell.swift in Sources */,
 				FE7AE2D225152E9700D889DD /* Constants.swift in Sources */,
+				FEBC2485253668970073EBB1 /* BaseCell.swift in Sources */,
 				FE7AE2E22516821600D889DD /* ListGroupView.swift in Sources */,
 				FEAEAE5E2527B08F003FD07D /* HorizontalBorder.swift in Sources */,
 				FE7AE2DE2515595100D889DD /* List.swift in Sources */,
 				FEAEAE602527C0D9003FD07D /* ListContoller.swift in Sources */,
 				FE7AE2D425152ED300D889DD /* Extensions.swift in Sources */,
+				FEBC2480253667390073EBB1 /* PopUpController.swift in Sources */,
 				FE7AE2BB25152A0300D889DD /* MainViewController.swift in Sources */,
 				FE7AE2B725152A0300D889DD /* AppDelegate.swift in Sources */,
 				FE7C7653252559FA000549A1 /* SelfSizedTableView.swift in Sources */,
+				FEBC2483253668580073EBB1 /* MainPopUpcell.swift in Sources */,
 				FE7AE2DC2515586D00D889DD /* ListGroup.swift in Sources */,
 				FE7AE2B925152A0300D889DD /* SceneDelegate.swift in Sources */,
 				FE7AE2C125152A0300D889DD /* Todo.xcdatamodeld in Sources */,
