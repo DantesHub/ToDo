@@ -14,7 +14,12 @@ import RealmSwift
 import Realm
 var lists = [ListObject]()
 var defaultColor = UIColor.blue
-class MainViewController: UIViewController {
+protocol MainViewDelegate {
+    func reloadTableView()
+}
+class MainViewController: UIViewController, ReloadDelegate {
+
+    
     //MARK: - instace variables
     var topTableView = SelfSizedTableView()
     var listTableView = SelfSizedTableView()
@@ -61,6 +66,13 @@ class MainViewController: UIViewController {
 
     
     //MARK: - helper functions
+    func reloadTableView() {
+        print("reloaded")
+        getRealmData()
+        listTableView.reloadData()
+        groupTableView.reloadData()
+    }
+    
     func getRealmData() {
         groups = []
         lists = []
@@ -72,7 +84,6 @@ class MainViewController: UIViewController {
         for result in listResults {
             lists.append(result)
         }
-        print(listResults)
     }
     func configureUI() {
         view.backgroundColor = .white
@@ -229,7 +240,7 @@ class MainViewController: UIViewController {
         groupTableView.dragDelegate = self
         groupTableView.dropDelegate = self
         groupTableView.backgroundColor = .white
-        groupTableView.rowHeight = 70
+        groupTableView.rowHeight = 50
         groupTableView.allowsSelection = false
         groupTableView.separatorStyle = .none
     }
@@ -275,6 +286,7 @@ class MainViewController: UIViewController {
     }
     @objc func tappedAddList() {
         let controller = ListController()
+        controller.reloadDelegate = self
         controller.creating = true;
 //        let CreateListController = UINavigationController(rootViewController: controller)
 //        CreateListController.modalPresentationStyle = .fullScreen
@@ -294,13 +306,11 @@ class MainViewController: UIViewController {
         stackView.removeArrangedSubview(groupTableView)
         stackView.removeArrangedSubview(groupHeader)
         if isListsExpanded {
-            print("shine")
             listArw.image = listArw.image?.rotate(radians: .pi/2)
             listTableView.insertRows(at: indexPaths, with: .fade)
             listTableView.invalidateIntrinsicContentSize()
             createGroupSection()
         } else {
-            print("brave")
             listArw.image = listArw.image?.rotate(radians: -.pi/2)
             listTableView.deleteRows(at: indexPaths, with: .fade)
             listTableView.invalidateIntrinsicContentSize()
@@ -395,6 +405,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             
             
             let elips = UIButton(type: .custom)
+            elips.accessibilityIdentifier = groups[section].name
             groupHeader.addSubview(elips)
             elips.setImage(UIImage(named: "ellipsis")?.resize(targetSize: CGSize(width: 18, height: 18)), for: UIControl.State.normal)
             elips.addTarget(self, action: #selector(groupElipsTapped), for: UIControl.Event.touchDown)
@@ -429,31 +440,12 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == topTableView {
-            print("topper")
         } else if tableView == listTableView {
-            print("tapping")
-            let results = uiRealm.objects(ListGroup.self)
-            let resutls2 = uiRealm.objects(ListObject.self)
-            for result in results {
-                if result.name == "bingo" {
-                    for list in resutls2 {
-                        if list.name == "fsdaf" {
-                            print("added")
-                            try! uiRealm.write {
-                                result.lists.append(list)
-                            }
-                        }
-                    }
-                
-                }
-            }
-            
         }
     }
     
 
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-        print(indexPath.section)
         pickUp = tableView
         if tableView == listTableView {
             return lists.dragItems(for: indexPath)

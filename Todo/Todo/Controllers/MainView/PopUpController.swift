@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-
+var selectedGroup: ListGroup?
 extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 2
@@ -27,7 +27,12 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.row == 0 {
-            print("tapped add")
+            let listGroupTableView = AddListToGroupTableView(frame: view.bounds)
+            listGroupTableView.reloadDelegate = self
+            slideUpViewTapped()
+            view.addSubview(listGroupTableView)
+        } else {
+            //tapped rename group
         }
     }
     
@@ -36,7 +41,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     
-      @objc func groupElipsTapped() {
+    @objc func groupElipsTapped(button: UIButton) {
         let window = UIApplication.shared.keyWindow
         containerView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
         containerView.frame = self.view.frame
@@ -62,7 +67,12 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
           let tapGesture = UITapGestureRecognizer(target: self,
                             action: #selector(slideUpViewTapped))
           containerView.addGestureRecognizer(tapGesture)
-          
+        let groupResults = uiRealm.objects(ListGroup.self)
+        for group in groupResults {
+            if group.name == button.accessibilityIdentifier {
+                selectedGroup = group
+            }
+        }
       }
       
       @objc func slideUpViewTapped() {

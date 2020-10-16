@@ -10,7 +10,11 @@ import UIKit
 import Layoutless
 import TinyConstraints
 import RealmSwift
+protocol ReloadDelegate {
+    func reloadTableView()
+}
 class ListController: UIViewController {
+    var reloadDelegate: ReloadDelegate?
     var creating = false;
     let bigTextField = UITextField()
     let titleLabel = UILabel()
@@ -20,6 +24,7 @@ class ListController: UIViewController {
     var scrolledUp = false
     var tableViewTop : NSLayoutConstraint?
     var listTitle = ""
+    var nameTaken = false
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
@@ -112,16 +117,33 @@ extension ListController: UITextFieldDelegate {
            switch textField {
            case bigTextField:
                listTitle = bigTextField.text ?? "Untitled List"
-               bigTextField.resignFirstResponder()
-               bigTextField.isUserInteractionEnabled = false
                let list = ListObject()
                list.name = listTitle
                //need to update realmData, maybe send notification
                list.position = (lists.count - 1) + 1
-               try! uiRealm.write {
-                 uiRealm.add(list)
-                
+               let results = uiRealm.objects(ListObject.self)
+               nameTaken = false
+               for result in results {
+                if result.name == list.name {
+                  //we need to tell user that name is taken
+                  nameTaken = true
+                  let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
+                    let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
+                            (action : UIAlertAction!) -> Void in })
+
+                    alertController.addAction(okayAction)
+                    self.present(alertController, animated: true, completion: nil)
+                }
                }
+               if !nameTaken {
+                bigTextField.resignFirstResponder()
+                bigTextField.isUserInteractionEnabled = false
+                try! uiRealm.write {
+                    uiRealm.add(list)
+                }
+                reloadDelegate?.reloadTableView()
+            }
+            
            default:
                break
            }
