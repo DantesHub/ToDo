@@ -12,6 +12,7 @@ import RealmSwift
 import Realm
 var uiRealm = try! Realm()
 @UIApplicationMain
+
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 

@@ -9,30 +9,39 @@
 import Foundation
 import RealmSwift
 import MobileCoreServices
+import RealmSwift
 class ListObject: Object {
     @objc dynamic var name = ""
     @objc dynamic var position = 0
-    dynamic var groupPositions = [GroupPositions]()
-    dynamic var id = UUID()
-    
-//    override static func primaryKey() -> String? {
-//        return "name"
-//    }
+    var groupPositions = List<GroupPosition>()
 }
 
 
 
-class GroupPositions: Object {
+class GroupPosition: Object {
     @objc dynamic var groupName = ""
     @objc dynamic var groupPosition = 0
 }
+
 extension Array where Element == ListObject {
     /// The traditional method for rearranging rows in a table view.
     func moveItem(at sourceIndex: Int, to destinationIndex: Int) {
         guard sourceIndex != destinationIndex else { return }
         let place = lists[sourceIndex]
+        let results = uiRealm.objects(ListObject.self)
         lists.remove(at: sourceIndex)
         lists.insert(place, at: destinationIndex)
+        for result in results {
+            if result.position == sourceIndex {
+                try! uiRealm.write {
+                    result.position = destinationIndex
+                }
+            } else if result.position == destinationIndex {
+                try! uiRealm.write {
+                    result.position = sourceIndex
+                }
+            }
+        }
     }
     
     /// The method for adding a new item to the table view's data model.

@@ -18,8 +18,6 @@ protocol MainViewDelegate {
     func reloadTableView()
 }
 class MainViewController: UIViewController, ReloadDelegate {
-
-    
     //MARK: - instace variables
     var topTableView = SelfSizedTableView()
     var listTableView = SelfSizedTableView()
@@ -54,6 +52,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         cv.backgroundColor = .white
         return cv
     }()
+    var selectedGroupName = ""
     //MARK: - instantiate
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,7 +66,6 @@ class MainViewController: UIViewController, ReloadDelegate {
     
     //MARK: - helper functions
     func reloadTableView() {
-        print("reloaded")
         getRealmData()
         listTableView.reloadData()
         groupTableView.reloadData()
@@ -76,14 +74,32 @@ class MainViewController: UIViewController, ReloadDelegate {
     func getRealmData() {
         groups = []
         lists = []
-        let results = uiRealm.objects(ListGroup.self)
+        var results = uiRealm.objects(ListGroup.self)
+        results = results.sorted(byKeyPath: "position", ascending: true)
         for result in results {
+            let groupList = List<ListObject>()
+            for _ in 0..<result.lists.count {
+                groupList.append(ListObject())
+            }
+            for list in result.lists {
+                for position in list.groupPositions {
+                    if position.groupName == result.name {
+                        groupList[position.groupPosition] = list
+                        print(groupList)
+                    }
+                }
+            }
+            try! uiRealm.write {
+                result.lists = groupList
+            }
             groups.append(result)
         }
         let listResults = uiRealm.objects(ListObject.self)
-        for result in listResults {
-            lists.append(result)
+        let sortedListResults = listResults.sorted {
+             $0.position < $1.position
         }
+        lists = sortedListResults.map { $0 }
+
     }
     func configureUI() {
         view.backgroundColor = .white
@@ -392,7 +408,6 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             label.font = UIFont(name: "OpenSans-Bold", size: 16)
             label.textColor = .black
             label.leadingAnchor.constraint(equalTo: folderImage.leadingAnchor, constant: 40).isActive = true
-            print(groups[section].name)
             label.text = groups[section].name
             
             let arw = UIButton(type: .custom)
@@ -450,7 +465,8 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
         if tableView == listTableView {
             return lists.dragItems(for: indexPath)
         } else {
-            return model2.dragSections(for: indexPath.section)
+            selectedGroupName = groups[indexPath.section].name
+            return groups.dragSections(for: indexPath.section)
         }
     }
     
@@ -517,7 +533,29 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
     //        return true
     //    }
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        lists.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
+        if tableView == listTableView {
+            lists.moveItem(at: sourceIndexPath.row, to: destinationIndexPath.row)
+        } else if tableView == groupTableView {
+            let results = uiRealm.objects(ListObject.self)
+            //updating list positions within groups
+            for result in results {
+                //traverse through all groups the list is part of
+                for position in result.groupPositions {
+                    if position.groupName == selectedGroupName {
+                        if position.groupPosition == sourceIndexPath[1] {
+                            try! uiRealm.write {
+                                position.groupPosition = destinationIndexPath[1]
+                            }
+                        } else if position.groupPosition == destinationIndexPath[1] {
+                            try! uiRealm.write {
+                                position.groupPosition = sourceIndexPath[1]
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
     }
     
     

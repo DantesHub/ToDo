@@ -12,6 +12,7 @@ var listDictionary = [ListCell]()
 class AddListToGroupTableView: UIView, CustomCellUpdater {
     //MARK: - Views + Properties
     var results: Results<ListObject>!
+    
     var isSearchBarEmpty: Bool {
       return searchBar.text?.isEmpty ?? true
     }
@@ -95,20 +96,51 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
     }
     
     func updateRealm(list: ListCell) {
+        let groupResults = uiRealm.objects(ListGroup.self)
+        var removedIndex = 0
         for result  in results {
                 do {
                     if result.name == list.name {
-                        print("over here")
                         try uiRealm.write {
                             if list.selected == true {
-                                print("already selected")//remove list
+                                //remove list
                                 for (index,listInGroup) in selectedGroup!.lists.enumerated() {
                                     if result.name == listInGroup.name {
+                                        for (idx,position) in result.groupPositions.enumerated() {
+                                            if position.groupName == selectedGroup!.name {
+                                                let groupPos = uiRealm.objects(GroupPosition.self)
+                                            
+                                                result.groupPositions.remove(at: idx)
+                                                
+                                            }
+                                        }
+                                     
+                                        removedIndex = index
                                         selectedGroup?.lists.remove(at: index)
+                                    }
+                                   
+                                }
+                              
+                                for listInGroup in selectedGroup!.lists {
+                                    for groupPosition in listInGroup.groupPositions {
+                                        if groupPosition.groupPosition > removedIndex && groupPosition.groupName == selectedGroup!.name {
+                                            print("over here")
+                                            groupPosition.groupPosition -= 1
+                                        }
                                     }
                                 }
                             } else { //add list
-                                print(selectedGroup?.name ?? "baka")
+                                print("fdafasdf")
+                                var count = 0
+                                for groupResult in groupResults {
+                                    if groupResult.name == selectedGroup?.name {
+                                        count = selectedGroup?.lists.count as! Int
+                                    }
+                                }
+                                let groupPosition = GroupPosition()
+                                groupPosition.groupName = selectedGroup?.name as! String
+                                groupPosition.groupPosition = count
+                                result.groupPositions.append(groupPosition)
                                 selectedGroup?.lists.append(result)
                             }
                         }

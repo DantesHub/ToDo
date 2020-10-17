@@ -27,8 +27,8 @@ extension ListGroup {
 //           modelList2.remove(at: sourceIndex)
 //           modelList2.insert(place, at: destinationIndex)
 //       }
-//
-//       /// The method for adding a new item to the table view's data model.
+
+       /// The method for adding a new item to the table view's data model.
 //       mutating func addItem(_ place: GroupList, at index: Int) {
 //           modelList2.insert(place, at: index)
 //       }
@@ -59,12 +59,15 @@ extension ListGroup {
                UIDragItem(itemProvider: itemProvider)
            ]
        }
+
+}
+extension Array where Element == ListGroup {
     func dragSections(for section: Int) -> [UIDragItem] {
         let placeName = lists[section].name
 
             let data = placeName.data(using: .utf8)
             let itemProvider = NSItemProvider()
-            
+
             itemProvider.registerDataRepresentation(forTypeIdentifier: kUTTypePlainText as String, visibility: .all) { completion in
                 completion(data, nil)
                 return nil
@@ -75,3 +78,4 @@ extension ListGroup {
             ]
     }
 }
+
