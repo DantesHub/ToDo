@@ -23,7 +23,7 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
     var searchBar: UISearchBar! = UISearchBar()
     var isFiltering: Bool = false
 
-     //MARK: - Inita=
+     //MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
         overrideUserInterfaceStyle = .light
@@ -98,39 +98,56 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
     func updateRealm(list: ListCell) {
         let groupResults = uiRealm.objects(ListGroup.self)
         var removedIndex = 0
+        let groupPos = uiRealm.objects(GroupPosition.self)
         for result  in results {
                 do {
+                    
                     if result.name == list.name {
                         try uiRealm.write {
                             if list.selected == true {
                                 //remove list
-                                for (index,listInGroup) in selectedGroup!.lists.enumerated() {
-                                    if result.name == listInGroup.name {
-                                        for (idx,position) in result.groupPositions.enumerated() {
-                                            if position.groupName == selectedGroup!.name {
-                                                let groupPos = uiRealm.objects(GroupPosition.self)
-                                            
-                                                result.groupPositions.remove(at: idx)
-                                                
+                                for (indx,position) in result.groupPositions.enumerated() {
+                                    if position.groupName == selectedGroup!.name {
+                                        removedIndex = result.groupPositions[indx].groupPosition
+                                        
+                                        //selectedGroup lists are not in order which is why we have to loop through it in order
+                                        //to find the exact list with exact groupposition and group name
+                                        var i = 0
+                                        selectedGroup?.lists.forEach{
+                                            for poz in $0.groupPositions {
+                                                if poz.groupPosition == removedIndex && poz.groupName == selectedGroup?.name {
+                                                    selectedGroup?.lists.remove(at: i)
+                                                }
+                                            }
+                                            i += 1
+                                        }
+                                        //remove from group position list in realm, otherwise it would save all group positions even
+                                        //though we removed it from the lists group positions
+                                        for (_, groupPosition) in groupPos.enumerated() {
+                                            if groupPosition.groupName == selectedGroup?.name && groupPosition.groupPosition == removedIndex {
+                                                uiRealm.delete(groupPosition)
                                             }
                                         }
-                                     
-                                        removedIndex = index
-                                        selectedGroup?.lists.remove(at: index)
                                     }
-                                   
                                 }
-                              
+                                  
+                                //update group positions that we bigger than the group position that was just deleted.
                                 for listInGroup in selectedGroup!.lists {
                                     for groupPosition in listInGroup.groupPositions {
                                         if groupPosition.groupPosition > removedIndex && groupPosition.groupName == selectedGroup!.name {
-                                            print("over here")
                                             groupPosition.groupPosition -= 1
                                         }
                                     }
                                 }
+                                //too handle expand close
+                                if (selectedGroup?.lists.count)! > 0 {
+                                        selectedGroup?.isExpanded = true
+                                    
+                                } else {
+                                        selectedGroup?.isExpanded = false
+    
+                                }
                             } else { //add list
-                                print("fdafasdf")
                                 var count = 0
                                 for groupResult in groupResults {
                                     if groupResult.name == selectedGroup?.name {
@@ -142,6 +159,7 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
                                 groupPosition.groupPosition = count
                                 result.groupPositions.append(groupPosition)
                                 selectedGroup?.lists.append(result)
+                                    selectedGroup?.isExpanded = true
                             }
                         }
                     }
@@ -176,15 +194,7 @@ extension AddListToGroupTableView: UITableViewDataSource, UITableViewDelegate{
         return cell
     }
    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    if let cell = tableView.cellForRow(at: indexPath) {
-        if listDictionary[indexPath.row].selected == false {
-            cell.imageView!.image = UIImage(named: "plus")?.resize(targetSize: CGSize(width: 25, height: 25))
-        } else {
-            cell.imageView!.image = UIImage(named: "star")?.resize(targetSize: CGSize(width: 25, height: 25))
-        }
-                updateRealm(list: listDictionary[indexPath.row])
-       }
-    
+            updateRealm(list: listDictionary[indexPath.row])
    }
 
    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {

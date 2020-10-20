@@ -1,15 +1,15 @@
 //
-//  MainMenuCell.swift
+//  GroupCell.swift
 //  Todo
 //
-//  Created by Dante Kim on 10/5/20.
+//  Created by Dante Kim on 10/19/20.
 //  Copyright © 2020 Alarm & Calm. All rights reserved.
 //
 
-import UIKit
+import Foundation
 import TinyConstraints
 
-class MainMenuCell: UITableViewCell {
+class GroupCell: UITableViewCell {
     var cellImage = UIImageView()
     var cellTitle = UILabel()
     var count = UILabel()
@@ -20,16 +20,16 @@ class MainMenuCell: UITableViewCell {
         self.addSubview(cellTitle)
         self.addSubview(count)
         
-        cellImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
+        cellImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: self.frame.width * 0.16).isActive = true
         cellImage.centerY(to: self)
         
-        cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: 20).isActive = true
+        cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: 5).isActive = true
         cellTitle.centerY(to: self)
-        cellTitle.font = UIFont(name: "OpenSans-Regular", size: 20)
+        cellTitle.font = UIFont(name: "OpenSans-Regular", size: 13)
         cellTitle.textColor = UIColor.black
         
         count.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
-        count.font = UIFont(name: "OpenSans-Regular", size: 15)
+        count.font = UIFont(name: "OpenSans-Regular", size: 10)
         count.text = "2"
         count.textColor = UIColor.gray
         count.centerY(to: self)
@@ -40,3 +40,4 @@ class MainMenuCell: UITableViewCell {
     }
 
 }
+

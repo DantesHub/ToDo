@@ -23,6 +23,7 @@ class MainViewController: UIViewController, ReloadDelegate {
     var listTableView = SelfSizedTableView()
     var groupTableView = SelfSizedTableView()
     var pickUp = UITableView()
+    var pickUpSection = 0
     var testArray = ["Fdafasd", "fdafas", "fdasf"]
     var isGroupsExpanded = true
     var isListsExpanded = true
@@ -85,13 +86,13 @@ class MainViewController: UIViewController, ReloadDelegate {
                 for position in list.groupPositions {
                     if position.groupName == result.name {
                         groupList[position.groupPosition] = list
-                        print(groupList)
-                    }
+                 }
                 }
             }
             try! uiRealm.write {
                 result.lists = groupList
             }
+            
             groups.append(result)
         }
         let listResults = uiRealm.objects(ListObject.self)
@@ -126,8 +127,8 @@ class MainViewController: UIViewController, ReloadDelegate {
         topTableView.register(MainMenuCell.self, forCellReuseIdentifier: "topCell")
         topTableView.dataSource = self
         topTableView.delegate = self
-        topTableView.rowHeight = 70
-        topTableView.height(210)
+        topTableView.rowHeight = 60
+        topTableView.height(180)
         topTableView.allowsSelection = true
         topTableView.separatorStyle = .none
         topTableView.isScrollEnabled = false
@@ -248,7 +249,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         groupHeader.addSubview(hr)
         
         stackView.addArrangedSubview(groupTableView)
-        groupTableView.register(UITableViewCell.self, forCellReuseIdentifier: "groupCell")
+        groupTableView.register(GroupCell.self, forCellReuseIdentifier: "groupCell")
         groupTableView.dataSource = self
         groupTableView.delegate = self
         groupTableView.dragInteractionEnabled = true // Enable intra-app drags for iPhone.
@@ -256,7 +257,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         groupTableView.dragDelegate = self
         groupTableView.dropDelegate = self
         groupTableView.backgroundColor = .white
-        groupTableView.rowHeight = 50
+        groupTableView.rowHeight = 40
         groupTableView.allowsSelection = false
         groupTableView.separatorStyle = .none
     }
@@ -264,7 +265,7 @@ class MainViewController: UIViewController, ReloadDelegate {
 
     func createListSection() {
         stackView.addArrangedSubview(listTableView)
-        listTableView.register(UITableViewCell.self, forCellReuseIdentifier: "listCell")
+        listTableView.register(MainMenuCell.self, forCellReuseIdentifier: "listCell")
         listTableView.dataSource = self
         listTableView.delegate = self
         listTableView.dragInteractionEnabled = true // Enable intra-app drags for iPhone.
@@ -304,9 +305,6 @@ class MainViewController: UIViewController, ReloadDelegate {
         let controller = ListController()
         controller.reloadDelegate = self
         controller.creating = true;
-//        let CreateListController = UINavigationController(rootViewController: controller)
-//        CreateListController.modalPresentationStyle = .fullScreen
-//        present(CreateListController,animated: true)
         controller.navigationController?.isNavigationBarHidden = false
         self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
         self.navigationController?.pushViewController(controller, animated: false)
@@ -412,12 +410,17 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             
             let arw = UIButton(type: .custom)
             groupHeader.addSubview(arw)
-            arw.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi), for: UIControl.State.normal)
+            
             arw.tag = section
             arw.addTarget(self, action: #selector(groupExpandClose), for: UIControl.Event.touchDown)
             arw.centerY(to: groupHeader)
             arw.trailingAnchor.constraint(equalTo: groupHeader.trailingAnchor, constant: -20).isActive = true
             
+            if groups[section].isExpanded {
+                arw.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi), for: UIControl.State.normal)
+            } else {
+                 arw.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi/2), for: UIControl.State.normal)
+            }
             
             let elips = UIButton(type: .custom)
             elips.accessibilityIdentifier = groups[section].name
@@ -437,16 +440,24 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         if tableView == listTableView {
-            let cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "listCell")
-            cell.textLabel?.text = lists[indexPath.row].name
+            let cell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath) as! MainMenuCell
+            cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 25, height: 25))
+            cell.cellTitle.text = lists[indexPath.row].name
+            cell.selectionStyle = .none
             return cell
         } else if tableView == groupTableView {
-            let cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "groupCell")
-            cell.textLabel?.text = groups[indexPath.section].lists[indexPath.row].name
+            let cell = tableView.dequeueReusableCell(withIdentifier: "groupCell", for: indexPath) as! GroupCell
+            cell.cellTitle.text = groups[indexPath.section].lists[indexPath.row].name
+            cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 22, height: 22))
+            cell.selectionStyle = .none
             return cell
         } else {//topTableView
             let cell = tableView.dequeueReusableCell(withIdentifier: "topCell", for: indexPath) as! MainMenuCell
-            cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 25, height: 25))
+            if indexPath.row == 0 {
+                cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 25, height: 25))
+            } else {
+                cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 30, height: 30))
+            }
             cell.cellTitle.text = topList[indexPath.row].title
             cell.selectionStyle = .none
             return cell
@@ -462,6 +473,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
 
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
         pickUp = tableView
+        pickUpSection = indexPath.section
         if tableView == listTableView {
             return lists.dragItems(for: indexPath)
         } else {
@@ -485,6 +497,8 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
             } else {
                 if(pickUp != tableView) {
                     return UITableViewDropProposal(operation: .cancel)
+                } else if pickUpSection != destinationIndexPath?.section {
+                    return UITableViewDropProposal(operation: .cancel)
                 } else {
                     return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
                 }
@@ -494,6 +508,26 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
                 return UITableViewDropProposal(operation: .cancel)
             }
             return UITableViewDropProposal(operation: .copy, intent: .insertAtDestinationIndexPath)
+        }
+        
+    }
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if tableView == listTableView {
+            if editingStyle == .delete {
+                lists.remove(at: indexPath.row)
+                listTableView.deleteRows(at: [indexPath], with: .fade)
+                let lists = uiRealm.objects(ListObject.self)
+                print("deleting")
+                try! uiRealm.write {
+                    for list in lists {
+                        print(lists[indexPath.row].name)
+                        if list.name == lists[indexPath.row].name {
+                            print(list.name)
+                            uiRealm.delete(list)
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -569,6 +603,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
 
     
     @objc func groupExpandClose(button: UIButton) {
+        print("expanding")
         let section = button.tag
         // we'll try to close the section first by deleting the rows
         var indexPaths = [IndexPath]()

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		BDAFC2B71396B848F6040489 /* Pods_Todo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC224B300A3C47D415FA08A4 /* Pods_Todo.framework */; };
+		FE76790E253E3B9500012A59 /* GroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE76790D253E3B9500012A59 /* GroupCell.swift */; };
 		FE77193E2537813D00131A5D /* AddListToGroupTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE77193D2537813D00131A5D /* AddListToGroupTableView.swift */; };
 		FE7719402537973B00131A5D /* AddListToGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE77193F2537973B00131A5D /* AddListToGroupCell.swift */; };
 		FE7AE2B725152A0300D889DD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7AE2B625152A0300D889DD /* AppDelegate.swift */; };
@@ -37,6 +38,7 @@
 		B66C9727C6DA1280C1985888 /* Pods-Todo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Todo.release.xcconfig"; path = "Target Support Files/Pods-Todo/Pods-Todo.release.xcconfig"; sourceTree = "<group>"; };
 		C482DCE78A1233CE8EC549E2 /* Pods-Todo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Todo.debug.xcconfig"; path = "Target Support Files/Pods-Todo/Pods-Todo.debug.xcconfig"; sourceTree = "<group>"; };
 		CC224B300A3C47D415FA08A4 /* Pods_Todo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Todo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FE76790D253E3B9500012A59 /* GroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCell.swift; sourceTree = "<group>"; };
 		FE77193D2537813D00131A5D /* AddListToGroupTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddListToGroupTableView.swift; sourceTree = "<group>"; };
 		FE77193F2537973B00131A5D /* AddListToGroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddListToGroupCell.swift; sourceTree = "<group>"; };
 		FE7AE2B325152A0300D889DD /* Todo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Todo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -145,7 +147,6 @@
 				FEBC2481253668310073EBB1 /* MainView */,
 				FE7C7652252559FA000549A1 /* SelfSizedTableView.swift */,
 				FEAEAE5D2527B08F003FD07D /* HorizontalBorder.swift */,
-				FEAEAE61252BBAA2003FD07D /* MainMenuCell.swift */,
 				FEBC2484253668970073EBB1 /* BaseCell.swift */,
 			);
 			path = Views;
@@ -199,6 +200,8 @@
 		FEBC2481253668310073EBB1 /* MainView */ = {
 			isa = PBXGroup;
 			children = (
+				FEAEAE61252BBAA2003FD07D /* MainMenuCell.swift */,
+				FE76790D253E3B9500012A59 /* GroupCell.swift */,
 				FEBC2482253668580073EBB1 /* MainPopUpcell.swift */,
 				FE77193D2537813D00131A5D /* AddListToGroupTableView.swift */,
 				FE77193F2537973B00131A5D /* AddListToGroupCell.swift */,
@@ -337,6 +340,7 @@
 				FE7AE2B725152A0300D889DD /* AppDelegate.swift in Sources */,
 				FE7C7653252559FA000549A1 /* SelfSizedTableView.swift in Sources */,
 				FEBC2483253668580073EBB1 /* MainPopUpcell.swift in Sources */,
+				FE76790E253E3B9500012A59 /* GroupCell.swift in Sources */,
 				FE77193E2537813D00131A5D /* AddListToGroupTableView.swift in Sources */,
 				FE7AE2DC2515586D00D889DD /* ListGroup.swift in Sources */,
 				FE7AE2B925152A0300D889DD /* SceneDelegate.swift in Sources */,

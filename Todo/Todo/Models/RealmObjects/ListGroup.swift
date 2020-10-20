@@ -15,7 +15,7 @@ import UIKit
 class ListGroup: Object {
     @objc dynamic var name = "Luigi"
     @objc dynamic var position = 0
-    @objc dynamic var isExpanded = true
+    @objc dynamic var isExpanded = false
     var lists = List<ListObject>()
 }
 
