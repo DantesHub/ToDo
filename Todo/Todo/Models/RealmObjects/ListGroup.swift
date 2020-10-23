@@ -63,7 +63,7 @@ extension ListGroup {
 }
 extension Array where Element == ListGroup {
     func dragSections(for section: Int) -> [UIDragItem] {
-        let placeName = lists[section].name
+        let placeName = groups[section].name
 
             let data = placeName.data(using: .utf8)
             let itemProvider = NSItemProvider()

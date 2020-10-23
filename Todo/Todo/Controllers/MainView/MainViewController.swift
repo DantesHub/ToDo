@@ -13,6 +13,8 @@ import Layoutless
 import RealmSwift
 import Realm
 var lists = [ListObject]()
+var groups = [ListGroup]()
+
 var defaultColor = UIColor.blue
 protocol MainViewDelegate {
     func reloadTableView()
@@ -44,7 +46,6 @@ class MainViewController: UIViewController, ReloadDelegate {
     let stackView = UIStackView()
     let footerView = UIView()
     let groupIV = UIImageView()
-    var groups = [ListGroup]()
     var containerView = UIView()
     var slideUpView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -92,7 +93,7 @@ class MainViewController: UIViewController, ReloadDelegate {
             try! uiRealm.write {
                 result.lists = groupList
             }
-            
+             
             groups.append(result)
         }
         let listResults = uiRealm.objects(ListObject.self)
@@ -286,7 +287,7 @@ class MainViewController: UIViewController, ReloadDelegate {
             let firstTextField = alertController.textFields![0] as UITextField
             let createdGroup = ListGroup()
             createdGroup.name = firstTextField.text ?? "Untitled Groupr"
-            createdGroup.position = (self.groups.count - 1) + 1
+            createdGroup.position = (groups.count - 1) + 1
             try! uiRealm.write {
                 uiRealm.add(createdGroup)
             }
@@ -438,10 +439,9 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         if tableView == listTableView {
             let cell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath) as! MainMenuCell
-            cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 25, height: 25))
+            cell.cellImage.image = UIImage(named: "star")?.resize(targetSize: CGSize(width: 25, height: 25))
             cell.cellTitle.text = lists[indexPath.row].name
             cell.selectionStyle = .none
             return cell
@@ -511,25 +511,110 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate, UITabl
         }
         
     }
+    func resetGroupPositions() {
+        let positions = uiRealm.objects(GroupPosition.self)
+        let groups = uiRealm.objects(ListGroup.self)
+        for group in groups {
+            for lst in group.lists {
+                for pos in lst.groupPositions {
+                    
+                }
+            }
+        }
+    }
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        let listName = lists[indexPath.row].name
         if tableView == listTableView {
             if editingStyle == .delete {
                 lists.remove(at: indexPath.row)
                 listTableView.deleteRows(at: [indexPath], with: .fade)
                 let lists = uiRealm.objects(ListObject.self)
-                print("deleting")
+                let positions = uiRealm.objects(GroupPosition.self)
+                var deletedPozs: [(pos: Int, name: String)] = []
                 try! uiRealm.write {
-                    for list in lists {
-                        print(lists[indexPath.row].name)
-                        if list.name == lists[indexPath.row].name {
-                            print(list.name)
+                    var deletedIndex = 0
+                    for (idx,list) in lists.enumerated() {
+                        if list.name == listName{
+                            deletedIndex = idx
+                            //delete group positions for deleted list
+                            for poz in list.groupPositions {
+                                for poz2 in positions {
+                                    if poz.groupName == poz2.groupName && poz.groupPosition == poz2.groupPosition {
+                                        deletedPozs.append((poz2.groupPosition, poz2.groupName))
+                                        uiRealm.delete(poz2)
+                                        break
+                                    }
+                                }
+                            
+                            }
                             uiRealm.delete(list)
+                            break
+                        }
+                    }
+                    //update group positions in group positions realm
+                    for pos in positions {
+                        for deletedPos in deletedPozs {
+                            if deletedPos.name == pos.groupName && pos.groupPosition > deletedPos.pos {
+                                pos.groupPosition -= 1
+                            }
+                        }
+                    }
+                    //update list positions in realm
+                    for list in lists {
+                        if list.position > deletedIndex {
+                            list.position -= 1
+                        }
+                    }
+                }
+            }
+            getRealmData()
+            groupTableView.reloadData()
+        } else if tableView == groupTableView {
+            let selectedGroupName = groups[indexPath.section].name
+            let selectedListName = groups[indexPath.section].lists[indexPath.row].name
+            if editingStyle == .delete {
+                            groups[indexPath.section].lists.remove(at: indexPath.row)
+                           groupTableView.deleteRows(at: [indexPath], with: .fade)
+                let groups = uiRealm.objects(ListGroup.self)
+                let groupPositions = uiRealm.objects(GroupPosition.self)
+                try! uiRealm.write {
+                    for group in groups {
+                        if group.name == selectedGroupName {
+                            for (idx, lst) in group.lists.enumerated() {
+                                if lst.name == selectedListName { //remove selected list idx
+                                    var i = 0
+                                    group.lists.forEach{
+                                        for poz in $0.groupPositions {
+                                            if poz.groupPosition == idx
+                                                && poz.groupName == selectedGroupName {
+                                                group.lists.remove(at: i)
+                                            }
+                                        }
+                                        i += 1
+                                    }
+                                    print(idx)
+                                    for position in groupPositions {
+                                        if position.groupPosition == idx && position.groupName == selectedGroupName {
+                                            uiRealm.delete(position)
+                                        }
+                                    }
+                                    for listInGroup in group.lists {
+                                        for groupPosition in listInGroup.groupPositions {
+                                            if groupPosition.groupPosition > idx && groupPosition.groupName == selectedGroupName {
+                                                groupPosition.groupPosition -= 1
+                                            }
+                                        }
+                                    }
+                                }
+                               
+                            }
                         }
                     }
                 }
             }
         }
     }
+    
     
     /**
      This delegate method is the only opportunity for accessing and loading
