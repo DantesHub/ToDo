@@ -8,10 +8,12 @@
 
 import Foundation
 import UIKit
+import RealmSwift
+
 var selectedGroup: ListGroup?
 extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 2
+        return 3
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -19,9 +21,12 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
         if indexPath.row == 0 {
             cell.icon.image = UIImage(named: "plus")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
             cell.nameLabel.text = "Add List"
-        } else {
+        } else if indexPath.row == 1 {
             cell.icon.image = UIImage(named: "edit")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
             cell.nameLabel.text = "Edit Group Name"
+        } else {
+            cell.icon.image = UIImage(named: "close")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
+            cell.nameLabel.text = "Delete Group"
         }
         return cell
     }
@@ -31,8 +36,28 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
             listGroupTableView.reloadDelegate = self
             slideUpViewTapped()
             view.addSubview(listGroupTableView)
-        } else {
+        } else if indexPath.row == 1{
             //tapped rename group
+        } else {
+            let groups = uiRealm.objects(ListGroup.self)
+            let positions = uiRealm.objects(GroupPosition.self)
+            
+            try! uiRealm.write {
+                for pos in positions {
+                    if pos.groupName == selectedGroup?.name {
+                        uiRealm.delete(pos)
+                    }
+                }
+                for group in groups {
+                    if group.name == selectedGroup!.name {
+                        uiRealm.delete(group)
+                        break
+                    }
+                }
+             
+            }
+            self.getRealmData()
+            slideUpViewTapped()
         }
     }
     

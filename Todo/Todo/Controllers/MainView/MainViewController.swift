@@ -69,8 +69,6 @@ class MainViewController: UIViewController, ReloadDelegate {
     //MARK: - helper functions
     func reloadTableView() {
         getRealmData()
-        listTableView.reloadData()
-        groupTableView.reloadData()
     }
     
     func getRealmData() {
@@ -101,7 +99,8 @@ class MainViewController: UIViewController, ReloadDelegate {
              $0.position < $1.position
         }
         lists = sortedListResults.map { $0 }
-
+        groupTableView.reloadData()
+        listTableView.reloadData()
     }
     func configureUI() {
         view.backgroundColor = .white
