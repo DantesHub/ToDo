@@ -13,7 +13,87 @@ import RealmSwift
 protocol ReloadDelegate {
     func reloadTableView()
 }
+enum KeyboardToolbarButton: Int {
+
+    case done = 0
+    case cancel
+    case back, backDisabled
+    case forward, forwardDisabled
+
+    func createButton(target: Any?, action: Selector?) -> UIBarButtonItem {
+        var button: UIBarButtonItem!
+        switch self {
+        case .back: button = UIBarButtonItem(image: UIImage(named: "star")?.resize(targetSize: CGSize(width: 25, height: 25)), style: .plain, target: target, action: action)
+       case .backDisabled:
+       button = .init(title: "back", style: .plain, target: target, action: action)
+       button.isEnabled = false
+            case .forward: button = .init(title: "forward", style: .plain, target: target, action: action)
+            case .forwardDisabled:
+                button = .init(title: "forward", style: .plain, target: target, action: action)
+                button.isEnabled = false
+            case .done: button = .init(title: "done", style: .plain, target: target, action: action)
+            case .cancel: button = .init(title: "cancel", style: .plain, target: target, action: action)
+        
+        }
+        button.tag = rawValue
+        return button
+    }
+
+    static func detectType(barButton: UIBarButtonItem) -> KeyboardToolbarButton? {
+        return KeyboardToolbarButton(rawValue: barButton.tag)
+    }
+}
+protocol KeyboardToolbarDelegate: class {
+    func keyboardToolbar(button: UIBarButtonItem, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField)
+}
+
+class KeyboardToolbar: UIToolbar {
+
+    private weak var toolBarDelegate: KeyboardToolbarDelegate?
+    private weak var textField: UITextField!
+
+    init(for textField: UITextField, toolBarDelegate: KeyboardToolbarDelegate) {
+        super.init(frame: .init(origin: .zero, size: CGSize(width: UIScreen.main.bounds.width, height: 44)))
+        barStyle = .default
+        isTranslucent = true
+        self.textField = textField
+        self.toolBarDelegate = toolBarDelegate
+        textField.inputAccessoryView = self
+    }
+
+    func setup(leftButtons: [KeyboardToolbarButton], rightButtons: [KeyboardToolbarButton]) {
+        let leftBarButtons = leftButtons.map {
+            $0.createButton(target: self, action: #selector(buttonTapped))
+        }
+        let rightBarButtons = rightButtons.map {
+            $0.createButton(target: self, action: #selector(buttonTapped(sender:)))
+        }
+        let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        setItems(leftBarButtons + [spaceButton] + rightBarButtons, animated: false)
+    }
+
+    required init?(coder aDecoder: NSCoder) { super.init(coder: aDecoder) }
+    @objc func buttonTapped(sender: UIBarButtonItem) {
+        guard let type = KeyboardToolbarButton.detectType(barButton: sender) else { return }
+        toolBarDelegate?.keyboardToolbar(button: sender, type: type, isInputAccessoryViewOf: textField)
+    }
+}
+
+extension UITextField {
+    func addKeyboardToolBar(leftButtons: [KeyboardToolbarButton],
+                            rightButtons: [KeyboardToolbarButton],
+                            toolBarDelegate: KeyboardToolbarDelegate) {
+        let toolbar = KeyboardToolbar(for: self, toolBarDelegate: toolBarDelegate)
+        toolbar.setup(leftButtons: leftButtons, rightButtons: rightButtons)
+    }
+}
+extension ListController: KeyboardToolbarDelegate {
+   func keyboardToolbar(button: UIBarButtonItem, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField) {
+        print("Tapped button type: \(type)")
+    }
+}
 class ListController: UIViewController {
+    //MARK: - instance variables
     var reloadDelegate: ReloadDelegate?
     var creating = false;
     let bigTextField = UITextField()
@@ -23,8 +103,11 @@ class ListController: UIViewController {
     var lastKnowContentOfsset: CGFloat = 0
     var scrolledUp = false
     var tableViewTop : NSLayoutConstraint?
-    var listTitle = ""
+    var listTitle = "Untitled List"
     var nameTaken = false
+    var plusTaskView = UIImageView()
+    var addTaskField = UITextField()
+    //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
@@ -38,11 +121,41 @@ class ListController: UIViewController {
         tableView.delegate = self
     }
     
+    //MARK: - helper variables
     func configureUI() {
         configureNavBar()
         createTableHeader()
         createTableView()
+        plusTaskView = UIImageView(frame: CGRect(x: self.view.frame.width - 100, y: self.view.frame.height - 130 , width: 60, height: 60))
+        view.addSubview(plusTaskView)
+        let padding:CGFloat = 10
+        plusTaskView.contentMode = .scaleAspectFit
+        plusTaskView.image = UIImage(named: "plus")?.resize(targetSize: CGSize(width: 50, height: 50)).withTintColor(.white).imageWithInsets(insets: UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding))
+        plusTaskView.layer.cornerRadius = plusTaskView.frame.height / 2
+        plusTaskView.backgroundColor = .black
+        plusTaskView.layer.borderWidth = 1
+        plusTaskView.layer.masksToBounds = false
+        plusTaskView.layer.borderColor = UIColor.black.cgColor
+        plusTaskView.clipsToBounds = true
+        let addTaskRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddTask))
+        plusTaskView.addGestureRecognizer(addTaskRecognizer)
+        plusTaskView.isUserInteractionEnabled = true
+        plusTaskView.dropShadow()
     }
+    
+    @objc func tappedAddTask() {
+        print("tappedAddTask")
+        createTextField(frame: CGRect(x: 50, y: 50, width: 200, height: 40), leftButtons: [.backDisabled, .forward], rightButtons: [.cancel])
+            createTextField(frame: CGRect(x: 50, y: 120, width: 200, height: 40), leftButtons: [.back, .forwardDisabled], rightButtons: [.done])
+        }
+
+        private func createTextField(frame: CGRect, leftButtons: [KeyboardToolbarButton] = [], rightButtons: [KeyboardToolbarButton] = []) {
+            let textField = UITextField(frame: frame)
+            textField.borderStyle = .roundedRect
+            view.addSubview(textField)
+            textField.addKeyboardToolBar(leftButtons: leftButtons, rightButtons: rightButtons, toolBarDelegate: self)
+        }
+    
     func createTableHeader() {
         let headerView: UIView = UIView.init(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 100))
         view.addSubview(headerView)
@@ -53,9 +166,9 @@ class ListController: UIViewController {
         bigTextField.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20).isActive = true
         bigTextField.centerY(to: headerView)
         bigTextField.height(100)
-        bigTextField.placeholder = "Untitled List"
+        bigTextField.placeholder = listTitle
         bigTextField.textColor = .black
-        bigTextField.text = "Untitled List"
+        bigTextField.text = listTitle
         if !creating {
             bigTextField.isUserInteractionEnabled = false
         }

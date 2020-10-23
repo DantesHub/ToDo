@@ -8,15 +8,38 @@
 
 import Foundation
 import UIKit
+extension UIImageView {
+    func dropShadow() {
+        self.layer.masksToBounds = false
+        self.layer.shadowColor = UIColor.black.cgColor
+        self.layer.shadowOpacity = 0.8
+        self.layer.shadowOffset = CGSize(width: -1.5, height: 1.5)
+        self.layer.shadowRadius = 1
+        self.layer.shadowPath = UIBezierPath(roundedRect: self.bounds, cornerRadius: self.frame.height/2).cgPath
+        self.layer.shouldRasterize = true
+        self.layer.rasterizationScale = UIScreen.main.scale
+    }
+}
 
 extension UIImage {
-    
     func resize(targetSize: CGSize) -> UIImage {
         return UIGraphicsImageRenderer(size:targetSize).image { _ in
             self.draw(in: CGRect(origin: .zero, size: targetSize))
         }
  
     }
+        func imageWithInsets(insets: UIEdgeInsets) -> UIImage? {
+            UIGraphicsBeginImageContextWithOptions(
+                CGSize(width: self.size.width + insets.left + insets.right,
+                       height: self.size.height + insets.top + insets.bottom), false, self.scale)
+            let _ = UIGraphicsGetCurrentContext()
+            let origin = CGPoint(x: insets.left, y: insets.top)
+            self.draw(at: origin)
+            let imageWithInsets = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            return imageWithInsets
+        }
+    
     func rotate(radians: Float) -> UIImage? {
          var newSize = CGRect(origin: CGPoint.zero, size: self.size).applying(CGAffineTransform(rotationAngle: CGFloat(radians))).size
          // Trim off the extremely small float value to prevent core graphics from rounding it up
