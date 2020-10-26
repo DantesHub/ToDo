@@ -10,86 +10,27 @@ import UIKit
 import Layoutless
 import TinyConstraints
 import RealmSwift
+
 protocol ReloadDelegate {
     func reloadTableView()
 }
-enum KeyboardToolbarButton: Int {
 
-    case done = 0
-    case cancel
-    case back, backDisabled
-    case forward, forwardDisabled
-
-    func createButton(target: Any?, action: Selector?) -> UIBarButtonItem {
-        var button: UIBarButtonItem!
-        switch self {
-        case .back: button = UIBarButtonItem(image: UIImage(named: "star")?.resize(targetSize: CGSize(width: 25, height: 25)), style: .plain, target: target, action: action)
-       case .backDisabled:
-       button = .init(title: "back", style: .plain, target: target, action: action)
-       button.isEnabled = false
-            case .forward: button = .init(title: "forward", style: .plain, target: target, action: action)
-            case .forwardDisabled:
-                button = .init(title: "forward", style: .plain, target: target, action: action)
-                button.isEnabled = false
-            case .done: button = .init(title: "done", style: .plain, target: target, action: action)
-            case .cancel: button = .init(title: "cancel", style: .plain, target: target, action: action)
-        
-        }
-        button.tag = rawValue
-        return button
-    }
-
-    static func detectType(barButton: UIBarButtonItem) -> KeyboardToolbarButton? {
-        return KeyboardToolbarButton(rawValue: barButton.tag)
-    }
-}
-protocol KeyboardToolbarDelegate: class {
-    func keyboardToolbar(button: UIBarButtonItem, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField)
-}
-
-class KeyboardToolbar: UIToolbar {
-
-    private weak var toolBarDelegate: KeyboardToolbarDelegate?
-    private weak var textField: UITextField!
-
-    init(for textField: UITextField, toolBarDelegate: KeyboardToolbarDelegate) {
-        super.init(frame: .init(origin: .zero, size: CGSize(width: UIScreen.main.bounds.width, height: 44)))
-        barStyle = .default
-        isTranslucent = true
-        self.textField = textField
-        self.toolBarDelegate = toolBarDelegate
-        textField.inputAccessoryView = self
-    }
-
-    func setup(leftButtons: [KeyboardToolbarButton], rightButtons: [KeyboardToolbarButton]) {
-        let leftBarButtons = leftButtons.map {
-            $0.createButton(target: self, action: #selector(buttonTapped))
-        }
-        let rightBarButtons = rightButtons.map {
-            $0.createButton(target: self, action: #selector(buttonTapped(sender:)))
-        }
-        let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        setItems(leftBarButtons + [spaceButton] + rightBarButtons, animated: false)
-    }
-
-    required init?(coder aDecoder: NSCoder) { super.init(coder: aDecoder) }
-    @objc func buttonTapped(sender: UIBarButtonItem) {
-        guard let type = KeyboardToolbarButton.detectType(barButton: sender) else { return }
-        toolBarDelegate?.keyboardToolbar(button: sender, type: type, isInputAccessoryViewOf: textField)
-    }
-}
-
-extension UITextField {
-    func addKeyboardToolBar(leftButtons: [KeyboardToolbarButton],
-                            rightButtons: [KeyboardToolbarButton],
-                            toolBarDelegate: KeyboardToolbarDelegate) {
-        let toolbar = KeyboardToolbar(for: self, toolBarDelegate: toolBarDelegate)
-        toolbar.setup(leftButtons: leftButtons, rightButtons: rightButtons)
-    }
-}
 extension ListController: KeyboardToolbarDelegate {
    func keyboardToolbar(button: UIBarButtonItem, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField) {
-        print("Tapped button type: \(type)")
+        switch type {
+        case .done:
+            addTaskField.resignFirstResponder()
+        case .addToList:
+            print("bingo1")
+        case .priority:
+            print("bingo")
+        case .dueDate:
+            print("zingo")
+        case .reminder:
+            print("dingo")
+        case .favorite:
+            print("way up high")
+    }
     }
 }
 class ListController: UIViewController {
@@ -107,6 +48,7 @@ class ListController: UIViewController {
     var nameTaken = false
     var plusTaskView = UIImageView()
     var addTaskField = UITextField()
+    var frameView = UIView()
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -119,6 +61,10 @@ class ListController: UIViewController {
     var scrollHeight: CGFloat = 100
     override func viewDidLayoutSubviews() {
         tableView.delegate = self
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     //MARK: - helper variables
@@ -145,15 +91,23 @@ class ListController: UIViewController {
     
     @objc func tappedAddTask() {
         print("tappedAddTask")
-        createTextField(frame: CGRect(x: 50, y: 50, width: 200, height: 40), leftButtons: [.backDisabled, .forward], rightButtons: [.cancel])
-            createTextField(frame: CGRect(x: 50, y: 120, width: 200, height: 40), leftButtons: [.back, .forwardDisabled], rightButtons: [.done])
+        let center: NotificationCenter = NotificationCenter.default
+          center.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+          center.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        view.addSubview(addTaskField)
+        addTaskField.becomeFirstResponder()
+
         }
 
         private func createTextField(frame: CGRect, leftButtons: [KeyboardToolbarButton] = [], rightButtons: [KeyboardToolbarButton] = []) {
-            let textField = UITextField(frame: frame)
-            textField.borderStyle = .roundedRect
-            view.addSubview(textField)
-            textField.addKeyboardToolBar(leftButtons: leftButtons, rightButtons: rightButtons, toolBarDelegate: self)
+            print("for all time")
+            addTaskField.removeFromSuperview()
+            addTaskField = UITextField(frame: frame)
+            view.addSubview(addTaskField)
+            addTaskField.becomeFirstResponder()
+            addTaskField.delegate = self
+            addTaskField.borderStyle = .roundedRect
+            addTaskField.addKeyboardToolBar(leftButtons: leftButtons, rightButtons: rightButtons, toolBarDelegate: self)
         }
     
     func createTableHeader() {
@@ -197,6 +151,33 @@ class ListController: UIViewController {
         tableView.isUserInteractionEnabled = true
         swipeUp.delegate = self
         swipeDown.delegate = self
+    }
+    @objc func keyboardWillShow(notification: NSNotification) {
+        let info:NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
+
+        let keyboardHeight: CGFloat = keyboardSize.height
+
+        let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
+        self.createTextField(frame: CGRect(x: 0, y: (keyboardHeight) + 100, width: self.view.bounds.width, height: 60), leftButtons: [.addToList, .priority, .dueDate, .reminder, .favorite], rightButtons: [.done])
+
+        UIView.animate(withDuration: 0.25, delay: 0.25, options: .curveEaseInOut, animations: {
+        }, completion: nil)
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        let info: NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
+
+        let keyboardHeight: CGFloat = keyboardSize.height
+        
+        let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
+
+        UIView.animate(withDuration: 0.25, delay: 0.25, options: .curveEaseInOut, animations: {
+            self.addTaskField.removeFromSuperview()
+        }, completion: nil)
+            
+
     }
     @objc func respondToSwipeGesture(gesture: UIGestureRecognizer) {
 

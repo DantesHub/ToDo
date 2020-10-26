@@ -11,6 +11,7 @@
 		FE76790E253E3B9500012A59 /* GroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE76790D253E3B9500012A59 /* GroupCell.swift */; };
 		FE76791025435E8200012A59 /* MainTableviews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE76790F25435E8200012A59 /* MainTableviews.swift */; };
 		FE7679142543816900012A59 /* TaskController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7679132543816900012A59 /* TaskController.swift */; };
+		FE7679162543AC3800012A59 /* KeyboardToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7679152543AC3800012A59 /* KeyboardToolbar.swift */; };
 		FE77193E2537813D00131A5D /* AddListToGroupTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE77193D2537813D00131A5D /* AddListToGroupTableView.swift */; };
 		FE7719402537973B00131A5D /* AddListToGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE77193F2537973B00131A5D /* AddListToGroupCell.swift */; };
 		FE7AE2B725152A0300D889DD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7AE2B625152A0300D889DD /* AppDelegate.swift */; };
@@ -43,6 +44,7 @@
 		FE76790D253E3B9500012A59 /* GroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCell.swift; sourceTree = "<group>"; };
 		FE76790F25435E8200012A59 /* MainTableviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTableviews.swift; sourceTree = "<group>"; };
 		FE7679132543816900012A59 /* TaskController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskController.swift; sourceTree = "<group>"; };
+		FE7679152543AC3800012A59 /* KeyboardToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardToolbar.swift; sourceTree = "<group>"; };
 		FE77193D2537813D00131A5D /* AddListToGroupTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddListToGroupTableView.swift; sourceTree = "<group>"; };
 		FE77193F2537973B00131A5D /* AddListToGroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddListToGroupCell.swift; sourceTree = "<group>"; };
 		FE7AE2B325152A0300D889DD /* Todo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Todo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -103,6 +105,7 @@
 			isa = PBXGroup;
 			children = (
 				FEAEAE5F2527C0D9003FD07D /* ListContoller.swift */,
+				FE7679152543AC3800012A59 /* KeyboardToolbar.swift */,
 			);
 			path = ListView;
 			sourceTree = "<group>";
@@ -347,6 +350,7 @@
 				FEBC2485253668970073EBB1 /* BaseCell.swift in Sources */,
 				FEAEAE5E2527B08F003FD07D /* HorizontalBorder.swift in Sources */,
 				FE7AE2DE2515595100D889DD /* List.swift in Sources */,
+				FE7679162543AC3800012A59 /* KeyboardToolbar.swift in Sources */,
 				FEAEAE602527C0D9003FD07D /* ListContoller.swift in Sources */,
 				FE7AE2D425152ED300D889DD /* Extensions.swift in Sources */,
 				FEBC2480253667390073EBB1 /* PopUpController.swift in Sources */,
