@@ -15,24 +15,31 @@ class TaskSlideCell: BaseCell {
         label.text = "Add List"
         return label
     }()
+    let hr = UIView()
     let dateLabel = UILabel()
     let icon = UIImageView()
     override func setUpViews() {
         super.setUpViews()
         self.addSubview(icon)
-        icon.bottom(to: self)
+        icon.centerY(to: self)
         icon.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
 
         self.addSubview(nameLabel)
-        nameLabel.bottom(to: self)
+        nameLabel.centerY(to: self)
         nameLabel.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 20).isActive = true
         nameLabel.font = UIFont(name: "OpenSans-Regular", size: 17)
         
-//        self.addSubview(dateLabel)
-//        dateLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
-//        dateLabel.textColor = .gray
-//        dateLabel.bottom(to: self)
-//        dateLabel.font = UIFont(name: "OpenSans-Regular", size: 14)
+        self.addSubview(dateLabel)
+        dateLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
+        dateLabel.textColor = .gray
+        dateLabel.centerY(to: self)
+        dateLabel.font = UIFont(name: "OpenSans-Regular", size: 14)
+        
+        self.addSubview(hr)
+        var hr = UIView(frame: CGRect(x: 0, y: self.frame.height, width: self.frame.width, height: 0.5))
+        hr.backgroundColor = .gray
+        
+        
     }
 }
 

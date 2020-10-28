@@ -24,6 +24,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             } else {
                 cell.icon.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 40, height: 40)).withTintColor(priorities[indexPath.row])
             }
+            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.25)
             cell.nameLabel.text = "Priority 1"
         case "reminder":
             print("reminder")
@@ -35,14 +36,18 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
          if kind == UICollectionView.elementKindSectionHeader {
             let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as! SliderSectionHeader
-                sectionHeader.label.text = "TRENDING"
+                sectionHeader.label.text = "TRENDING" 
+               sectionHeader.reloadDelegate = self
                 return sectionHeader
            } else { //No footer in this case but can add option for that
                 return UICollectionReusableView()
            }
     }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets (top: 10, left: 0, bottom: 0, right: 0)
+    }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 40)
+        return CGSize(width: collectionView.frame.width, height: 65)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

@@ -15,7 +15,13 @@ protocol ReloadDelegate {
     func reloadTableView()
 }
 
-extension ListController: KeyboardToolbarDelegate {
+
+extension ListController: KeyboardToolbarDelegate, ReloadSlider {
+    func reloadSlider() {
+        slideUpViewTapped()
+        addTaskField.becomeFirstResponder()
+    }
+    
     func keyboardToolbar(button: UIBarButtonItem, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField) {
         switch type {
         case .done:
@@ -134,13 +140,12 @@ class ListController: UIViewController {
         window?.addSubview(containerView)
         containerView.alpha = 0
         let screenSize = UIScreen.main.bounds.size
-        let slideUpViewHeight: CGFloat = 300
+        let slideUpViewHeight: CGFloat = 350
         slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight)
         slideUpView.register(TaskSlideCell.self, forCellWithReuseIdentifier: K.taskSlideCell)
         slideUpView.register(SliderSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         slideUpView.dataSource = self
         slideUpView.delegate = self
-        
         window?.addSubview(slideUpView)
         UIView.animate(withDuration: 0.5,
                        delay: 0, usingSpringWithDamping: 1.0,
@@ -238,11 +243,6 @@ class ListController: UIViewController {
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
-        let info: NSDictionary = notification.userInfo! as NSDictionary
-        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-        let keyboardHeight: CGFloat = keyboardSize.height
-        
-        let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
         self.addTaskField.frame.origin.y = self.view.frame.height
  
     }
