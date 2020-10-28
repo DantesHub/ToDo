@@ -21,15 +21,25 @@ extension ListController: KeyboardToolbarDelegate {
         case .done:
             addTaskField.resignFirstResponder()
         case .addToList:
-            print("bingo1")
+            addTaskField.resignFirstResponder()
+            createSlider()
+            tappedIcon = "addToList"
         case .priority:
-            print("bingo")
+            addTaskField.resignFirstResponder()
+            createSlider()
+            tappedIcon = "priority"
         case .dueDate:
-            print("zingo")
+            addTaskField.resignFirstResponder()
+            createSlider()
+            tappedIcon = "dueDate"
         case .reminder:
-            print("dingo")
+            addTaskField.resignFirstResponder()
+            createSlider()
+            tappedIcon = "remidner"
         case .favorite:
-            print("way up high")
+            addTaskField.resignFirstResponder()
+            createSlider()
+            tappedIcon = "favorite"
         }
     }
 }
@@ -50,8 +60,18 @@ class ListController: UIViewController {
     var listTitle = "Untitled List"
     var nameTaken = false
     var plusTaskView = UIImageView()
-    var addTaskField = UITextField()
+    var addTaskField = TextFieldWithPadding()
     var frameView = UIView()
+    var tappedIcon = ""
+    var slideUpView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        let cv = UICollectionView(frame: .zero
+        , collectionViewLayout: layout)
+        cv.backgroundColor = .white
+        return cv
+    }()
+    var containerView = UIView()
+    var priorities = [UIColor.red, gold, UIColor.blue, UIColor.clear]
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -98,13 +118,54 @@ class ListController: UIViewController {
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOutside))
         self.view.addGestureRecognizer(tapRecognizer)
         addTaskField.isHidden = false
-        addTaskField.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: 40)
+        addTaskField.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: 80)
         addTaskField.addKeyboardToolBar(leftButtons: [.addToList, .priority, .dueDate, .reminder, .favorite], rightButtons: [.done], toolBarDelegate: self)
         view.addSubview(addTaskField)
-        addTaskField.backgroundColor = .black
+        addTaskField.backgroundColor = .white
 //        addTaskField.delegate = self
+        addTaskField.borderStyle = .none
         addTaskField.borderStyle = .roundedRect
     }
+    func createSlider() {
+        let window = UIApplication.shared.keyWindow
+        containerView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
+        containerView.frame = self.view.frame
+        
+        window?.addSubview(containerView)
+        containerView.alpha = 0
+        let screenSize = UIScreen.main.bounds.size
+        let slideUpViewHeight: CGFloat = 300
+        slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight)
+        slideUpView.register(TaskSlideCell.self, forCellWithReuseIdentifier: K.taskSlideCell)
+        slideUpView.register(SliderSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
+        slideUpView.dataSource = self
+        slideUpView.delegate = self
+        
+        window?.addSubview(slideUpView)
+        UIView.animate(withDuration: 0.5,
+                       delay: 0, usingSpringWithDamping: 1.0,
+                       initialSpringVelocity: 1.0,
+                       options: .curveEaseOut, animations: {
+                        self.containerView.alpha = 0.8
+                        self.slideUpView.frame = CGRect(x: 0, y: screenSize.height - slideUpViewHeight, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height)
+        }, completion: nil)
+        
+        let tapGesture = UITapGestureRecognizer(target: self,
+                                                action: #selector(slideUpViewTapped))
+        containerView.addGestureRecognizer(tapGesture)
+    }
+    @objc func slideUpViewTapped() {
+       let window = UIApplication.shared.keyWindow
+         UIView.animate(withDuration: 0.4,
+                        delay: 0, usingSpringWithDamping: 1.0,
+                        initialSpringVelocity: 1.0,
+                        options: .curveEaseInOut, animations: {
+                          self.containerView.alpha = 0
+                          self.slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
+                          )
+         }, completion: nil)
+    }
+
     
     @objc func tappedAddTask() {
         addTaskField.becomeFirstResponder()
@@ -165,15 +226,7 @@ class ListController: UIViewController {
         }
         lastKeyboardHeight = keyboardHeight
         let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
-        print(lastKeyboardHeight)
-        //adding shifts it down
-        //+ 25 works for 11 390.0 44.0 896.0 = .435 +70
-        //iphone 11 pro max 390.0 44.0 896.0 = .435 +70
-        //iphone 11 pro in 380,44,812 = .467 -25  = +20
-        //-25 works for iphone8 304,44,667 .457 +20
-        //iphone 8 plus 315.0 44.0 736.0 = .42798 +70
-        //ipad pro 364.0 44.0 1024.0 = .35 +250
-        self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - keyboardHeight - 44
+        self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - keyboardHeight - 65
     }
     @objc func keyboardWillChangeFrame(notification: NSNotification) {
         let info:NSDictionary = notification.userInfo! as NSDictionary
@@ -219,68 +272,6 @@ class ListController: UIViewController {
         //          navigationController?.navigationBar.barTintColor = .white
     }
 }
-//MARK: - UITextField
-extension ListController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        switch textField {
-        case bigTextField:
-            listTitle = bigTextField.text ?? "Untitled List"
-            let list = ListObject()
-            list.name = listTitle
-            //need to update realmData, maybe send notification
-            list.position = (lists.count - 1) + 1
-            let results = uiRealm.objects(ListObject.self)
-            nameTaken = false
-            for result in results {
-                if result.name == list.name {
-                    //we need to tell user that name is taken
-                    nameTaken = true
-                    let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
-                    let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
-                        (action : UIAlertAction!) -> Void in })
-                    
-                    alertController.addAction(okayAction)
-                    self.present(alertController, animated: true, completion: nil)
-                }
-            }
-            if !nameTaken {
-                bigTextField.resignFirstResponder()
-                bigTextField.isUserInteractionEnabled = false
-                try! uiRealm.write {
-                    uiRealm.add(list)
-                }
-                reloadDelegate?.reloadTableView()
-            }
-            
-        default:
-            break
-        }
-        return true
-    }
-    
-    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        return true
-    }
-}
 
-//MARK: - TableView
-extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate {
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
-    }
-    func numberOfSections(in tableView: UITableView) -> Int {
-        1
-    }
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "list")
-        cell.textLabel?.text = "ghibli"
-        cell.selectionStyle = .none
-        cell.backgroundColor = .red
-        return cell
-    }
-    
-}
+
+

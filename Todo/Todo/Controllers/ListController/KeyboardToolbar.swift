@@ -75,6 +75,8 @@ extension UITextField {
                             rightButtons: [KeyboardToolbarButton],
                             toolBarDelegate: KeyboardToolbarDelegate) {
         let toolbar = KeyboardToolbar(for: self, toolBarDelegate: toolBarDelegate)
+        toolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
+        toolbar.barTintColor = .white
         toolbar.setup(leftButtons: leftButtons, rightButtons: rightButtons)
     }
 }

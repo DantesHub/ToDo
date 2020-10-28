@@ -10,8 +10,10 @@ import Foundation
 import UIKit
 
 let superPurple = hexStringToUIColor(hex: "#A73CDE")
+let gold = hexStringToUIColor(hex: "#F8D003")
 struct K {
     static let listGroupCell = "listGroupCell"
+    static let taskSlideCell = "taskSlideCell"
 }
 
 func hexStringToUIColor (hex:String) -> UIColor {
