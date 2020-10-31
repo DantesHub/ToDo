@@ -114,10 +114,19 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
 }
 func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     if tableView == topTableView {
+        let controller = ListController()
+        controller.reloadDelegate = self
+        controller.creating = false;
+        controller.premadeListTapped = true
+        controller.listTitle = topList[indexPath.row].title
+        controller.navigationController?.isNavigationBarHidden = false
+        self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
+        self.navigationController?.pushViewController(controller, animated: false)
     } else if tableView == listTableView {
         let controller = ListController()
         controller.reloadDelegate = self
         controller.creating = false;
+        controller.premadeListTapped = false
         controller.listTitle = lists[indexPath.row].name
         controller.navigationController?.isNavigationBarHidden = false
         self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)

@@ -23,37 +23,43 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
     }
     
     func keyboardToolbar(button: UIBarButtonItem, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField) {
+        slideUpView.reloadData()
         switch type {
         case .done:
             addTaskField.resignFirstResponder()
         case .addToList:
+            tappedIcon = "Add to a List"
             addTaskField.resignFirstResponder()
             createSlider()
-            tappedIcon = "addToList"
         case .priority:
+            tappedIcon = "Priority"
             addTaskField.resignFirstResponder()
             createSlider()
-            tappedIcon = "priority"
         case .dueDate:
+            tappedIcon = "Due"
             addTaskField.resignFirstResponder()
             createSlider()
-            tappedIcon = "dueDate"
         case .reminder:
             addTaskField.resignFirstResponder()
             createSlider()
-            tappedIcon = "remidner"
+            tappedIcon = "Reminder"
         case .favorite:
-            addTaskField.resignFirstResponder()
-            createSlider()
-            tappedIcon = "favorite"
+            //add it to input accessory bar
+            addTaskField.addButton(leftButton: .favorited, toolBarDelegate: self)
+        case .favorited:
+            print("favorited")
+        case .addedReminder:
+            print("added reminder")
         }
     }
 }
 var keyboard = false
 var lastKeyboardHeight: CGFloat = 0
-
+var stabilize = false
+let toolbar = KeyboardToolbar()
 class ListController: UIViewController {
     //MARK: - instance variables
+    var premadeListTapped = false
     var reloadDelegate: ReloadDelegate?
     var creating = false;
     let bigTextField = UITextField()
@@ -76,8 +82,10 @@ class ListController: UIViewController {
         cv.backgroundColor = .white
         return cv
     }()
+    let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 85))
     var containerView = UIView()
     var priorities = [UIColor.red, gold, UIColor.blue, UIColor.clear]
+    var dates = ["Later Today", "Tomorrow", "Next Week", "Pick a Date & Time"]
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -124,13 +132,23 @@ class ListController: UIViewController {
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOutside))
         self.view.addGestureRecognizer(tapRecognizer)
         addTaskField.isHidden = false
-        addTaskField.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: 80)
-        addTaskField.addKeyboardToolBar(leftButtons: [.addToList, .priority, .dueDate, .reminder, .favorite], rightButtons: [.done], toolBarDelegate: self)
+        addTaskField.frame = CGRect(x: 0, y: view.frame.height + 10, width: view.frame.width, height: 65)
+        let leftBarButtons: [KeyboardToolbarButton] = premadeListTapped ? [.addToList, .priority, .dueDate, .reminder, .favorite] : [.priority, .dueDate, .reminder, .favorite]
+        addTaskField.addKeyboardToolBar(leftButtons: leftBarButtons, rightButtons: [], toolBarDelegate: self)
         view.addSubview(addTaskField)
         addTaskField.backgroundColor = .white
-//        addTaskField.delegate = self
+        addTaskField.delegate = self
         addTaskField.borderStyle = .none
         addTaskField.borderStyle = .roundedRect
+        
+        toolbar.textField = addTaskField
+        toolbar.toolBarDelegate = self
+        scrollView.addSubview(toolbar)
+        scrollView.contentSize = CGSize(width: 600, height: 85)
+
+        scrollView.backgroundColor = .white
+        scrollView.showsHorizontalScrollIndicator = false
+        addTaskField.inputAccessoryView = scrollView
     }
     func createSlider() {
         let window = UIApplication.shared.keyWindow
@@ -159,6 +177,7 @@ class ListController: UIViewController {
                                                 action: #selector(slideUpViewTapped))
         containerView.addGestureRecognizer(tapGesture)
     }
+    
     @objc func slideUpViewTapped() {
        let window = UIApplication.shared.keyWindow
          UIView.animate(withDuration: 0.4,
@@ -169,6 +188,7 @@ class ListController: UIViewController {
                           self.slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
                           )
          }, completion: nil)
+
     }
 
     
@@ -231,7 +251,10 @@ class ListController: UIViewController {
         }
         lastKeyboardHeight = keyboardHeight
         let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
-        self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - keyboardHeight - 65
+        if stabilize {
+            self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - keyboardHeight - 65
+        }
+        stabilize = false
     }
     @objc func keyboardWillChangeFrame(notification: NSNotification) {
         let info:NSDictionary = notification.userInfo! as NSDictionary
@@ -243,7 +266,7 @@ class ListController: UIViewController {
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
-        self.addTaskField.frame.origin.y = self.view.frame.height
+        self.addTaskField.frame.origin.y = self.view.frame.height + 10
  
     }
     @objc func respondToSwipeGesture(gesture: UIGestureRecognizer) {

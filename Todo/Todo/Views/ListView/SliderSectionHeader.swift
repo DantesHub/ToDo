@@ -17,14 +17,15 @@ class SliderSectionHeader: UICollectionReusableView{
 
      var label: UILabel = {
          let label: UILabel = UILabel()
-        label.font = UIFont(name: "OpenSans-Bold", size: 16)
+        label.font = UIFont(name: "OpenSans-Bold", size: 18)
         label.sizeToFit()
          return label
      }()
     var hr = UIView()
     var backArrow = UIImageView()
      override init(frame: CGRect) {
-         super.init(frame: frame)
+        
+        super.init(frame: frame)
         addSubview(backArrow)
         backArrow.image = UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 25, height: 25)).rotate(radians: -.pi/2)?.withTintColor(.gray)
         backArrow.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true

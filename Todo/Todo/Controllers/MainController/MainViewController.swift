@@ -64,8 +64,6 @@ class MainViewController: UIViewController, ReloadDelegate {
         configureUI()
     }
     
-
-    
     //MARK: - helper functions
     func reloadTableView() {
         getRealmData()

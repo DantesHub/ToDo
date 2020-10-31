@@ -15,16 +15,40 @@ enum KeyboardToolbarButton: Int {
     case reminder
     case done
     case favorite
+    case favorited
+    case addedReminder
 
     func createButton(target: Any?, action: Selector?) -> UIBarButtonItem {
         var button: UIBarButtonItem!
         switch self {
-        case .addToList: button = UIBarButtonItem(image: UIImage(named: "list")?.resize(targetSize: CGSize(width: 25, height: 25)), style: .plain, target: target, action: action)
-        case .favorite: button = UIBarButtonItem(image: UIImage(named: "star")?.resize(targetSize: CGSize(width: 25, height: 25)), style: .plain, target: target, action: action)
-        case .priority: button = UIBarButtonItem(image: UIImage(named: "flag")?.resize(targetSize: CGSize(width: 40, height: 40)), style: .plain, target: target, action: action)
-        case .dueDate: button = UIBarButtonItem(image: UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 25, height: 25)), style: .plain, target: target, action: action)
-        case .reminder: button = UIBarButtonItem(image: UIImage(named: "bell")?.resize(targetSize: CGSize(width: 40, height: 40)), style: .plain, target: target, action: action)
-        case .done: button = .init(title: "done", style: .plain, target: target, action: action)
+        case .addToList: button = UIBarButtonItem(image: UIImage(named: "list")?.resize(targetSize: CGSize(width: 30, height: 30)), style: .plain, target: target, action: action)
+        case .favorite: button = UIBarButtonItem(image: UIImage(named: "star")?.resize(targetSize: CGSize(width: 30, height: 30)), style: .plain, target: target, action: action)
+        case .priority: button = UIBarButtonItem(image: UIImage(named: "flag")?.resize(targetSize: CGSize(width: 45, height: 45)), style: .plain, target: target, action: action)
+        case .dueDate: button = UIBarButtonItem(image: UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 30, height: 30)), style: .plain, target: target, action: action)
+        case .reminder: button = UIBarButtonItem(image: UIImage(named: "bell")?.resize(targetSize: CGSize(width: 45, height: 45)), style: .plain, target: target, action: action)
+        case .done: button = UIBarButtonItem(image: UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 35, height: 35)), style: .plain, target: target, action: action)
+        case .addedReminder:  button = .init(title: "reminder", style: .plain, target: target, action: action)
+        case .favorited:
+            print("creating favorited")
+//            let circleView = UIView(frame: CGRect(x: 0, y: 0, width: 75, height: 35))
+//            circleView.backgroundColor = .black
+//            circleView.layer.cornerRadius = 15
+//            let label = UILabel(frame: CGRect(x: 0, y: 0, width: 40, height: 20))
+//            label.text = "bingo bingo"
+//            label.textColor = .white
+//            circleView.addSubview(label)
+//            circleView.sizeToFit()
+            let view = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+             let  btn = UIButton()
+             btn.frame = CGRect(x: 25, y: 5, width: 184, height: 40)
+            btn.setTitle("bingo lin", for: .normal)
+            btn.layer.cornerRadius = 15
+            btn.backgroundColor = .black
+            btn.addTarget(self, action: action!, for: .touchUpInside)
+            btn.setImages(right: UIImage(named: "star")?.withTintColor(.white), left: UIImage(named: "star")?.withTintColor(.white))
+             view.addSubview(btn)
+            button = .init(customView: view)
+        
         }
         button.tag = rawValue
         return button
@@ -41,16 +65,14 @@ protocol KeyboardToolbarDelegate: class {
 
 class KeyboardToolbar: UIToolbar {
 
-    private weak var toolBarDelegate: KeyboardToolbarDelegate?
-    private weak var textField: UITextField!
-
-    init(for textField: UITextField, toolBarDelegate: KeyboardToolbarDelegate) {
-        super.init(frame: .init(origin: .zero, size: CGSize(width: UIScreen.main.bounds.width, height: 44)))
+     weak var toolBarDelegate: KeyboardToolbarDelegate?
+     weak var textField: UITextField!
+    var leftButtons: [KeyboardToolbarButton]!
+    var rightButtons: [KeyboardToolbarButton]!
+    init() {
+        super.init(frame: .init(origin: .zero, size: CGSize(width: UIScreen.main.bounds.width, height: 85)))
         barStyle = .default
         isTranslucent = true
-        self.textField = textField
-        self.toolBarDelegate = toolBarDelegate
-        textField.inputAccessoryView = self
     }
 
     func setup(leftButtons: [KeyboardToolbarButton], rightButtons: [KeyboardToolbarButton]) {
@@ -58,9 +80,24 @@ class KeyboardToolbar: UIToolbar {
             $0.createButton(target: self, action: #selector(buttonTapped))
         }
         let rightBarButtons = rightButtons.map {
+
             $0.createButton(target: self, action: #selector(buttonTapped(sender:)))
         }
         let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        self.leftButtons = leftButtons
+        self.rightButtons = rightButtons
+        setItems(leftBarButtons + [spaceButton] + rightBarButtons, animated: false)
+    }
+    func addButton(button: KeyboardToolbarButton) {
+        self.leftButtons?.append(button)
+        let spaceButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let leftBarButtons = self.leftButtons.map {
+            $0.createButton(target: self, action: #selector(buttonTapped))
+        }
+        let rightBarButtons = rightButtons.map {
+            $0.createButton(target: self, action: #selector(buttonTapped(sender:)))
+        }
+
         setItems(leftBarButtons + [spaceButton] + rightBarButtons, animated: false)
     }
 
@@ -74,9 +111,12 @@ extension UITextField {
     func addKeyboardToolBar(leftButtons: [KeyboardToolbarButton],
                             rightButtons: [KeyboardToolbarButton],
                             toolBarDelegate: KeyboardToolbarDelegate) {
-        let toolbar = KeyboardToolbar(for: self, toolBarDelegate: toolBarDelegate)
         toolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
         toolbar.barTintColor = .white
         toolbar.setup(leftButtons: leftButtons, rightButtons: rightButtons)
+    }
+    func addButton(leftButton: KeyboardToolbarButton, toolBarDelegate: KeyboardToolbarDelegate) {
+        toolbar.barTintColor = .white
+        toolbar.addButton(button: leftButton)
     }
 }
