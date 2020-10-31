@@ -24,10 +24,12 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
     
     func keyboardToolbar(button: UIBarButtonItem, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField) {
         slideUpView.reloadData()
+        print("tapping")
         switch type {
         case .done:
             addTaskField.resignFirstResponder()
         case .addToList:
+            print("inside here")
             tappedIcon = "Add to a List"
             addTaskField.resignFirstResponder()
             createSlider()
@@ -48,6 +50,8 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             addTaskField.addButton(leftButton: .favorited, toolBarDelegate: self)
         case .favorited:
             print("favorited")
+        case .prioritized:
+            print("prioritized")
         case .addedReminder:
             print("added reminder")
         }
@@ -57,6 +61,8 @@ var keyboard = false
 var lastKeyboardHeight: CGFloat = 0
 var stabilize = false
 let toolbar = KeyboardToolbar()
+var selectedPriority = UIColor.white
+
 class ListController: UIViewController {
     //MARK: - instance variables
     var premadeListTapped = false

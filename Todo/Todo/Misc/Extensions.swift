@@ -162,37 +162,27 @@ extension UIColor {
 }
 
 extension UIButton {
-    func setImages(right: UIImage? = nil, left: UIImage? = nil) {
-//        if let leftImage = left, right == nil {
-//            setImage(leftImage, for: .normal)
-//            imageEdgeInsets = UIEdgeInsets(top: 5, left: (bounds.width - 35), bottom: 5, right: 5)
-//            titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: (imageView?.frame.width)!)
-//            contentHorizontalAlignment = .left
-//        }
-//        if let rightImage = right, left == nil {
-//            setImage(rightImage, for: .normal)
-//            imageEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: (bounds.width - 35))
-//            titleEdgeInsets = UIEdgeInsets(top: 0, left: (imageView?.frame.width)!, bottom: 0, right: 10)
-//            contentHorizontalAlignment = .right
-//        }
-
-        if let rightImage = right, let leftImage = left {
-            setImage(rightImage, for: .normal)
-            imageEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: (bounds.width - 35))
-            titleEdgeInsets = UIEdgeInsets(top: 0, left: (imageView?.frame.width)!, bottom: 0, right: 10)
-            contentHorizontalAlignment = .left
-
-            let leftImageView = UIImageView(frame: CGRect(x: bounds.maxX - 35,
-                                                          y: (titleLabel?.bounds.midY)! - 5,
-                                                          width: 20,
-                                                          height: frame.height - 10))
-            leftImageView.image?.withRenderingMode(.alwaysOriginal)
-            leftImageView.image = leftImage
-            leftImageView.contentMode = .scaleAspectFit
-            leftImageView.layer.masksToBounds = true
-           addSubview(leftImageView)
+    func setImages(right: UIImage? = nil, left: UIImage? = nil, label: String, width: CGFloat, height: CGFloat) {
+        if let leftImage = left {
+            self.setImage(leftImage, for: .normal)
+//            self.imageView?.contentMode = .scaleAspectFill
+            self.imageView?.isUserInteractionEnabled = false
+            self.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 50)
         }
+        self.setTitle(label, for: .normal)
 
+        
+        if let rightImage = right {
+            let rightImageView = UIImageView(image: rightImage)
+            let height = height
+            let width = width
+            let xPos = self.frame.width - width - 10
+            let yPos = (self.frame.height - height) / 2
+            
+            rightImageView.frame = CGRect(x: xPos, y: yPos, width: width, height: height)
+            self.addSubview(rightImageView)
+        }
+        
     }
 
 }

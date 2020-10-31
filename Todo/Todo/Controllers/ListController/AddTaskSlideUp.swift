@@ -55,7 +55,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         case "Add to a List":
             let  lists = uiRealm.objects(ListObject.self)
         case "Priority":
-            print("priority")
+            selectedPriority = priorities[indexPath.row]
+            addTaskField.addButton(leftButton: .prioritized, toolBarDelegate: self)
+            
         case "Reminder":
             print("reminder")
         case "Due":
