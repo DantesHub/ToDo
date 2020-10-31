@@ -57,7 +57,13 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         case "Priority":
             selectedPriority = priorities[indexPath.row]
             addTaskField.addButton(leftButton: .prioritized, toolBarDelegate: self)
-            
+            if !firstAppend {
+                scrollView.contentSize.width = scrollView.contentSize.width + 150
+            } else {
+                firstAppend = false
+            }
+            slideUpViewTapped()
+            addTaskField.becomeFirstResponder()
         case "Reminder":
             print("reminder")
         case "Due":

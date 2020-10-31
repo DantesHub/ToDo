@@ -22,14 +22,12 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
         addTaskField.becomeFirstResponder()
     }
     
-    func keyboardToolbar(button: UIBarButtonItem, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField) {
+    func keyboardToolbar(button: UIButton, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField) {
         slideUpView.reloadData()
-        print("tapping")
         switch type {
         case .done:
             addTaskField.resignFirstResponder()
         case .addToList:
-            print("inside here")
             tappedIcon = "Add to a List"
             addTaskField.resignFirstResponder()
             createSlider()
@@ -48,10 +46,30 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
         case .favorite:
             //add it to input accessory bar
             addTaskField.addButton(leftButton: .favorited, toolBarDelegate: self)
+            if !firstAppend {
+                scrollView.contentSize.width = scrollView.contentSize.width + 150
+            } else {
+                firstAppend = false
+            }
+
         case .favorited:
-            print("favorited")
+            addTaskField.addButton(leftButton: .favorite, toolBarDelegate: self)
+            if !firstAppend {
+                scrollView.contentSize.width = scrollView.contentSize.width - 150
+            } else {
+                if scrollView.contentSize.width <= 600 {
+                    firstAppend = true
+                }
+            }
         case .prioritized:
-            print("prioritized")
+            addTaskField.addButton(leftButton: .priority, toolBarDelegate: self)
+            if !firstAppend {
+                scrollView.contentSize.width = scrollView.contentSize.width - 150
+            } else {
+                if scrollView.contentSize.width <= 600 {
+                    firstAppend = true
+                }
+            }
         case .addedReminder:
             print("added reminder")
         }
@@ -92,6 +110,7 @@ class ListController: UIViewController {
     var containerView = UIView()
     var priorities = [UIColor.red, gold, UIColor.blue, UIColor.clear]
     var dates = ["Later Today", "Tomorrow", "Next Week", "Pick a Date & Time"]
+    var firstAppend = true
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -150,7 +169,7 @@ class ListController: UIViewController {
         toolbar.textField = addTaskField
         toolbar.toolBarDelegate = self
         scrollView.addSubview(toolbar)
-        scrollView.contentSize = CGSize(width: 600, height: 85)
+        scrollView.contentSize = CGSize(width: 400, height: 85)
 
         scrollView.backgroundColor = .white
         scrollView.showsHorizontalScrollIndicator = false

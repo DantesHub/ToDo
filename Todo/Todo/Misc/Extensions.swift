@@ -166,6 +166,8 @@ extension UIButton {
         if let leftImage = left {
             self.setImage(leftImage, for: .normal)
 //            self.imageView?.contentMode = .scaleAspectFill
+            self.imageView?.isHighlighted = false
+            self.adjustsImageWhenHighlighted = false
             self.imageView?.isUserInteractionEnabled = false
             self.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 50)
         }
@@ -178,7 +180,7 @@ extension UIButton {
             let width = width
             let xPos = self.frame.width - width - 10
             let yPos = (self.frame.height - height) / 2
-            
+            rightImageView.isUserInteractionEnabled = false
             rightImageView.frame = CGRect(x: xPos, y: yPos, width: width, height: height)
             self.addSubview(rightImageView)
         }
