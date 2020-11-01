@@ -71,7 +71,23 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                 }
             }
         case .addedReminder:
-            print("added reminder")
+            addTaskField.addButton(leftButton: .reminder, toolBarDelegate: self)
+            if !firstAppend {
+                scrollView.contentSize.width = scrollView.contentSize.width - 150
+            } else {
+                if scrollView.contentSize.width <= 600 {
+                    firstAppend = true
+                }
+            }
+        case .addedDueDate:
+            addTaskField.addButton(leftButton: .dueDate, toolBarDelegate: self)
+            if !firstAppend {
+                scrollView.contentSize.width = scrollView.contentSize.width - 150
+            } else {
+                if scrollView.contentSize.width <= 600 {
+                    firstAppend = true
+                }
+            }
         }
     }
 }
@@ -80,7 +96,7 @@ var lastKeyboardHeight: CGFloat = 0
 var stabilize = false
 let toolbar = KeyboardToolbar()
 var selectedPriority = UIColor.white
-
+var selectedDate = ""
 class ListController: UIViewController {
     //MARK: - instance variables
     var premadeListTapped = false

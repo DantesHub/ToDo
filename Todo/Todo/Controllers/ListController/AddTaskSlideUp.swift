@@ -8,7 +8,7 @@
 
 import UIKit
 import RealmSwift
-
+import FSCal
 extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let lists = uiRealm.objects(ListObject.self)
@@ -65,9 +65,35 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             slideUpViewTapped()
             addTaskField.becomeFirstResponder()
         case "Reminder":
-            print("reminder")
+            selectedDate = dates[indexPath.row]
+            if selectedDate == "Pick a Date & Time" {
+                slideUpViewTapped()
+                
+            } else {
+                addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
+                if !firstAppend {
+                    scrollView.contentSize.width = scrollView.contentSize.width + 150
+                } else {
+                    firstAppend = false
+                }
+                slideUpViewTapped()
+                addTaskField.becomeFirstResponder()
+            }
         case "Due":
-            print("due")
+            selectedDate = dates[indexPath.row]
+            if selectedDate == "Pick a Date & Time" {
+                
+            } else {
+                addTaskField.addButton(leftButton: .addedDueDate, toolBarDelegate: self)
+                if !firstAppend {
+                    scrollView.contentSize.width = scrollView.contentSize.width + 150
+                } else {
+                    firstAppend = false
+                }
+                slideUpViewTapped()
+                addTaskField.becomeFirstResponder()
+            }
+            
         default:
             print("default")
         }

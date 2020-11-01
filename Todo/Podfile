@@ -9,4 +9,5 @@ target 'Todo' do
   pod 'RealmSwift'
   pod "TinyConstraints"
   pod 'Layoutless'
+  pod 'FSCalendar'
 end

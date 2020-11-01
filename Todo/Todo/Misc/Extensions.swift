@@ -169,7 +169,7 @@ extension UIButton {
             self.imageView?.isHighlighted = false
             self.adjustsImageWhenHighlighted = false
             self.imageView?.isUserInteractionEnabled = false
-            self.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 50)
+            self.imageEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 50)
         }
         self.setTitle(label, for: .normal)
 
