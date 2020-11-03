@@ -10,7 +10,7 @@ import UIKit
 import Layoutless
 import TinyConstraints
 import RealmSwift
-
+import FSCalendar
 protocol ReloadDelegate {
     func reloadTableView()
 }
@@ -51,7 +51,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             } else {
                 firstAppend = false
             }
-
+            
         case .favorited:
             addTaskField.addButton(leftButton: .favorite, toolBarDelegate: self)
             if !firstAppend {
@@ -99,6 +99,15 @@ var selectedPriority = UIColor.white
 var selectedDate = ""
 class ListController: UIViewController {
     //MARK: - instance variables
+    let formatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM dd,yyyy"
+        return formatter
+    }()
+    var calendar = FSCalendar()
+    var timePicker: UIDatePicker?
+    let backArrow = UIButton(frame: CGRect(x: 10, y: 15, width: 25, height: 25))
+    var set = UIButton()
     var premadeListTapped = false
     var reloadDelegate: ReloadDelegate?
     var creating = false;
@@ -118,21 +127,28 @@ class ListController: UIViewController {
     var slideUpView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let cv = UICollectionView(frame: .zero
-        , collectionViewLayout: layout)
+                                  , collectionViewLayout: layout)
         cv.backgroundColor = .white
         return cv
     }()
+    var pickerTitle = UILabel()
+    var dateSelected = ""
+    var pickerView  = UIView()
     let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 85))
     var containerView = UIView()
     var priorities = [UIColor.red, gold, UIColor.blue, UIColor.clear]
     var dates = ["Later Today", "Tomorrow", "Next Week", "Pick a Date & Time"]
     var firstAppend = true
+    let window = UIApplication.shared.keyWindow
+    let screenSize = UIScreen.main.bounds.size
+    let slideUpViewHeight: CGFloat = 350
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.view.backgroundColor = .white
+        dateSelected = self.formatter.string(from: Date())
         configureUI()
         createTableHeader()
     }
@@ -186,52 +202,75 @@ class ListController: UIViewController {
         toolbar.toolBarDelegate = self
         scrollView.addSubview(toolbar)
         scrollView.contentSize = CGSize(width: 400, height: 85)
-
+        
         scrollView.backgroundColor = .white
         scrollView.showsHorizontalScrollIndicator = false
         addTaskField.inputAccessoryView = scrollView
     }
-    func createSlider() {
-        let window = UIApplication.shared.keyWindow
+    
+    func createSlider(createSlider: Bool = true, picker: Bool = false) {
         containerView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
         containerView.frame = self.view.frame
-        
         window?.addSubview(containerView)
         containerView.alpha = 0
-        let screenSize = UIScreen.main.bounds.size
-        let slideUpViewHeight: CGFloat = 350
-        slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight)
-        slideUpView.register(TaskSlideCell.self, forCellWithReuseIdentifier: K.taskSlideCell)
-        slideUpView.register(SliderSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
-        slideUpView.dataSource = self
-        slideUpView.delegate = self
-        window?.addSubview(slideUpView)
-        UIView.animate(withDuration: 0.5,
-                       delay: 0, usingSpringWithDamping: 1.0,
-                       initialSpringVelocity: 1.0,
-                       options: .curveEaseOut, animations: {
-                        self.containerView.alpha = 0.8
-                        self.slideUpView.frame = CGRect(x: 0, y: screenSize.height - slideUpViewHeight, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height)
-        }, completion: nil)
-        
+        if createSlider {
+            slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight)
+            slideUpView.register(TaskSlideCell.self, forCellWithReuseIdentifier: K.taskSlideCell)
+            slideUpView.register(SliderSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
+            slideUpView.dataSource = self
+            slideUpView.delegate = self
+            window?.addSubview(slideUpView)
+            UIView.animate(withDuration: 0.5,
+                           delay: 0, usingSpringWithDamping: 1.0,
+                           initialSpringVelocity: 1.0,
+                           options: .curveEaseOut, animations: { [self] in
+                            self.containerView.alpha = 0.8
+                            self.slideUpView.frame = CGRect(x: 0, y: self.screenSize.height - slideUpViewHeight, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height)
+                           }, completion: nil)
+        } else {
+            if picker == true {
+                calendar.removeFromSuperview()
+                set.removeFromSuperview()
+                backArrow.removeFromSuperview()
+                pickerView.frame = CGRect(x: 0, y: ((window?.frame.height)! + 40), width: screenSize.width, height: slideUpViewHeight - 40)
+                window?.addSubview(pickerView)
+                animateSlider(height: slideUpViewHeight - 40)
+                
+            } else {
+                pickerView.frame = CGRect(x: 0, y: ((window?.frame.height)! - 50), width: screenSize.width, height: slideUpViewHeight + 50)
+                window?.addSubview(pickerView)
+                animateSlider(height: slideUpViewHeight + 25)
+            }
+            
+        }
         let tapGesture = UITapGestureRecognizer(target: self,
                                                 action: #selector(slideUpViewTapped))
         containerView.addGestureRecognizer(tapGesture)
     }
+    private func animateSlider(height: CGFloat) {
+        
+        UIView.animate(withDuration: 0.5,
+                       delay: 0, usingSpringWithDamping: 1.0,
+                       initialSpringVelocity: 1.0,
+                       options: .curveEaseOut, animations: { [self] in
+                        self.containerView.alpha = 0.8
+                        self.pickerView.frame = CGRect(x: 0, y: screenSize.height - height, width: self.pickerView.frame.width, height: height)
+                       }, completion: nil)
+    }
     
     @objc func slideUpViewTapped() {
-       let window = UIApplication.shared.keyWindow
-         UIView.animate(withDuration: 0.4,
-                        delay: 0, usingSpringWithDamping: 1.0,
-                        initialSpringVelocity: 1.0,
-                        options: .curveEaseInOut, animations: {
-                          self.containerView.alpha = 0
-                          self.slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
-                          )
-         }, completion: nil)
-
+        let window = UIApplication.shared.keyWindow
+        UIView.animate(withDuration: 0.4,
+                       delay: 0, usingSpringWithDamping: 1.0,
+                       initialSpringVelocity: 1.0,
+                       options: .curveEaseInOut, animations: {
+                        self.containerView.alpha = 0
+                        self.slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
+                        )
+                       }, completion: nil)
+        
     }
-
+    
     
     @objc func tappedAddTask() {
         addTaskField.becomeFirstResponder()
@@ -308,7 +347,7 @@ class ListController: UIViewController {
     
     @objc func keyboardWillHide(notification: NSNotification) {
         self.addTaskField.frame.origin.y = self.view.frame.height + 10
- 
+        
     }
     @objc func respondToSwipeGesture(gesture: UIGestureRecognizer) {
         

@@ -10,4 +10,5 @@ target 'Todo' do
   pod "TinyConstraints"
   pod 'Layoutless'
   pod 'FSCalendar'
+  pod "GWInfinitePickerView"
 end

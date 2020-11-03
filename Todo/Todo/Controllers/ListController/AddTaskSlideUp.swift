@@ -8,8 +8,8 @@
 
 import UIKit
 import RealmSwift
-import FSCal
-extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+import FSCalendar
+extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, FSCalendarDataSource, FSCalendarDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         let lists = uiRealm.objects(ListObject.self)
         if tappedIcon == "Add to a List" {
@@ -68,7 +68,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             selectedDate = dates[indexPath.row]
             if selectedDate == "Pick a Date & Time" {
                 slideUpViewTapped()
-                
+                createSlider(createSlider: false)
+                pickerView.backgroundColor = .white
+                createCalendar()
             } else {
                 addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
                 if !firstAppend {
@@ -119,5 +121,95 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         return CGSize(width: slideUpView.frame.width, height: 50)
     }
     
+    func calendar(_ calendar: FSCalendar, shouldDeselect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
+        return monthPosition == .current
+    }
+    
+    func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
+        dateSelected = self.formatter.string(from: date)
+//        self.configureVisibleCells()
+    }
+    
+    func calendar(_ calendar: FSCalendar, didDeselect date: Date) {
+        print("did deselect date \(self.formatter.string(from: date))")
+//        self.configureVisibleCells()
+    }
+    
+    @objc func tappedCalendarBack() {
+        slideUpViewTapped()
+        pickerView.removeFromSuperview()
+        addTaskField.becomeFirstResponder()
+        calendar.removeFromSuperview()
+        backArrow.removeFromSuperview()
+        set.removeFromSuperview()
+    }
+    @objc func startTimeDiveChanged(sender: UIDatePicker) {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        timePicker?.removeFromSuperview() // if you want to remove time picker
+    }
+    func createCalendar() {
+        calendar = FSCalendar(frame: CGRect(x: 25, y: 35, width: pickerView.frame.width - 50, height: pickerView.frame.height - 50))
+        calendar.delegate = self
+        calendar.dataSource = self
+    
+        backArrow.setBackgroundImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 25, height: 25)).rotate(radians: -.pi/2)?.withTintColor(.blue), for: .normal)
+        backArrow.addTarget(self, action: #selector(tappedCalendarBack), for: .touchUpInside)
+        
+        set = UIButton(frame: CGRect(x: pickerView.frame.width - 80, y: 10, width: 75, height: 25))
+        set.setTitle("Next", for: .normal)
+        set.titleLabel?.font = UIFont(name: "OpenSans", size: 23)
+        set.setTitleColor(.blue, for: .normal)
+        set.addTarget(self, action: #selector(calendarNext), for: .touchUpInside)
+        pickerView.addSubview(set)
+        pickerView.addSubview(backArrow)
+        pickerView.addSubview(calendar)
+    }
+    @objc func tappedPickerBack() {
+        pickerTitle.removeFromSuperview()
+        timePicker?.removeFromSuperview()
+        backArrow.removeTarget(self, action: #selector(tappedPickerBack), for: .allEvents)
+        set.removeTarget(self, action: #selector(pickerNext), for: .touchUpInside)
+        set.removeFromSuperview()
+        slideUpViewTapped()
+        createSlider(createSlider: false, picker: false)
+        createCalendar()
+    }
+    
+    @objc func pickerNext() {
+        print("pickernext")
+    }
+    
+    @objc func calendarNext() {
+        slideUpViewTapped()
+        createSlider(createSlider: false, picker: true)
+        timePicker?.sizeToFit()
+        timePicker = UIDatePicker(frame: CGRect(x: 25, y: 25, width: self.view.bounds.width, height: pickerView.frame.height))
+        timePicker?.datePickerMode = .time
+ 
+        if #available(iOS 13.4, *) {
+            timePicker?.preferredDatePickerStyle = .wheels
+        } else {
+            
+        }
+        backArrow.setBackgroundImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 25, height: 25)).rotate(radians: -.pi/2)?.withTintColor(.blue), for: .normal)
+        backArrow.removeTarget(self, action: #selector(tappedCalendarBack), for: .allEvents)
+        backArrow.addTarget(self, action: #selector(tappedPickerBack), for: .touchUpInside)
+        
+        set = UIButton(frame: CGRect(x: pickerView.frame.width - 80, y: 10, width: 75, height: 25))
+        set.setTitle("Set", for: .normal)
+        set.titleLabel?.font = UIFont(name: "OpenSans", size: 23)
+        set.setTitleColor(.blue, for: .normal)
+        set.removeTarget(self, action: #selector(calendarNext), for: .touchUpInside)
+        set.addTarget(self, action: #selector(pickerNext), for: .touchUpInside)
+        pickerTitle = UILabel(frame: CGRect(x: pickerView.center.x - 60, y: 15, width: 150, height: 25))
+        pickerTitle.text = dateSelected
+        pickerTitle.textColor = .blue
+        pickerTitle.font = UIFont(name: "OpenSans-Regular", size: 20)
+        pickerView.addSubview(pickerTitle)
+        pickerView.addSubview(set)
+        pickerView.addSubview(backArrow)
+        pickerView.addSubview(timePicker!)
+    }
     
 }

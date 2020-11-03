@@ -1,0 +1,6 @@
+framework module GWInfinitePickerView {
+  umbrella header "GWInfinitePickerView-umbrella.h"
+
+  export *
+  module * { export * }
+}
