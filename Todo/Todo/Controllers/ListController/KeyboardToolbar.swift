@@ -26,20 +26,32 @@ enum KeyboardToolbarButton: Int {
         case .addToList: button = UIBarButtonItem(image: UIImage(named: "list")?.resize(targetSize: CGSize(width: 30, height: 30)), style: .plain, target: target, action: action)
         case .favorite: button = UIBarButtonItem(image: UIImage(named: "star")?.resize(targetSize: CGSize(width: 30, height: 30)), style: .plain, target: target, action: action)
             
-        case .priority: button = UIBarButtonItem(image: UIImage(named: "flag")?.resize(targetSize: CGSize(width: 50, height: 50)), style: .plain, target: target, action: action)
+        case .priority: button = UIBarButtonItem(image: UIImage(named: "flag")?.resize(targetSize: CGSize(width: 40, height: 40)), style: .plain, target: target, action: action)
         case .dueDate: button = UIBarButtonItem(image: UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 35, height: 35)), style: .plain, target: target, action: action)
         case .reminder: button = UIBarButtonItem(image: UIImage(named: "bell")?.resize(targetSize: CGSize(width: 40, height: 40)), style: .plain, target: target, action: action)
         case .done: button = UIBarButtonItem(image: UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 35, height: 35)), style: .plain, target: target, action: action)
         case .addedReminder:
-            let view = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 50))
             let  btn = UIButton()
-            btn.frame = CGRect(x: 10, y: 5, width: 180, height: 40)
             btn.addTarget(target, action: action!, for: .touchUpInside)
             btn.layer.cornerRadius = 20
-            btn.backgroundColor = .green
-            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), left: UIImage(named: "bell")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), label: selectedDate, width: 25, height: 25)
+            btn.backgroundColor = green
+            var view = UIView()
+            var label = ""
+            if selectedDate == "Pick a Date & Time" {
+                label = dateSelected + " " + timeSelected
+                btn.frame = CGRect(x: 10, y: 5, width: 270, height: 40)
+                view = UIView(frame: CGRect(x: 0, y: 0, width: 270, height: 50))
+              
+            } else {
+                label = selectedDate
+                btn.frame = CGRect(x: 10, y: 5, width: 180, height: 40)
+                view = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 50))
+            }
+            
+            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), left: UIImage(named: "bell")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), label: label, width: 25, height: 25)
             btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 25)
             view.addSubview(btn)
+            view.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
             button = .init(customView: view)
             
             btn.tag = rawValue
@@ -83,15 +95,27 @@ enum KeyboardToolbarButton: Int {
             button = .init(customView: view)
             btn.tag = rawValue
         case .addedDueDate:
-            let view = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 50))
             let  btn = UIButton()
-            btn.frame = CGRect(x: 10, y: 5, width: 180, height: 40)
+            var view = UIView()
             btn.addTarget(target, action: action!, for: .touchUpInside)
             btn.layer.cornerRadius = 20
             btn.backgroundColor = .blue
-            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), left: UIImage(named:  "calendarOne")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), label: selectedDate, width: 25, height: 25)
+            print(selectedDate)
+            var label = ""
+            if selectedDueDate == "Pick a Date & Time" {
+                label = dateSelected + " " + timeSelected
+                btn.frame = CGRect(x: 10, y: 5, width: 270, height: 40)
+                view = UIView(frame: CGRect(x: 0, y: 0, width: 270, height: 50))
+            } else {
+                label = selectedDueDate
+                btn.frame = CGRect(x: 10, y: 5, width: 180, height: 40)
+                view = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 50))
+            }
+            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), left: UIImage(named:  "calendarOne")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), label: label, width: 25, height: 25)
             btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 25)
+            
             view.addSubview(btn)
+            view.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
             button = .init(customView: view)
             
             btn.tag = rawValue
@@ -169,18 +193,18 @@ class KeyboardToolbar: UIToolbar {
             self.leftButtons.removeAll(where: {$0 == .dueDate})
             self.leftButtons?.append(button)
         }
-            let space = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
-            var leftBarButtons = [UIBarButtonItem]()
-            for button in self.leftButtons {
-                leftBarButtons.append(button.createButton(target: self, action:  #selector(buttonTapped)))
-                if button == .favorited || button == .prioritized  || button == .addedDueDate || button == .addedReminder {
-                    space.width = 10
-                    leftBarButtons.append(space)
-                }
-                
+        let space = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        var leftBarButtons = [UIBarButtonItem]()
+        for button in self.leftButtons {
+            leftBarButtons.append(button.createButton(target: self, action:  #selector(buttonTapped)))
+            if button == .favorited || button == .prioritized  || button == .addedDueDate || button == .addedReminder {
+                space.width = 10
+                leftBarButtons.append(space)
             }
             
-            setItems(leftBarButtons, animated: false)
+        }
+        
+        setItems(leftBarButtons, animated: false)
         }
         
         required init?(coder aDecoder: NSCoder) { super.init(coder: aDecoder) }

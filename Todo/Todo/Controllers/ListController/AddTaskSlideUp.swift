@@ -58,7 +58,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             selectedPriority = priorities[indexPath.row]
             addTaskField.addButton(leftButton: .prioritized, toolBarDelegate: self)
             if !firstAppend {
-                scrollView.contentSize.width = scrollView.contentSize.width + 150
+                scrollView.contentSize.width = scrollView.contentSize.width + 170
             } else {
                 firstAppend = false
             }
@@ -74,7 +74,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             } else {
                 addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
                 if !firstAppend {
-                    scrollView.contentSize.width = scrollView.contentSize.width + 150
+                    scrollView.contentSize.width = scrollView.contentSize.width + 170
                 } else {
                     firstAppend = false
                 }
@@ -82,13 +82,17 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 addTaskField.becomeFirstResponder()
             }
         case "Due":
-            selectedDate = dates[indexPath.row]
-            if selectedDate == "Pick a Date & Time" {
-                
+            selectedDueDate = dates[indexPath.row]
+            if selectedDueDate == "Pick a Date & Time" {
+                dueDateTapped = true
+                slideUpViewTapped()
+                createSlider(createSlider: false)
+                pickerView.backgroundColor = .white
+                createCalendar()
             } else {
                 addTaskField.addButton(leftButton: .addedDueDate, toolBarDelegate: self)
                 if !firstAppend {
-                    scrollView.contentSize.width = scrollView.contentSize.width + 150
+                    scrollView.contentSize.width = scrollView.contentSize.width + 180
                 } else {
                     firstAppend = false
                 }
@@ -177,7 +181,34 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
     
     @objc func pickerNext() {
-        print("pickernext")
+        let time = self.timePicker?.date
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh:mm a"
+        timeSelected = formatter.string(from: time!)
+        pickerTitle.removeFromSuperview()
+        backArrow.removeTarget(self, action: #selector(tappedPickerBack), for: .touchUpInside)
+        backArrow.removeFromSuperview()
+        set.removeTarget(self, action: #selector(pickerNext), for: .touchUpInside)
+        set.removeFromSuperview()
+        timePicker?.removeFromSuperview()
+        pickerView.removeFromSuperview()
+        
+        if !firstAppend {
+            scrollView.contentSize.width = scrollView.contentSize.width + 300
+        } else {
+            scrollView.contentSize.width = scrollView.contentSize.width + 50
+            firstAppend = false
+        }
+        
+        if dueDateTapped {
+            addTaskField.addButton(leftButton: .addedDueDate, toolBarDelegate: self)
+            dueDateTapped = false
+        } else {
+            addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
+        }
+       
+        slideUpViewTapped()
+        addTaskField.becomeFirstResponder()
     }
     
     @objc func calendarNext() {

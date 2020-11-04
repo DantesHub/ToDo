@@ -47,7 +47,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             //add it to input accessory bar
             addTaskField.addButton(leftButton: .favorited, toolBarDelegate: self)
             if !firstAppend {
-                scrollView.contentSize.width = scrollView.contentSize.width + 150
+                scrollView.contentSize.width = scrollView.contentSize.width + 170
             } else {
                 firstAppend = false
             }
@@ -55,7 +55,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
         case .favorited:
             addTaskField.addButton(leftButton: .favorite, toolBarDelegate: self)
             if !firstAppend {
-                scrollView.contentSize.width = scrollView.contentSize.width - 150
+                scrollView.contentSize.width = scrollView.contentSize.width - 170
             } else {
                 if scrollView.contentSize.width <= 600 {
                     firstAppend = true
@@ -64,7 +64,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
         case .prioritized:
             addTaskField.addButton(leftButton: .priority, toolBarDelegate: self)
             if !firstAppend {
-                scrollView.contentSize.width = scrollView.contentSize.width - 150
+                scrollView.contentSize.width = scrollView.contentSize.width - 170
             } else {
                 if scrollView.contentSize.width <= 600 {
                     firstAppend = true
@@ -73,7 +73,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
         case .addedReminder:
             addTaskField.addButton(leftButton: .reminder, toolBarDelegate: self)
             if !firstAppend {
-                scrollView.contentSize.width = scrollView.contentSize.width - 150
+                scrollView.contentSize.width = scrollView.contentSize.width - 300
             } else {
                 if scrollView.contentSize.width <= 600 {
                     firstAppend = true
@@ -82,7 +82,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
         case .addedDueDate:
             addTaskField.addButton(leftButton: .dueDate, toolBarDelegate: self)
             if !firstAppend {
-                scrollView.contentSize.width = scrollView.contentSize.width - 150
+                scrollView.contentSize.width = scrollView.contentSize.width - 300
             } else {
                 if scrollView.contentSize.width <= 600 {
                     firstAppend = true
@@ -97,6 +97,9 @@ var stabilize = false
 let toolbar = KeyboardToolbar()
 var selectedPriority = UIColor.white
 var selectedDate = ""
+var dateSelected = ""
+var timeSelected = ""
+var selectedDueDate = ""
 class ListController: UIViewController {
     //MARK: - instance variables
     let formatter: DateFormatter = {
@@ -131,8 +134,8 @@ class ListController: UIViewController {
         cv.backgroundColor = .white
         return cv
     }()
+    var dueDateTapped = false
     var pickerTitle = UILabel()
-    var dateSelected = ""
     var pickerView  = UIView()
     let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 85))
     var containerView = UIView()
@@ -142,6 +145,7 @@ class ListController: UIViewController {
     let window = UIApplication.shared.keyWindow
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
+    
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -241,8 +245,8 @@ class ListController: UIViewController {
                 window?.addSubview(pickerView)
                 animateSlider(height: slideUpViewHeight + 25)
             }
-            
         }
+        
         let tapGesture = UITapGestureRecognizer(target: self,
                                                 action: #selector(slideUpViewTapped))
         containerView.addGestureRecognizer(tapGesture)
