@@ -9,7 +9,6 @@
 import Foundation
 import RealmSwift
 import MobileCoreServices
-import RealmSwift
 class ListObject: Object {
     @objc dynamic var name = ""
     @objc dynamic var position = 0

@@ -38,7 +38,7 @@ enum KeyboardToolbarButton: Int {
             var view = UIView()
             var label = ""
             if selectedDate == "Pick a Date & Time" {
-                label = dateSelected + " " + timeSelected
+                label = dateReminderSelected + " " + timeReminderSelected
                 btn.frame = CGRect(x: 10, y: 5, width: 270, height: 40)
                 view = UIView(frame: CGRect(x: 0, y: 0, width: 270, height: 50))
               
@@ -100,10 +100,9 @@ enum KeyboardToolbarButton: Int {
             btn.addTarget(target, action: action!, for: .touchUpInside)
             btn.layer.cornerRadius = 20
             btn.backgroundColor = .blue
-            print(selectedDate)
             var label = ""
             if selectedDueDate == "Pick a Date & Time" {
-                label = dateSelected + " " + timeSelected
+                label = dateDueSelected + " " + timeDueSelected
                 btn.frame = CGRect(x: 10, y: 5, width: 270, height: 40)
                 view = UIView(frame: CGRect(x: 0, y: 0, width: 270, height: 50))
             } else {

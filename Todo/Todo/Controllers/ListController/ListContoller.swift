@@ -11,95 +11,24 @@ import Layoutless
 import TinyConstraints
 import RealmSwift
 import FSCalendar
+
 protocol ReloadDelegate {
     func reloadTableView()
 }
 
 
-extension ListController: KeyboardToolbarDelegate, ReloadSlider {
-    func reloadSlider() {
-        slideUpViewTapped()
-        addTaskField.becomeFirstResponder()
-    }
-    
-    func keyboardToolbar(button: UIButton, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField) {
-        slideUpView.reloadData()
-        switch type {
-        case .done:
-            addTaskField.resignFirstResponder()
-        case .addToList:
-            tappedIcon = "Add to a List"
-            addTaskField.resignFirstResponder()
-            createSlider()
-        case .priority:
-            tappedIcon = "Priority"
-            addTaskField.resignFirstResponder()
-            createSlider()
-        case .dueDate:
-            tappedIcon = "Due"
-            addTaskField.resignFirstResponder()
-            createSlider()
-        case .reminder:
-            addTaskField.resignFirstResponder()
-            createSlider()
-            tappedIcon = "Reminder"
-        case .favorite:
-            //add it to input accessory bar
-            addTaskField.addButton(leftButton: .favorited, toolBarDelegate: self)
-            if !firstAppend {
-                scrollView.contentSize.width = scrollView.contentSize.width + 170
-            } else {
-                firstAppend = false
-            }
-            
-        case .favorited:
-            addTaskField.addButton(leftButton: .favorite, toolBarDelegate: self)
-            if !firstAppend {
-                scrollView.contentSize.width = scrollView.contentSize.width - 170
-            } else {
-                if scrollView.contentSize.width <= 600 {
-                    firstAppend = true
-                }
-            }
-        case .prioritized:
-            addTaskField.addButton(leftButton: .priority, toolBarDelegate: self)
-            if !firstAppend {
-                scrollView.contentSize.width = scrollView.contentSize.width - 170
-            } else {
-                if scrollView.contentSize.width <= 600 {
-                    firstAppend = true
-                }
-            }
-        case .addedReminder:
-            addTaskField.addButton(leftButton: .reminder, toolBarDelegate: self)
-            if !firstAppend {
-                scrollView.contentSize.width = scrollView.contentSize.width - 300
-            } else {
-                if scrollView.contentSize.width <= 600 {
-                    firstAppend = true
-                }
-            }
-        case .addedDueDate:
-            addTaskField.addButton(leftButton: .dueDate, toolBarDelegate: self)
-            if !firstAppend {
-                scrollView.contentSize.width = scrollView.contentSize.width - 300
-            } else {
-                if scrollView.contentSize.width <= 600 {
-                    firstAppend = true
-                }
-            }
-        }
-    }
-}
+
 var keyboard = false
 var lastKeyboardHeight: CGFloat = 0
 var stabilize = false
 let toolbar = KeyboardToolbar()
 var selectedPriority = UIColor.white
 var selectedDate = ""
-var dateSelected = ""
-var timeSelected = ""
 var selectedDueDate = ""
+var dateDueSelected = ""
+var timeDueSelected = ""
+var dateReminderSelected = ""
+var timeReminderSelected = ""
 class ListController: UIViewController {
     //MARK: - instance variables
     let formatter: DateFormatter = {
@@ -127,6 +56,10 @@ class ListController: UIViewController {
     var addTaskField = TextFieldWithPadding()
     var frameView = UIView()
     var tappedIcon = ""
+    var favorited = false
+    var planned = false
+    var reminder = false
+    
     var slideUpView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let cv = UICollectionView(frame: .zero
@@ -152,7 +85,6 @@ class ListController: UIViewController {
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.view.backgroundColor = .white
-        dateSelected = self.formatter.string(from: Date())
         configureUI()
         createTableHeader()
     }
@@ -205,7 +137,7 @@ class ListController: UIViewController {
         toolbar.textField = addTaskField
         toolbar.toolBarDelegate = self
         scrollView.addSubview(toolbar)
-        scrollView.contentSize = CGSize(width: 400, height: 85)
+        scrollView.contentSize = CGSize(width: 600, height: 85)
         
         scrollView.backgroundColor = .white
         scrollView.showsHorizontalScrollIndicator = false
@@ -278,6 +210,43 @@ class ListController: UIViewController {
     
     @objc func tappedAddTask() {
         addTaskField.becomeFirstResponder()
+        let done = UIButton(type: .system)
+        done.setTitle("Done", for: .normal)
+        done.setTitleColor(.blue, for: .normal)
+        done.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 18)
+        done.setImage(UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25)), for: .normal)
+        done.addTarget(self, action: #selector(tappedDone), for: .touchUpInside)
+        navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
+    }
+    
+    @objc func tappedDone() {
+        self.addTaskField.resignFirstResponder()
+        if addTaskField.text!.trimmingCharacters(in: .whitespacesAndNewlines) != ""  {
+            let tasks = uiRealm.objects(TaskObject.self)
+            if planned {
+                print(dateDueSelected, timeDueSelected)
+            }
+            if reminder {
+                print(dateReminderSelected, timeReminderSelected)
+            }
+            
+        
+            
+        } else {
+            print("empty")
+        }
+        planned = false
+        reminder = false
+        favorited = false
+        dateReminderSelected = ""
+        timeReminderSelected = ""
+        dateDueSelected = ""
+        timeDueSelected = ""
+        selectedDate = ""
+        scrollView.contentSize = CGSize(width: 400, height: 85)
+        
+        let leftBarButtons: [KeyboardToolbarButton] = premadeListTapped ? [.addToList, .priority, .dueDate, .reminder, .favorite] : [.priority, .dueDate, .reminder, .favorite]
+        addTaskField.addKeyboardToolBar(leftButtons: leftBarButtons, rightButtons: [], toolBarDelegate: self)
     }
     
     @objc func tappedOutside() {
@@ -373,10 +342,24 @@ class ListController: UIViewController {
     }
     
     func configureNavBar() {
-        //          titleLabel.font = UIFont(name: "OpenSans-Regular", size: 18)
-        //          self.navigationItem.leftBarButtonItem = UIBarButtonItem.init(customView: titleLabel)
-        //          titleLabel.textColor = .blue
-        //          navigationController?.navigationBar.barTintColor = .white
+        titleLabel.font = UIFont(name: "OpenSans-Regular", size: 18)
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.blue]
+        let elipsis = UIBarButtonItem(title: "Play", style: .plain, target: self, action: #selector(ellipsisTapped))
+        elipsis.image = UIImage(named: "ellipsis")?.resize(targetSize: CGSize(width: 25, height: 20))
+        elipsis.imageInsets = UIEdgeInsets(top: 2, left: 0, bottom: 0, right: 10)
+        let search = UIBarButtonItem(title: "Play", style: .plain, target: self, action: #selector(searchTapped))
+        search.imageInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: -10)
+        search.image = UIImage(named: "search")?.resize(targetSize: CGSize(width: 25, height: 25))
+        navigationItem.rightBarButtonItems = [elipsis, search]
+        navigationController?.navigationBar.barTintColor = .white
+    }
+    
+    @objc func searchTapped() {
+        print("search Tapped")
+    }
+    
+    @objc func ellipsisTapped() {
+        print("bingo")
     }
 }
 
