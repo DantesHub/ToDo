@@ -59,7 +59,8 @@ class ListController: UIViewController {
     var favorited = false
     var planned = false
     var reminder = false
-    
+    var added50ToReminder = false
+    var added50ToDueDate = false
     var slideUpView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let cv = UICollectionView(frame: .zero
@@ -78,7 +79,6 @@ class ListController: UIViewController {
     let window = UIApplication.shared.keyWindow
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
-    
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -137,7 +137,7 @@ class ListController: UIViewController {
         toolbar.textField = addTaskField
         toolbar.toolBarDelegate = self
         scrollView.addSubview(toolbar)
-        scrollView.contentSize = CGSize(width: 600, height: 85)
+        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: 85)
         
         scrollView.backgroundColor = .white
         scrollView.showsHorizontalScrollIndicator = false
@@ -204,7 +204,6 @@ class ListController: UIViewController {
                         self.slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
                         )
                        }, completion: nil)
-        
     }
     
     
@@ -243,7 +242,10 @@ class ListController: UIViewController {
         dateDueSelected = ""
         timeDueSelected = ""
         selectedDate = ""
-        scrollView.contentSize = CGSize(width: 400, height: 85)
+        firstAppend = true
+        added50ToReminder = false
+        added50ToDueDate = false
+        scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: 85)
         
         let leftBarButtons: [KeyboardToolbarButton] = premadeListTapped ? [.addToList, .priority, .dueDate, .reminder, .favorite] : [.priority, .dueDate, .reminder, .favorite]
         addTaskField.addKeyboardToolBar(leftButtons: leftBarButtons, rightButtons: [], toolBarDelegate: self)

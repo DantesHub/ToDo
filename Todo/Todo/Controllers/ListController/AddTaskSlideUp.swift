@@ -209,7 +209,11 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             scrollView.contentSize.width = scrollView.contentSize.width + 300
             print(scrollView.contentSize.width)
         } else {
-            print("firstappend")
+            if dueDateTapped {
+                added50ToDueDate = true
+            } else {
+                added50ToReminder = true
+            }
             scrollView.contentSize.width = scrollView.contentSize.width + 50
             firstAppend = false
         }

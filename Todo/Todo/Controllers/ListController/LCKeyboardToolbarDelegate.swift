@@ -45,7 +45,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             if !firstAppend {
                 scrollView.contentSize.width = scrollView.contentSize.width - 170
             } else {
-                if scrollView.contentSize.width <= 600 {
+                if scrollView.contentSize.width <= UIScreen.main.bounds.width {
                     firstAppend = true
                 }
             }
@@ -54,25 +54,27 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             if !firstAppend {
                 scrollView.contentSize.width = scrollView.contentSize.width - 170
             } else {
-                if scrollView.contentSize.width <= 600 {
+                if scrollView.contentSize.width <= UIScreen.main.bounds.width {
                     firstAppend = true
                 }
             }
         case .addedReminder:
             reminder = false
             addTaskField.addButton(leftButton: .reminder, toolBarDelegate: self)
-            if !firstAppend {
-                if scrollView.contentSize.width > 600 {
+            if scrollView.contentSize.width > UIScreen.main.bounds.width  {
                     if selectedDate == "Pick a Date & Time" {
-                        scrollView.contentSize.width = scrollView.contentSize.width - 300
+                        if added50ToReminder == true {
+                            scrollView.contentSize.width = scrollView.contentSize.width - 50
+                            added50ToReminder = false
+                            firstAppend = true
+                        } else {
+                            scrollView.contentSize.width = scrollView.contentSize.width - 300
+                        }
                     } else {
                         scrollView.contentSize.width = scrollView.contentSize.width - 170
                     }
-                }
             } else {
-                if scrollView.contentSize.width <= 600 {
                     firstAppend = true
-                }
             }
             print("after")
             print(scrollView.contentSize)
@@ -83,13 +85,19 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             addTaskField.addButton(leftButton: .dueDate, toolBarDelegate: self)
             if !firstAppend {
                 if selectedDueDate == "Pick a Date & Time" {
-                    scrollView.contentSize.width = scrollView.contentSize.width - 300
+                    if added50ToDueDate == true {
+                        scrollView.contentSize.width = scrollView.contentSize.width - 50
+                        added50ToDueDate = false
+                        firstAppend = true
+                    } else {
+                        scrollView.contentSize.width = scrollView.contentSize.width - 300
+                    }
                 } else {
                     scrollView.contentSize.width = scrollView.contentSize.width - 170
                 }
                 
             } else {
-                if scrollView.contentSize.width <= 600 {
+                if scrollView.contentSize.width <= UIScreen.main.bounds.width {
                     firstAppend = true
                 }
             }
