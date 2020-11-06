@@ -78,8 +78,10 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             }
             print("after")
             print(scrollView.contentSize)
+            laterTapped = false
             dateReminderSelected = ""
             timeReminderSelected = ""
+            selectedDate = ""
         case .addedDueDate:
             planned = false
             addTaskField.addButton(leftButton: .dueDate, toolBarDelegate: self)
@@ -101,8 +103,10 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                     firstAppend = true
                 }
             }
+            laterTapped = false
             dateDueSelected = ""
             timeDueSelected = ""
+            selectedDueDate = ""
         }
     }
 }

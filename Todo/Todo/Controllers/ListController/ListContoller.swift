@@ -61,6 +61,7 @@ class ListController: UIViewController {
     var reminder = false
     var added50ToReminder = false
     var added50ToDueDate = false
+    var laterTapped = false
     var slideUpView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let cv = UICollectionView(frame: .zero
@@ -222,15 +223,21 @@ class ListController: UIViewController {
         self.addTaskField.resignFirstResponder()
         if addTaskField.text!.trimmingCharacters(in: .whitespacesAndNewlines) != ""  {
             let tasks = uiRealm.objects(TaskObject.self)
-            if planned {
-                print(dateDueSelected, timeDueSelected)
+            try! uiRealm.write {
+                let task = TaskObject()
+                task.position = tasks.count
+                task.name = addTaskField.text!
+                task.favorited = favorited
+                if planned {
+                    task.planned = dateDueSelected + "-" + timeDueSelected
+                    print(task.planned)
+                }
+                if reminder {
+                    task.reminder = dateReminderSelected + "-" + timeReminderSelected
+                    print(task.reminder)
+                }
+                task.parentList = listTitle
             }
-            if reminder {
-                print(dateReminderSelected, timeReminderSelected)
-            }
-            
-        
-            
         } else {
             print("empty")
         }
@@ -246,7 +253,6 @@ class ListController: UIViewController {
         added50ToReminder = false
         added50ToDueDate = false
         scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: 85)
-        
         let leftBarButtons: [KeyboardToolbarButton] = premadeListTapped ? [.addToList, .priority, .dueDate, .reminder, .favorite] : [.priority, .dueDate, .reminder, .favorite]
         addTaskField.addKeyboardToolBar(leftButtons: leftBarButtons, rightButtons: [], toolBarDelegate: self)
     }

@@ -41,7 +41,10 @@ enum KeyboardToolbarButton: Int {
                 label = dateReminderSelected + " " + timeReminderSelected
                 btn.frame = CGRect(x: 10, y: 5, width: 270, height: 40)
                 view = UIView(frame: CGRect(x: 0, y: 0, width: 270, height: 50))
-              
+            } else if selectedDate == "Later Today" {
+                label = timeReminderSelected
+                btn.frame = CGRect(x: 10, y: 5, width: 180, height: 40)
+                view = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 50))
             } else {
                 label = selectedDate
                 btn.frame = CGRect(x: 10, y: 5, width: 180, height: 40)
@@ -105,6 +108,10 @@ enum KeyboardToolbarButton: Int {
                 label = dateDueSelected + " " + timeDueSelected
                 btn.frame = CGRect(x: 10, y: 5, width: 270, height: 40)
                 view = UIView(frame: CGRect(x: 0, y: 0, width: 270, height: 50))
+            } else if selectedDueDate == "Later Today" {
+                label = timeDueSelected
+                btn.frame = CGRect(x: 10, y: 5, width: 180, height: 40)
+                view = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 50))
             } else {
                 label = selectedDueDate
                 btn.frame = CGRect(x: 10, y: 5, width: 180, height: 40)

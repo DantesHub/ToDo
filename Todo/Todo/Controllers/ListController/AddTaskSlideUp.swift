@@ -72,6 +72,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 createSlider(createSlider: false)
                 pickerView.backgroundColor = .white
                 createCalendar()
+            } else if selectedDate == "Later Today" {
+                laterTapped = true
+                calendarNext()
             } else {
                 addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
                 if !firstAppend {
@@ -80,18 +83,36 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 } else {
                     firstAppend = false
                 }
+                if selectedDate == "Tomorrow" {
+                    let calendar = Calendar.current
+                    let addOneWeekToCurrentDate = calendar.date(byAdding: .day, value: 1, to: Date())
+                    dateReminderSelected = formatter.string(from: addOneWeekToCurrentDate!)
+                    let timeFormatter = DateFormatter()
+                    timeFormatter.dateFormat = "hh:mm a"
+                    timeReminderSelected = timeFormatter.string(from: Date())
+                } else if selectedDate == "Next Week" {
+                    let calendar = Calendar.current
+                    let addOneWeekToCurrentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: Date())
+                    dateReminderSelected = formatter.string(from: addOneWeekToCurrentDate!)
+                    let timeFormatter = DateFormatter()
+                    timeFormatter.dateFormat = "hh:mm a"
+                    timeReminderSelected = timeFormatter.string(from: Date())
+                }
                 slideUpViewTapped()
                 addTaskField.becomeFirstResponder()
             }
         case "Due":
             selectedDueDate = dates[indexPath.row]
+            dueDateTapped = true
             if selectedDueDate == "Pick a Date & Time" {
-                dueDateTapped = true
                 dateDueSelected = self.formatter.string(from: Date())
                 slideUpViewTapped()
                 createSlider(createSlider: false)
                 pickerView.backgroundColor = .white
                 createCalendar()
+            } else if selectedDueDate == "Later Today"  {
+                laterTapped = true
+                calendarNext()
             } else {
                 addTaskField.addButton(leftButton: .addedDueDate, toolBarDelegate: self)
                 if !firstAppend {
@@ -100,6 +121,21 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 } else {
                     firstAppend = false
                 }
+                    if selectedDueDate == "Tomorrow" {
+                        let calendar = Calendar.current
+                        let addOneWeekToCurrentDate = calendar.date(byAdding: .day, value: 1, to: Date())
+                        dateDueSelected = formatter.string(from: addOneWeekToCurrentDate!)
+                        let timeFormatter = DateFormatter()
+                        timeFormatter.dateFormat = "hh:mm a"
+                        timeDueSelected = timeFormatter.string(from: Date())
+                    } else if selectedDueDate == "Next Week" {
+                        let calendar = Calendar.current
+                        let addOneWeekToCurrentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: Date())
+                        dateDueSelected = formatter.string(from: addOneWeekToCurrentDate!)
+                        let timeFormatter = DateFormatter()
+                        timeFormatter.dateFormat = "hh:mm a"
+                        timeDueSelected = timeFormatter.string(from: Date())
+                    }
                 slideUpViewTapped()
                 addTaskField.becomeFirstResponder()
             }
@@ -183,14 +219,20 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         pickerView.addSubview(calendar)
     }
     @objc func tappedPickerBack() {
-        pickerTitle.removeFromSuperview()
-        timePicker?.removeFromSuperview()
-        backArrow.removeTarget(self, action: #selector(tappedPickerBack), for: .allEvents)
-        set.removeTarget(self, action: #selector(pickerNext), for: .touchUpInside)
-        set.removeFromSuperview()
-        slideUpViewTapped()
-        createSlider(createSlider: false, picker: false)
-        createCalendar()
+        if !laterTapped {
+            pickerTitle.removeFromSuperview()
+            timePicker?.removeFromSuperview()
+            backArrow.removeTarget(self, action: #selector(tappedPickerBack), for: .allEvents)
+            set.removeTarget(self, action: #selector(pickerNext), for: .touchUpInside)
+            set.removeFromSuperview()
+            slideUpViewTapped()
+            createSlider(createSlider: false, picker: false)
+            createCalendar()
+        } else {
+            tappedCalendarBack()
+            timePicker?.removeFromSuperview()
+            laterTapped = false
+        }
     }
     
     @objc func pickerNext() {
@@ -204,26 +246,37 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         set.removeFromSuperview()
         timePicker?.removeFromSuperview()
         pickerView.removeFromSuperview()
-        
-        if !firstAppend {
-            scrollView.contentSize.width = scrollView.contentSize.width + 300
-            print(scrollView.contentSize.width)
-        } else {
-            if dueDateTapped {
-                added50ToDueDate = true
+        if !laterTapped {
+            if !firstAppend {
+                scrollView.contentSize.width = scrollView.contentSize.width + 300
+                print(scrollView.contentSize.width)
             } else {
-                added50ToReminder = true
+                if dueDateTapped {
+                    added50ToDueDate = true
+                } else {
+                    added50ToReminder = true
+                }
+                scrollView.contentSize.width = scrollView.contentSize.width + 50
+                firstAppend = false
             }
-            scrollView.contentSize.width = scrollView.contentSize.width + 50
-            firstAppend = false
+        } else {
+            if !firstAppend {
+                scrollView.contentSize.width = scrollView.contentSize.width + 170
+            } else {
+                firstAppend = false
+            }
+            laterTapped = false
         }
         
         if dueDateTapped {
             timeDueSelected = formatter.string(from: time!)
+            dateDueSelected = self.formatter.string(from: Date())
             addTaskField.addButton(leftButton: .addedDueDate, toolBarDelegate: self)
             dueDateTapped = false
         } else {
             timeReminderSelected = formatter.string(from: time!)
+            dateReminderSelected = self.formatter.string(from: Date())
+            print(timeReminderSelected)
             addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
         }
        
@@ -232,6 +285,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
     
     @objc func calendarNext() {
+        pickerView.backgroundColor = .white
         slideUpViewTapped()
         createSlider(createSlider: false, picker: true)
         timePicker?.sizeToFit()
@@ -254,11 +308,14 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         set.removeTarget(self, action: #selector(calendarNext), for: .touchUpInside)
         set.addTarget(self, action: #selector(pickerNext), for: .touchUpInside)
         pickerTitle = UILabel(frame: CGRect(x: pickerView.center.x - 60, y: 15, width: 150, height: 25))
-        if dueDateTapped {
-            pickerTitle.text = dateDueSelected
-        } else {
-            pickerTitle.text = dateReminderSelected
+        if !laterTapped {
+            if dueDateTapped {
+                pickerTitle.text = dateDueSelected
+            } else {
+                pickerTitle.text = dateReminderSelected
+            }
         }
+      
         pickerTitle.textColor = .blue
         pickerTitle.font = UIFont(name: "OpenSans-Regular", size: 20)
         pickerView.addSubview(pickerTitle)
