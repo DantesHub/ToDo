@@ -91,7 +91,7 @@ enum KeyboardToolbarButton: Int {
                 print("default")
             }
             btn.addTarget(target, action: action!, for: .touchUpInside)
-            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 20)), left: UIImage(named: "flag")?.withTintColor(.white).resize(targetSize: CGSize(width: 35, height: 35)), label: label,  width: 25, height: 25)
+            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 20)), left: UIImage(named: "flag")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), label: label,  width: 25, height: 25)
             view.addSubview(btn)
             view.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
             btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 35)

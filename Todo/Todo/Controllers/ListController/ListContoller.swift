@@ -80,12 +80,15 @@ class ListController: UIViewController {
     let window = UIApplication.shared.keyWindow
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
+    var tasksList: [TaskObject] = [TaskObject]()
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.view.backgroundColor = .white
+        let results = uiRealm.objects(TaskObject.self)
+        tasksList = results.map { $0 }
         configureUI()
         createTableHeader()
     }
@@ -237,6 +240,24 @@ class ListController: UIViewController {
                     print(task.reminder)
                 }
                 task.parentList = listTitle
+                uiRealm.add(task)
+                var pri = 0
+                switch selectedPriority {
+                case .red:
+                    pri = 1
+                case gold:
+                    pri = 2
+                case .blue:
+                    pri = 3
+                case .clear:
+                    pri = 4
+                default:
+                    print("default")
+                }
+                
+                if pri != 0 {
+                    task.priority = pri
+                }
             }
         } else {
             print("empty")
@@ -282,15 +303,16 @@ class ListController: UIViewController {
         self.tableView.tableHeaderView = headerView
     }
     func createTableView(top: CGFloat = -10) {
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "list")
+        tableView.register(TaskCell.self, forCellReuseIdentifier: "list")
         tableView.dataSource = self
         tableView.separatorStyle = .none
         view.addSubview(tableView)
-        tableView.leadingToSuperview()
-        tableView.trailingToSuperview()
+        tableView.leadingToSuperview(offset: 10)
+        tableView.trailingToSuperview(offset: 10)
         tableView.bottomToSuperview()
         tableViewTop = tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: top)
         tableViewTop?.isActive = true
+        tableView.backgroundColor = .white
         tableView.tableHeaderView = tableHeader
         let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
         swipeDown.direction = .down

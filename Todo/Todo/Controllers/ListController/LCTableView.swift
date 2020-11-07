@@ -8,6 +8,8 @@
 
 import UIKit
 extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate {
+
+    
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
@@ -15,15 +17,24 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
+        return tasksList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "list")
-        cell.textLabel?.text = "ghibli"
+        let cell = self.tableView.dequeueReusableCell(withIdentifier: "list") as! TaskCell
+        cell.textLabel?.text = tasksList[indexPath.row].name
         cell.selectionStyle = .none
-        cell.backgroundColor = .red
+        cell.backgroundColor = .blue
+        cell.layer.cornerRadius = 10
+        cell.clipsToBounds = false
         return cell
     }
-    
+    private func tableView(tableView: UITableView,
+                 willDisplayCell cell: UITableViewCell,
+          forRowAtIndexPath indexPath: NSIndexPath)
+    {
+        cell.separatorInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        cell.preservesSuperviewLayoutMargins = false
+        cell.layoutMargins = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+    }
 }

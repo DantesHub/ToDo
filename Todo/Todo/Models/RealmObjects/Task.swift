@@ -16,6 +16,9 @@ class TaskObject: Object {
     @objc dynamic var reminder = ""
     @objc dynamic var planned = ""
     @objc dynamic var parentList = ""
+    @objc dynamic var priority = 0
+    @objc dynamic var completed = false
+    @objc dynamic var createdAt = ""
     var steps = List<Step>()
 }
 

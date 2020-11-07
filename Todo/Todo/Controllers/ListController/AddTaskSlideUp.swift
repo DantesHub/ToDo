@@ -30,12 +30,12 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             }
         case "Priority":
             if indexPath.row == 3 {
-                cell.icon.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 40, height: 40))
+                cell.icon.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 30, height: 30))
             } else {
-                cell.icon.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 40, height: 40)).withTintColor(priorities[indexPath.row])
+                cell.icon.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(priorities[indexPath.row])
             }
             cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.25)
-            cell.nameLabel.text = "Priority 1"
+            cell.nameLabel.text = "Priority " + String(indexPath.row + 1)
         case "Reminder":
             cell.nameLabel.text = dates[indexPath.row]
             cell.icon.image = UIImage(named: dates[indexPath.row])?.resize(targetSize: CGSize(width: 30, height: 30))
@@ -276,7 +276,6 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         } else {
             timeReminderSelected = formatter.string(from: time!)
             dateReminderSelected = self.formatter.string(from: Date())
-            print(timeReminderSelected)
             addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
         }
        
