@@ -13,6 +13,7 @@ let superPurple = hexStringToUIColor(hex: "#A73CDE")
 let gold = hexStringToUIColor(hex: "#F8D003")
 let lightGray = hexStringToUIColor(hex: "#EAEAEA")
 let green = hexStringToUIColor(hex: "#50C778")
+let medGray = hexStringToUIColor(hex: "#EEEEEE")
 struct K {
     static let listGroupCell = "listGroupCell"
     static let taskSlideCell = "taskSlideCell"

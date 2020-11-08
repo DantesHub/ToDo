@@ -117,7 +117,7 @@ func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let controller = ListController()
         controller.reloadDelegate = self
         controller.creating = false;
-        controller.premadeListTapped = true
+        premadeListTapped = true
         controller.listTitle = topList[indexPath.row].title
         controller.navigationController?.isNavigationBarHidden = false
         self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
@@ -126,7 +126,7 @@ func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let controller = ListController()
         controller.reloadDelegate = self
         controller.creating = false;
-        controller.premadeListTapped = false
+        premadeListTapped = false
         controller.listTitle = lists[indexPath.row].name
         controller.navigationController?.isNavigationBarHidden = false
         self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)

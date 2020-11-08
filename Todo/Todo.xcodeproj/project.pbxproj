@@ -11,6 +11,7 @@
 		FE0520CE25536B490052F8DA /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0520CD25536B490052F8DA /* Task.swift */; };
 		FE0520D125538D230052F8DA /* LCKeyboardToolbarDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0520D025538D230052F8DA /* LCKeyboardToolbarDelegate.swift */; };
 		FE0520D4255608370052F8DA /* TaskCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0520D3255608370052F8DA /* TaskCell.swift */; };
+		FE0520D7255747AD0052F8DA /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0520D6255747AD0052F8DA /* CircleView.swift */; };
 		FE76790E253E3B9500012A59 /* GroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE76790D253E3B9500012A59 /* GroupCell.swift */; };
 		FE76791025435E8200012A59 /* MainTableviews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE76790F25435E8200012A59 /* MainTableviews.swift */; };
 		FE7679142543816900012A59 /* TaskController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7679132543816900012A59 /* TaskController.swift */; };
@@ -53,6 +54,7 @@
 		FE0520CD25536B490052F8DA /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		FE0520D025538D230052F8DA /* LCKeyboardToolbarDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LCKeyboardToolbarDelegate.swift; sourceTree = "<group>"; };
 		FE0520D3255608370052F8DA /* TaskCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCell.swift; sourceTree = "<group>"; };
+		FE0520D6255747AD0052F8DA /* CircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleView.swift; sourceTree = "<group>"; };
 		FE76790D253E3B9500012A59 /* GroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCell.swift; sourceTree = "<group>"; };
 		FE76790F25435E8200012A59 /* MainTableviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTableviews.swift; sourceTree = "<group>"; };
 		FE7679132543816900012A59 /* TaskController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskController.swift; sourceTree = "<group>"; };
@@ -186,6 +188,7 @@
 				FE7C7652252559FA000549A1 /* SelfSizedTableView.swift */,
 				FEAEAE5D2527B08F003FD07D /* HorizontalBorder.swift */,
 				FEBC2484253668970073EBB1 /* BaseCell.swift */,
+				FE0520D6255747AD0052F8DA /* CircleView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -383,6 +386,7 @@
 				FEAEAE64252BC141003FD07D /* MainMenuTop.swift in Sources */,
 				FE0520D125538D230052F8DA /* LCKeyboardToolbarDelegate.swift in Sources */,
 				FEAEAE62252BBAA2003FD07D /* MainMenuCell.swift in Sources */,
+				FE0520D7255747AD0052F8DA /* CircleView.swift in Sources */,
 				FE7AE2D225152E9700D889DD /* Constants.swift in Sources */,
 				FE7679142543816900012A59 /* TaskController.swift in Sources */,
 				FEBC2485253668970073EBB1 /* BaseCell.swift in Sources */,

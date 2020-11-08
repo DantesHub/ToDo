@@ -29,6 +29,7 @@ var dateDueSelected = ""
 var timeDueSelected = ""
 var dateReminderSelected = ""
 var timeReminderSelected = ""
+var premadeListTapped = false
 class ListController: UIViewController {
     //MARK: - instance variables
     let formatter: DateFormatter = {
@@ -40,7 +41,6 @@ class ListController: UIViewController {
     var timePicker: UIDatePicker?
     let backArrow = UIButton(frame: CGRect(x: 10, y: 15, width: 25, height: 25))
     var set = UIButton()
-    var premadeListTapped = false
     var reloadDelegate: ReloadDelegate?
     var creating = false;
     let bigTextField = UITextField()
@@ -86,7 +86,7 @@ class ListController: UIViewController {
         super.viewDidLoad()
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
-        self.view.backgroundColor = .white
+        self.view.backgroundColor = .black
         let results = uiRealm.objects(TaskObject.self)
         tasksList = results.map { $0 }
         configureUI()
@@ -240,7 +240,6 @@ class ListController: UIViewController {
                     print(task.reminder)
                 }
                 task.parentList = listTitle
-                uiRealm.add(task)
                 var pri = 0
                 switch selectedPriority {
                 case .red:
@@ -255,9 +254,11 @@ class ListController: UIViewController {
                     print("default")
                 }
                 
-                if pri != 0 {
-                    task.priority = pri
-                }
+                
+                task.priority = pri
+                
+                uiRealm.add(task)
+
             }
         } else {
             print("empty")
@@ -312,7 +313,7 @@ class ListController: UIViewController {
         tableView.bottomToSuperview()
         tableViewTop = tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: top)
         tableViewTop?.isActive = true
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = .black
         tableView.tableHeaderView = tableHeader
         let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
         swipeDown.direction = .down
