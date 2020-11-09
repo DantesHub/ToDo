@@ -8,6 +8,8 @@
 
 import UIKit
 import TinyConstraints
+import RealmSwift
+
 class TaskCell: UITableViewCell {
     var title = UILabel()
     var star = UIImageView()
@@ -22,7 +24,18 @@ class TaskCell: UITableViewCell {
     var bottomView = UIView()
     var listLabel = UILabel()
     var prioritized = 0
-    var reminder = false
+    var repeatTask  = false
+    var favorited = false
+    var completed =  false
+    var position = 0
+    var parentList = ""
+    var tasks = uiRealm.objects(TaskObject.self)
+    let check: UIImageView = {
+       let iv = UIImageView()
+        iv.image = UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 20, height: 20)).withTintColor(.red)
+        iv.isUserInteractionEnabled = true
+        return iv
+    }()
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
             super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureUI()
@@ -47,18 +60,23 @@ class TaskCell: UITableViewCell {
         title.top(to: self, offset: 15)
         
         self.addSubview(star)
-        star.image = UIImage(named: "star")?.resize(targetSize: CGSize(width: 25, height: 25))
+     
         star.trailing(to: self, offset: -15)
-        star.top(to: self, offset: 10)
+        star.top(to: self, offset: 15)
         let starGest = UITapGestureRecognizer(target: self, action: #selector(tappedStar))
         star.isUserInteractionEnabled = true
         star.addGestureRecognizer(starGest)
         reminderDate.text = ""
         steps.text = ""
         plannedDate.text = ""
-        
     }
     func configureBottomView() {
+        star.image = UIImage(named: favorited ? "starfilled" :"star")?.resize(targetSize: CGSize(width: 27, height: 27))
+        
+        if completed == true {
+            tappedCircle()
+        }
+        
         bottomView.frame = CGRect(x: 0, y: 48, width: UIScreen.main.bounds.width - 20, height: 28)
         bottomView.layer.cornerRadius = 10
         bottomView.backgroundColor = medGray
@@ -131,7 +149,7 @@ class TaskCell: UITableViewCell {
         let dot3 = RoundView()
         bottomView.addSubview(calendar)
         calendar.top(to: bottomView, offset: 5)
-        if prioritized != 0 && (plannedDate.text != "" || reminderDate.text != "") {
+        if prioritized != 0 && (plannedDate.text != "" || reminderDate.text != "" || repeatTask != false) {
             bottomView.addSubview(dot3)
             dot3.width(5)
             dot3.height(5)
@@ -157,7 +175,7 @@ class TaskCell: UITableViewCell {
             plannedDate.top(to: bottomView, offset: 5)
             plannedDate.font = UIFont(name: "OpenSans-Regular", size: 12)
             plannedDate.textColor = .gray
-            if reminderDate.text != "" || reminder != false{
+            if reminderDate.text != "" || repeatTask != false {
                 bottomView.addSubview(dot4)
                 dot4.width(5)
                 dot4.height(5)
@@ -166,7 +184,7 @@ class TaskCell: UITableViewCell {
                 dot4.backgroundColor = .black
             }
         }
-        
+        let dot5 = RoundView()
         if reminderDate.text != "" {
             bell.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 20, height: 20))
             if plannedDate.text != "" {
@@ -178,18 +196,86 @@ class TaskCell: UITableViewCell {
             } else if listLabel.text != "" {
                 bell.leadingAnchor.constraint(equalTo: dot.trailingAnchor, constant: 5).isActive = true
             } else {
-                bell.trailingAnchor.constraint(equalTo: plannedDate.trailingAnchor).isActive = true
+                bell.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor, constant: 20).isActive = true
+            }
+            if repeatTask != false {
+                bottomView.addSubview(dot5)
+                dot5.width(5)
+                dot5.height(5)
+                dot5.leadingAnchor.constraint(equalTo: bell.trailingAnchor, constant: 8).isActive = true
+                dot5.top(to: bottomView, offset: 12)
+                dot5.backgroundColor = .black
+            }
+        }
+        
+        bottomView.addSubview(repeatImage)
+        repeatImage.top(to: bottomView, offset: 3)
+        if repeatTask != false {
+            repeatImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 20, height: 20))
+            if reminderDate.text != "" {
+                repeatImage.leadingAnchor.constraint(equalTo: dot5.trailingAnchor, constant: 5).isActive = true
+            } else if plannedDate.text != "" {
+                repeatImage.leadingAnchor.constraint(equalTo: dot4.trailingAnchor, constant: 5).isActive = true
+            } else if prioritized != 0 {
+                repeatImage.leadingAnchor.constraint(equalTo: dot3.trailingAnchor, constant: 5).isActive = true
+            } else if steps.text != "" {
+                repeatImage.leadingAnchor.constraint(equalTo: dot2.trailingAnchor, constant: 5).isActive = true
+            } else if listLabel.text != "" {
+                repeatImage.leadingAnchor.constraint(equalTo: dot.trailingAnchor, constant: 5).isActive = true
+            } else {
+                repeatImage.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor).isActive = true
+            }
+        }
+    }
+    @objc func tappedCircle() {
+        circle.backgroundColor = .white
+        circle.addSubview(check)
+        check.width(25)
+        check.height(25)
+        check.top(to: circle)
+        check.leadingAnchor.constraint(equalTo: circle.leadingAnchor).isActive = true
+        let checkGest = UITapGestureRecognizer(target: self, action: #selector(tappedCheck))
+        check.addGestureRecognizer(checkGest)
+        
+        let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: title.text!)
+            attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
+        title.attributedText = attributeString
+        for task in tasks {
+            if task.position == position && task.parentList == parentList && task.name == title.text {
+                try! uiRealm.write {
+                    task.completed = true
+                }
             }
         }
 
-        
     }
-    @objc func tappedCircle() {
-        print("tapped Circle")
+    @objc func tappedCheck() {
+        check.removeFromSuperview()
+        let titleText = title.text
+        title.attributedText = .none
+        title.text = titleText
+        for task in tasks {
+            if task.position == position && task.parentList == parentList && task.name == title.text {
+                let completed = task.completed
+                try! uiRealm.write {
+                    task.completed = !completed
+                }
+            }
+        }
     }
     
+    
     @objc func tappedStar() {
-        print("tapped Star")
+        for task in tasks {
+            if task.position == position && task.parentList == parentList && task.name == title.text {
+                let isFavorited = task.favorited
+                try! uiRealm.write {
+                    task.favorited = !isFavorited
+                }
+                
+                star.image = UIImage(named: task.favorited ? "starfilled" : "star")?.resize(targetSize: CGSize(width: 27, height: 27))
+            }
+        }
     }
     
     override func layoutSubviews() {

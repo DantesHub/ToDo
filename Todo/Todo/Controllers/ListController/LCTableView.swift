@@ -22,14 +22,20 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = self.tableView.dequeueReusableCell(withIdentifier: "list") as! TaskCell
-        cell.title.text = tasksList[indexPath.row].name
-        cell.prioritized = tasksList[indexPath.row].priority
-        if let index = tasksList[indexPath.row].planned.firstIndex(of: ",") {
-            cell.plannedDate.text = String(tasksList[indexPath.row].planned[..<index])
+        let task = tasksList[indexPath.row]
+        cell.title.text = task.name
+        cell.prioritized = task.priority
+        if let index = task.planned.firstIndex(of: ",") {
+            cell.plannedDate.text = String(task.planned[..<index])
         } else {
-            cell.plannedDate.text = String(tasksList[indexPath.row].planned)
+            cell.plannedDate.text = String(task.planned)
         }
-        cell.reminderDate.text = tasksList[indexPath.row].reminder
+        cell.favorited = task.favorited
+        cell.reminderDate.text = task.reminder
+        cell.completed = task.completed
+        cell.repeatTask = true
+        cell.position = task.position
+        cell.parentList = task.parentList
         cell.configureBottomView()
         cell.selectionStyle = .none
         cell.backgroundColor = .white

@@ -84,7 +84,7 @@ class MainViewController: UIViewController, ReloadDelegate {
                     if position.groupName == result.name {
                         groupList[position.groupPosition] = list
                  }
-                }
+               }
             }
             try! uiRealm.write {
                 result.lists = groupList
