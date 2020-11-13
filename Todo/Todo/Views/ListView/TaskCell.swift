@@ -9,6 +9,9 @@
 import UIKit
 import TinyConstraints
 import RealmSwift
+protocol TaskViewDelegate {
+    func reloadTaskTableView(at: IndexPath, checked: Bool)
+}
 
 class TaskCell: UITableViewCell {
     var title = UILabel()
@@ -24,22 +27,24 @@ class TaskCell: UITableViewCell {
     var bottomView = UIView()
     var listLabel = UILabel()
     var prioritized = 0
+    var path = IndexPath()
     var repeatTask  = false
     var favorited = false
     var completed =  false
     var position = 0
     var parentList = ""
     var tasks = uiRealm.objects(TaskObject.self)
+    var taskCellDelegate: TaskViewDelegate?
     let check: UIImageView = {
-       let iv = UIImageView()
+        let iv = UIImageView()
         iv.image = UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 20, height: 20)).withTintColor(.red)
         iv.isUserInteractionEnabled = true
         return iv
     }()
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-            super.init(style: style, reuseIdentifier: reuseIdentifier)
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureUI()
-     }
+    }
     
     func configureUI() {
         self.addSubview(circle)
@@ -60,7 +65,7 @@ class TaskCell: UITableViewCell {
         title.top(to: self, offset: 15)
         
         self.addSubview(star)
-     
+        
         star.trailing(to: self, offset: -15)
         star.top(to: self, offset: 15)
         let starGest = UITapGestureRecognizer(target: self, action: #selector(tappedStar))
@@ -74,7 +79,7 @@ class TaskCell: UITableViewCell {
         star.image = UIImage(named: favorited ? "starfilled" :"star")?.resize(targetSize: CGSize(width: 27, height: 27))
         
         if completed == true {
-            tappedCircle()
+            configureCircle()
         }
         
         bottomView.frame = CGRect(x: 0, y: 48, width: UIScreen.main.bounds.width - 20, height: 28)
@@ -126,7 +131,7 @@ class TaskCell: UITableViewCell {
             case 4:
                 color = .clear
             default:
-                print("boomg")
+                print("boon")
             }
             if color == UIColor.clear {
                 priority.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 20, height: 20))
@@ -223,11 +228,11 @@ class TaskCell: UITableViewCell {
             } else if listLabel.text != "" {
                 repeatImage.leadingAnchor.constraint(equalTo: dot.trailingAnchor, constant: 5).isActive = true
             } else {
-                repeatImage.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor).isActive = true
+                repeatImage.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor, constant: 15).isActive = true
             }
         }
     }
-    @objc func tappedCircle() {
+    func configureCircle() {
         circle.backgroundColor = .white
         circle.addSubview(check)
         check.width(25)
@@ -238,30 +243,53 @@ class TaskCell: UITableViewCell {
         check.addGestureRecognizer(checkGest)
         
         let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: title.text!)
-            attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
+        attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
         title.attributedText = attributeString
+    }
+    @objc func tappedCircle() {
+        configureCircle()
+        var delTaskPosition = 0
         for task in tasks {
             if task.position == position && task.parentList == parentList && task.name == title.text {
                 try! uiRealm.write {
                     task.completed = true
+                    delTaskPosition = task.position
+                    task.position = -1
                 }
             }
         }
-
+        for task in tasks {
+            if task.parentList == parentList && task.completed == false && task.position > delTaskPosition {
+                try! uiRealm.write {
+                    task.position -= 1
+                }
+            }
+        }
+  
+        taskCellDelegate?.reloadTaskTableView(at: path, checked: false)
     }
+    
     @objc func tappedCheck() {
         check.removeFromSuperview()
+        var totalTasks = 0
+        for task in tasks {
+            if task.completed == false && task.parentList == parentList {
+                totalTasks += 1
+            }
+        }
+        for task in tasks {
+            if task.position == position && task.parentList == parentList && task.name == title.text {
+                try! uiRealm.write {
+                    task.completed = false
+                    task.position = totalTasks
+                }
+            }
+        }
+        
         let titleText = title.text
         title.attributedText = .none
         title.text = titleText
-        for task in tasks {
-            if task.position == position && task.parentList == parentList && task.name == title.text {
-                let completed = task.completed
-                try! uiRealm.write {
-                    task.completed = !completed
-                }
-            }
-        }
+        taskCellDelegate?.reloadTaskTableView(at: path, checked: true)
     }
     
     
@@ -284,8 +312,8 @@ class TaskCell: UITableViewCell {
         let margins = UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
         contentView.frame = contentView.frame.inset(by: margins)
     }
-     required init?(coder aDecoder: NSCoder) {
-       super.init(coder: aDecoder)
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
     }
-
+    
 }

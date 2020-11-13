@@ -24,7 +24,6 @@ class SliderSectionHeader: UICollectionReusableView{
     var hr = UIView()
     var backArrow = UIImageView()
      override init(frame: CGRect) {
-        
         super.init(frame: frame)
         addSubview(backArrow)
         backArrow.image = UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 25, height: 25)).rotate(radians: -.pi/2)?.withTintColor(.gray)

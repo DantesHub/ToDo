@@ -110,8 +110,8 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
         cell.selectionStyle = .none
         return cell
     }
-    
 }
+    
 func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     if tableView == topTableView {
         let controller = ListController()
@@ -337,29 +337,28 @@ func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) 
         return 0
     }
 }
-        @objc func groupExpandClose(button: UIButton) {
-            print("expanding")
-            let section = button.tag
-            // we'll try to close the section first by deleting the rows
-            var indexPaths = [IndexPath]()
-            for row in groups[section].lists.indices {
-                let indexPath = IndexPath(row: row, section: section)
-                indexPaths.append(indexPath)
-            }
-            
-            
-            let isExpanded = groups[section].isExpanded
-            try! uiRealm.write {
-                groups[section].isExpanded = !isExpanded
-            }
-            if isExpanded {
-                groupTableView.deleteRows(at: indexPaths, with: .fade)
-                button.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi/2), for: UIControl.State.normal)
-            } else {
-                groupTableView.insertRows(at: indexPaths, with: .fade)
-                button.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi), for: UIControl.State.normal)
-            }
+    @objc func groupExpandClose(button: UIButton) {
+        let section = button.tag
+        // we'll try to close the section first by deleting the rows
+        var indexPaths = [IndexPath]()
+        for row in groups[section].lists.indices {
+            let indexPath = IndexPath(row: row, section: section)
+            indexPaths.append(indexPath)
         }
         
+        
+        let isExpanded = groups[section].isExpanded
+        try! uiRealm.write {
+            groups[section].isExpanded = !isExpanded
+        }
+        if isExpanded {
+            groupTableView.deleteRows(at: indexPaths, with: .fade)
+            button.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi/2), for: UIControl.State.normal)
+        } else {
+            groupTableView.insertRows(at: indexPaths, with: .fade)
+            button.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 15, height: 15)).rotate(radians: .pi), for: UIControl.State.normal)
+        }
     }
+    
+}
 

@@ -17,7 +17,6 @@ protocol ReloadDelegate {
 }
 
 
-
 var keyboard = false
 var lastKeyboardHeight: CGFloat = 0
 var stabilize = false
@@ -30,7 +29,7 @@ var timeDueSelected = ""
 var dateReminderSelected = ""
 var timeReminderSelected = ""
 var premadeListTapped = false
-class ListController: UIViewController {
+class ListController: UIViewController, TaskViewDelegate {
     //MARK: - instance variables
     let formatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -81,14 +80,15 @@ class ListController: UIViewController {
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
     var tasksList: [TaskObject] = [TaskObject]()
+    var completedTasks: [TaskObject] = [TaskObject]()
+    var completedExpanded = true
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
-        self.view.backgroundColor = .black
-        let results = uiRealm.objects(TaskObject.self)
-        tasksList = results.map { $0 }
+        self.view.backgroundColor = .white
+        getRealmData()
         configureUI()
         createTableHeader()
     }
@@ -209,8 +209,20 @@ class ListController: UIViewController {
                         )
                        }, completion: nil)
     }
+    func getRealmData() {
+        let results = uiRealm.objects(TaskObject.self)
+        completedTasks = []
+        tasksList = []
+        for result in results {
+            if result.completed == true {
+                completedTasks.append(result)
+            } else {
+                tasksList.append(result)
+            }
+        }
+    }
     
-    
+
     @objc func tappedAddTask() {
         addTaskField.becomeFirstResponder()
         let done = UIButton(type: .system)
@@ -313,7 +325,7 @@ class ListController: UIViewController {
         tableView.bottomToSuperview()
         tableViewTop = tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: top)
         tableViewTop?.isActive = true
-        tableView.backgroundColor = .black
+        tableView.backgroundColor = .white
         tableView.tableHeaderView = tableHeader
         let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
         swipeDown.direction = .down
@@ -325,6 +337,7 @@ class ListController: UIViewController {
         swipeUp.delegate = self
         swipeDown.delegate = self
     }
+    
     @objc func keyboardWillShow(notification: NSNotification) {
         let info:NSDictionary = notification.userInfo! as NSDictionary
         let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
@@ -354,9 +367,7 @@ class ListController: UIViewController {
         
     }
     @objc func respondToSwipeGesture(gesture: UIGestureRecognizer) {
-        
         if let swipeGesture = gesture as? UISwipeGestureRecognizer {
-            
             switch swipeGesture.direction {
             case .down:
                 self.tableView.tableHeaderView?.isHidden = false
