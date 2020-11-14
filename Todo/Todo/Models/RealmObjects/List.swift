@@ -30,16 +30,26 @@ extension Array where Element == ListObject {
         let results = uiRealm.objects(ListObject.self)
         lists.remove(at: sourceIndex)
         lists.insert(place, at: destinationIndex)
-        for result in results {
-            if result.position == sourceIndex {
-                try! uiRealm.write {
-                    result.position = destinationIndex
-                }
-            } else if result.position == destinationIndex {
-                try! uiRealm.write {
-                    result.position = sourceIndex
-                }
+        try! uiRealm.write {
+            for result in results {
+                //src 3 -> dest 5 creates errpr
+                let pos = result.position
+                    if (sourceIndex < pos && destinationIndex < pos) || (sourceIndex > pos && destinationIndex > pos) {
+                    } else if pos == destinationIndex {
+                        if sourceIndex > destinationIndex {
+                            result.position += 1
+                        } else {
+                            result.position -= 1
+                        }
+                    } else if pos == sourceIndex {
+                        result.position = destinationIndex
+                    } else if sourceIndex > pos {
+                        result.position += 1
+                    } else if pos < destinationIndex  {
+                        result.position -= 1
+                    }
             }
+            
         }
     }
     

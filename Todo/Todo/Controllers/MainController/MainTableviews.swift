@@ -181,6 +181,14 @@ func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.Ed
     let listName = lists[indexPath.row].name
     if tableView == listTableView {
         if editingStyle == .delete {
+            let tasks = uiRealm.objects(TaskObject.self)
+            for task in tasks {
+                if task.parentList == lists[indexPath.row].name {
+                    try! uiRealm.write {
+                        uiRealm.delete(task)
+                    }
+                }
+            }
             lists.remove(at: indexPath.row)
             listTableView.deleteRows(at: [indexPath], with: .fade)
             let lists = uiRealm.objects(ListObject.self)
@@ -205,6 +213,7 @@ func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.Ed
                         break
                     }
                 }
+                
                 //update group positions in group positions realm
                 for pos in positions {
                     for deletedPos in deletedPozs {

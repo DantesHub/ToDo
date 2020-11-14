@@ -7,8 +7,7 @@
 //
 
 import UIKit
-extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate {
-    
+extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate, UITableViewDragDelegate, UITableViewDropDelegate {
     func reloadTaskTableView(at: IndexPath, checked: Bool) {
         getRealmData()
         if checked {
@@ -35,6 +34,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             cell.path = IndexPath(item: completedTasks.count - 1 , section: 1)
             cell.position = -1
             cell.completed = false
+            self.view.setNeedsLayout()
         }
     }
     
@@ -58,18 +58,18 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let completedView = UIView()
-        completedView.backgroundColor = .clear
-        if section == 1 {
+        let completedView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "completedHeader")
+        completedView!.backgroundColor = .clear
+        if section == 1 && completedTasks.count != 0 {
             let label = UIButton()
             label.titleLabel?.font = UIFont(name: "OpenSans-Regular", size: 18)
             label.titleLabel?.textColor = .white
             label.setTitle("Completed", for: .normal)
             label.setImage(UIImage(named: "arrow")?.rotate(radians: .pi)!.withTintColor(.white).resize(targetSize: CGSize(width: 18, height: 20)), for: .normal)
             label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
-            completedView.addSubview(label)
-            label.top(to: completedView, offset: 10)
-            label.leadingAnchor.constraint(equalTo: completedView.leadingAnchor, constant: 5).isActive = true
+            completedView!.addSubview(label)
+            label.top(to: completedView!, offset: 10)
+            label.leadingAnchor.constraint(equalTo: completedView!.leadingAnchor, constant: 5).isActive = true
             label.backgroundColor = UIColor.black.withAlphaComponent(0.6)
             label.width(tableView.frame.width * 0.35)
             label.height(30)
@@ -79,6 +79,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         
         return completedView
     }
+    
     
     @objc func tappedCompleted(button: UIButton) {
         if completedExpanded {
@@ -101,7 +102,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if section == 1 {
+        if section == 1 && completedTasks.count != 0  {
             return 40
         } else {
             return 0
@@ -118,12 +119,11 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         }
         cell.title.text = task.name
         cell.prioritized = task.priority
-        
         if let index = task.planned.firstIndex(of: ",") {
-            cell.plannedDate.text = String(task.planned[..<index])
-        } else {
-            cell.plannedDate.text = String(task.planned)
-        }
+                 cell.plannedDate.text = String(task.planned[..<index])
+             } else {
+                 cell.plannedDate.text = String(task.planned)
+             }
         cell.path = indexPath
         cell.taskCellDelegate = self
         cell.favorited = task.favorited
@@ -155,4 +155,86 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 80; //Choose your custom row height
     }
+    
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        if sourceIndexPath == destinationIndexPath {
+            return
+        }
+        let results = uiRealm.objects(TaskObject.self)
+        try! uiRealm.write {
+            for result in results {
+                if result.parentList == listTitle {
+                    let pos = result.position
+                    if (sourceIndexPath[1] < pos && destinationIndexPath[1] < pos) || (sourceIndexPath[1] > pos && destinationIndexPath[1]  > pos) {
+                        } else if pos == destinationIndexPath[1] {
+                            if sourceIndexPath[1] > destinationIndexPath[1]  {
+                                result.position += 1
+                            } else {
+                                result.position -= 1
+                            }
+                        } else if pos == sourceIndexPath[1] {
+                            result.position = destinationIndexPath[1]
+                        } else if sourceIndexPath[1] > pos {
+                            result.position += 1
+                        } else if pos < destinationIndexPath[1]   {
+                            result.position -= 1
+                        }
+                }
+            }
+        }
+        getRealmData()
+        for idx in 0..<tasksList.count {
+            let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 0)) as! TaskCell
+            cell.path = IndexPath(item: idx, section: 0)
+            cell.position = idx
+            cell.completed = false
+        }
+    }
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+            pickUpSection = indexPath.section
+            return tasksList.dragItems(for: indexPath)
+    }
+    
+    func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
+        if tableView.hasActiveDrag {
+            if session.items.count > 1 {
+                return UITableViewDropProposal(operation: .cancel)
+            } else {
+                if pickUpSection == 1 {
+                    return UITableViewDropProposal(operation: .cancel)
+                }
+                return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
+            }
+        } else {
+            return UITableViewDropProposal(operation: .copy, intent: .insertAtDestinationIndexPath)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
+        let destinationIndexPath: IndexPath
+        
+        if let indexPath = coordinator.destinationIndexPath {
+            destinationIndexPath = indexPath
+        } else {
+            // Get last index path of table view.
+            let section = tableView.numberOfSections - 1
+            let row = tableView.numberOfRows(inSection: section)
+            destinationIndexPath = IndexPath(row: row, section: section)
+        }
+        
+        coordinator.session.loadObjects(ofClass: NSString.self) { items in
+            // Consume drag items.
+            let stringItems = items as! [TaskObject]
+            
+            var indexPaths = [IndexPath]()
+            for (index, item) in stringItems.enumerated() {
+                let indexPath = IndexPath(row: destinationIndexPath.row + index, section: destinationIndexPath.section)
+                tasksList.addItem(item, at: indexPath.row)
+                indexPaths.append(indexPath)
+            }
+
+            tableView.insertRows(at: indexPaths, with: .automatic)
+        }
+    }
+    
 }

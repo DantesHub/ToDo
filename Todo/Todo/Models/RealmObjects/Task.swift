@@ -8,6 +8,7 @@
 
 import Foundation
 import RealmSwift
+import MobileCoreServices
 
 class TaskObject: Object {
     @objc dynamic var name = ""
@@ -25,4 +26,34 @@ class TaskObject: Object {
 class Step: Object {
     @objc dynamic var stepName = ""
     @objc dynamic var done = false
+}
+
+extension Array where Element == TaskObject {
+    func dragItems(for indexPath: IndexPath) -> [UIDragItem] {
+        let placeName = indexPath.section == 0 ? tasksList[indexPath.row].name : completedTasks[indexPath.row].name
+
+        let data = placeName.data(using: .utf8)
+        let itemProvider = NSItemProvider()
+        
+        itemProvider.registerDataRepresentation(forTypeIdentifier: kUTTypePlainText as String, visibility: .all) { completion in
+            completion(data, nil)
+            return nil
+        }
+
+        return [
+            UIDragItem(itemProvider: itemProvider)
+        ]
+    }
+    /// The method for adding a new item to the table view's data model.
+    func addItem(_ place: TaskObject
+                 , at index: Int) {
+        tasksList.insert(place, at: index)
+    }
+    /**
+         A helper function that serves as an interface to the data model,
+         called by the implementation of the `tableView(_ canHandle:)` method.
+    */
+    func canHandle(_ session: UIDropSession) -> Bool {
+        return session.canLoadObjects(ofClass: NSString.self)
+    }
 }

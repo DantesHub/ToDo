@@ -29,6 +29,8 @@ var timeDueSelected = ""
 var dateReminderSelected = ""
 var timeReminderSelected = ""
 var premadeListTapped = false
+var tasksList: [TaskObject] = [TaskObject]()
+var completedTasks: [TaskObject] = [TaskObject]()
 class ListController: UIViewController, TaskViewDelegate {
     //MARK: - instance variables
     let formatter: DateFormatter = {
@@ -68,6 +70,7 @@ class ListController: UIViewController, TaskViewDelegate {
         cv.backgroundColor = .white
         return cv
     }()
+    var pickUpSection = 0
     var dueDateTapped = false
     var pickerTitle = UILabel()
     var pickerView  = UIView()
@@ -79,8 +82,6 @@ class ListController: UIViewController, TaskViewDelegate {
     let window = UIApplication.shared.keyWindow
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
-    var tasksList: [TaskObject] = [TaskObject]()
-    var completedTasks: [TaskObject] = [TaskObject]()
     var completedExpanded = true
     //MARK: - init
     override func viewDidLoad() {
@@ -88,13 +89,18 @@ class ListController: UIViewController, TaskViewDelegate {
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.view.backgroundColor = .white
-        getRealmData()
+        if !creating {
+            getRealmData()
+        }
         configureUI()
         createTableHeader()
     }
     var scrollHeight: CGFloat = 100
     override func viewDidLayoutSubviews() {
         tableView.delegate = self
+        tableView.dragInteractionEnabled = true
+        tableView.dragDelegate = self
+        tableView.dropDelegate = self
     }
     override func viewWillDisappear(_ animated: Bool) {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -209,17 +215,20 @@ class ListController: UIViewController, TaskViewDelegate {
                         )
                        }, completion: nil)
     }
+    
     func getRealmData() {
-        let results = uiRealm.objects(TaskObject.self)
+        var results = uiRealm.objects(TaskObject.self)
+        results = results.sorted(byKeyPath: "position", ascending: true)
         completedTasks = []
         tasksList = []
         for result in results {
-            if result.completed == true {
+            if result.completed == true && result.parentList == listTitle {
                 completedTasks.append(result)
-            } else {
+            } else if result.parentList == listTitle {
                 tasksList.append(result)
             }
         }
+        print(tasksList)
     }
     
 
@@ -237,10 +246,10 @@ class ListController: UIViewController, TaskViewDelegate {
     @objc func tappedDone() {
         self.addTaskField.resignFirstResponder()
         if addTaskField.text!.trimmingCharacters(in: .whitespacesAndNewlines) != ""  {
-            let tasks = uiRealm.objects(TaskObject.self)
             try! uiRealm.write {
                 let task = TaskObject()
-                task.position = tasks.count
+                task.position = tasksList.count
+                task.completed = false
                 task.name = addTaskField.text!
                 task.favorited = favorited
                 if planned {
@@ -265,12 +274,8 @@ class ListController: UIViewController, TaskViewDelegate {
                 default:
                     print("default")
                 }
-                
-                
                 task.priority = pri
-                
                 uiRealm.add(task)
-
             }
         } else {
             print("empty")
@@ -289,6 +294,9 @@ class ListController: UIViewController, TaskViewDelegate {
         scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: 85)
         let leftBarButtons: [KeyboardToolbarButton] = premadeListTapped ? [.addToList, .priority, .dueDate, .reminder, .favorite] : [.priority, .dueDate, .reminder, .favorite]
         addTaskField.addKeyboardToolBar(leftButtons: leftBarButtons, rightButtons: [], toolBarDelegate: self)
+        addTaskField.text = ""
+        getRealmData()
+        tableView.reloadData()
     }
     
     @objc func tappedOutside() {
@@ -317,6 +325,7 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     func createTableView(top: CGFloat = -10) {
         tableView.register(TaskCell.self, forCellReuseIdentifier: "list")
+        tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "completedHeader")
         tableView.dataSource = self
         tableView.separatorStyle = .none
         view.addSubview(tableView)
@@ -394,7 +403,11 @@ class ListController: UIViewController, TaskViewDelegate {
         search.image = UIImage(named: "search")?.resize(targetSize: CGSize(width: 25, height: 25))
         navigationItem.rightBarButtonItems = [elipsis, search]
         navigationController?.navigationBar.barTintColor = .white
+        navigationController?.navigationBar.isTranslucent = false
+
     }
+    
+   
     
     @objc func searchTapped() {
         print("search Tapped")
@@ -403,6 +416,7 @@ class ListController: UIViewController, TaskViewDelegate {
     @objc func ellipsisTapped() {
         print("bingo")
     }
+    
 }
 
 

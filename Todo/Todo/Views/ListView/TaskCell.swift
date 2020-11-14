@@ -230,8 +230,11 @@ class TaskCell: UITableViewCell {
             } else {
                 repeatImage.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor, constant: 15).isActive = true
             }
+    
         }
+        
     }
+    
     func configureCircle() {
         circle.backgroundColor = .white
         circle.addSubview(check)
