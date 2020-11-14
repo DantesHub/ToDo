@@ -32,6 +32,7 @@ class TaskCell: UITableViewCell {
     var favorited = false
     var completed =  false
     var position = 0
+    var id = ""
     var parentList = ""
     var tasks = uiRealm.objects(TaskObject.self)
     var taskCellDelegate: TaskViewDelegate?
@@ -252,6 +253,7 @@ class TaskCell: UITableViewCell {
     @objc func tappedCircle() {
         configureCircle()
         var delTaskPosition = 0
+        print(position, title.text)
         for task in tasks {
             if task.position == position && task.parentList == parentList && task.name == title.text {
                 try! uiRealm.write {

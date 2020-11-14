@@ -23,6 +23,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             cell.position = tasksList.count - 1
             cell.completed = true
         } else {
+            print(1,completedTasks.count - 1)
             self.tableView.moveRow(at: at, to: IndexPath(item: completedTasks.count - 1, section: 1))
             for idx in 0..<tasksList.count {
                 let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 0)) as! TaskCell
@@ -44,6 +45,8 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     func numberOfSections(in tableView: UITableView) -> Int {
             return 2
     }
+ 
+    
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
@@ -110,7 +113,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = self.tableView.dequeueReusableCell(withIdentifier: "list") as! TaskCell
+        let cell = TaskCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "list")
         var task = TaskObject()
         if indexPath.section == 0 {
             task = tasksList[indexPath.row]
@@ -130,6 +133,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         cell.reminderDate.text = task.reminder
         cell.completed = task.completed
         cell.repeatTask = true
+        cell.id = task.id
         cell.position = task.position
         cell.parentList = task.parentList
         cell.configureBottomView()
@@ -157,13 +161,12 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     }
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        if sourceIndexPath == destinationIndexPath {
-            return
-        }
+        if sourceIndexPath == destinationIndexPath { return }
         let results = uiRealm.objects(TaskObject.self)
+        tasksList = []
         try! uiRealm.write {
             for result in results {
-                if result.parentList == listTitle {
+                if result.parentList == listTitle && result.completed == false {
                     let pos = result.position
                     if (sourceIndexPath[1] < pos && destinationIndexPath[1] < pos) || (sourceIndexPath[1] > pos && destinationIndexPath[1]  > pos) {
                         } else if pos == destinationIndexPath[1] {
@@ -179,17 +182,26 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                         } else if pos < destinationIndexPath[1]   {
                             result.position -= 1
                         }
+                    tasksList.append(result)
                 }
             }
         }
-        getRealmData()
-        for idx in 0..<tasksList.count {
+         for (idx,_) in tasksList.enumerated() {
             let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 0)) as! TaskCell
-            cell.path = IndexPath(item: idx, section: 0)
-            cell.position = idx
-            cell.completed = false
-        }
+            for task in tasksList {
+                if cell.title.text == task.name && cell.id == task.id {
+                    cell.path = IndexPath(item: task.position, section: 0)
+                    cell.position = task.position
+                    cell.completed = false
+                }
+            }
+         }
     }
+    
+    func tableView(_ tableView: UITableView, canHandle session: UIDropSession) -> Bool {
+        return tasksList.canHandle(session)
+    }
+
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
             pickUpSection = indexPath.section
             return tasksList.dragItems(for: indexPath)

@@ -304,6 +304,8 @@ class MainViewController: UIViewController, ReloadDelegate {
         let controller = ListController()
         controller.reloadDelegate = self
         controller.creating = true;
+        tasksList = []
+        completedTasks = []
         controller.navigationController?.isNavigationBarHidden = false
         self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
         self.navigationController?.pushViewController(controller, animated: false)

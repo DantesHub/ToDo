@@ -117,7 +117,7 @@ class ListController: UIViewController, TaskViewDelegate {
         center.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         center.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         center.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
-        plusTaskView = UIImageView(frame: CGRect(x: self.view.frame.width - 100, y: self.view.frame.height - 130 , width: 60, height: 60))
+        plusTaskView = UIImageView(frame: CGRect(x: self.view.frame.width - 100, y: self.view.frame.height - 200 , width: 60, height: 60))
         view.addSubview(plusTaskView)
         let padding:CGFloat = 10
         plusTaskView.contentMode = .scaleAspectFit
@@ -228,7 +228,6 @@ class ListController: UIViewController, TaskViewDelegate {
                 tasksList.append(result)
             }
         }
-        print(tasksList)
     }
     
 
@@ -294,6 +293,7 @@ class ListController: UIViewController, TaskViewDelegate {
         scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: 85)
         let leftBarButtons: [KeyboardToolbarButton] = premadeListTapped ? [.addToList, .priority, .dueDate, .reminder, .favorite] : [.priority, .dueDate, .reminder, .favorite]
         addTaskField.addKeyboardToolBar(leftButtons: leftBarButtons, rightButtons: [], toolBarDelegate: self)
+        configureNavBar()
         addTaskField.text = ""
         getRealmData()
         tableView.reloadData()

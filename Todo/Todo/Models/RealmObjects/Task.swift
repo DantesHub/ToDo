@@ -20,7 +20,12 @@ class TaskObject: Object {
     @objc dynamic var priority = 0
     @objc dynamic var completed = false
     @objc dynamic var createdAt = ""
+    @objc dynamic var id = UUID().uuidString
     var steps = List<Step>()
+    
+    override static func primaryKey() -> String? {
+        return "id"
+      }
 }
 
 class Step: Object {
@@ -39,7 +44,6 @@ extension Array where Element == TaskObject {
             completion(data, nil)
             return nil
         }
-
         return [
             UIDragItem(itemProvider: itemProvider)
         ]
