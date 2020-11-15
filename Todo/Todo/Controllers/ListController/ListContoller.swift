@@ -262,7 +262,12 @@ class ListController: UIViewController, TaskViewDelegate {
                     task.reminder = dateReminderSelected + "-" + timeReminderSelected
                     print(task.reminder)
                 }
-                task.parentList = listTitle
+                if selectedList != "" {
+                    task.parentList = selectedList
+                } else {
+                    task.parentList = listTitle
+                }
+                
                 var pri = 0
                 switch selectedPriority {
                 case .red:
@@ -381,14 +386,24 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     @objc func respondToSwipeGesture(gesture: UIGestureRecognizer) {
         if let swipeGesture = gesture as? UISwipeGestureRecognizer {
+            let fadeTextAnimation = CATransition()
+            fadeTextAnimation.duration = 0.3
+            fadeTextAnimation.type = .fade
+            navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
             switch swipeGesture.direction {
             case .down:
-                self.tableView.tableHeaderView?.isHidden = false
-                tableViewTop?.constant = -10
+                self.tableView.tableHeaderView?.fadeIn()
+                self.tableViewTop?.constant = -10
+                UIView.animate(withDuration: 0.4) {
+                    self.tableView.layoutIfNeeded()
+                }
                 self.navigationItem.title = ""
             case .up:
-                self.tableView.tableHeaderView?.isHidden = true
-                tableViewTop?.constant = -100
+                self.tableView.tableHeaderView?.fadeOut()
+                self.tableViewTop?.constant = -80
+                UIView.animate(withDuration: 0.4) {
+                    self.tableView.layoutIfNeeded()
+                }
                 self.navigationItem.title = listTitle
             default:
                 break
