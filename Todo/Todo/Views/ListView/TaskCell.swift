@@ -253,7 +253,6 @@ class TaskCell: UITableViewCell {
     @objc func tappedCircle() {
         configureCircle()
         var delTaskPosition = 0
-        print(position, title.text)
         for task in tasks {
             if task.position == position && task.parentList == parentList && task.name == title.text {
                 try! uiRealm.write {

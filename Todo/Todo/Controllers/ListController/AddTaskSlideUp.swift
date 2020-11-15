@@ -11,7 +11,6 @@ import RealmSwift
 import FSCalendar
 extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, FSCalendarDataSource, FSCalendarDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        let lists = uiRealm.objects(ListObject.self)
         if tappedIcon == "Add to a List" {
             return lists.count
         } else {
@@ -25,9 +24,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         //only present in favorite, scheduled and all tasks
         case "Add to a List":
             let lists = uiRealm.objects(ListObject.self)
-            for list in lists {
-                cell.nameLabel.text = list.name
-            }
+            cell.nameLabel.text = lists[indexPath.row].name
         case "Priority":
             if indexPath.row == 3 {
                 cell.icon.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 30, height: 30))
@@ -53,7 +50,16 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         switch tappedIcon {
         //only present in favorite, scheduled and all tasks
         case "Add to a List":
-            let  lists = uiRealm.objects(ListObject.self)
+            selectedList = lists[indexPath.row].name
+            addTaskField.addButton(leftButton: .addedToList, toolBarDelegate: self)
+            if !firstAppend {
+                scrollView.contentSize.width = scrollView.contentSize.width + 200
+            } else {
+                scrollView.contentSize.width = scrollView.contentSize.width + 50
+                firstAppend = false
+            }
+            slideUpViewTapped()
+            addTaskField.becomeFirstResponder()
         case "Priority":
             selectedPriority = priorities[indexPath.row]
             addTaskField.addButton(leftButton: .prioritized, toolBarDelegate: self)

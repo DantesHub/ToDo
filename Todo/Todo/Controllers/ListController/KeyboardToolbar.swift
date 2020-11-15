@@ -19,6 +19,7 @@ enum KeyboardToolbarButton: Int {
     case addedReminder
     case addedDueDate
     case prioritized
+    case addedToList
     
     func createButton(target: Any?, action: Selector?) -> UIBarButtonItem {
         var button: UIBarButtonItem!
@@ -125,6 +126,19 @@ enum KeyboardToolbarButton: Int {
             button = .init(customView: view)
             
             btn.tag = rawValue
+        case .addedToList:
+            let  btn = UIButton()
+            let view =  UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 50))
+            btn.addTarget(target, action: action!, for: .touchUpInside)
+            btn.layer.cornerRadius = 20
+            btn.backgroundColor = .blue
+            btn.frame = CGRect(x: 10, y: 5, width: 200, height: 40)
+            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), left: UIImage(named:  "list")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), label: selectedList, width: 25, height: 25)
+            btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 25)
+            view.addSubview(btn)
+            view.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
+            button = .init(customView: view)
+            btn.tag = rawValue
         }
         button.tag = rawValue
         return button
@@ -153,7 +167,6 @@ class KeyboardToolbar: UIToolbar {
     
     func setup(leftButtons: [KeyboardToolbarButton], rightButtons: [KeyboardToolbarButton]) {
         var leftBarButtons = [UIBarButtonItem]()
-        let space = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
         for button in leftButtons {
             leftBarButtons.append(button.createButton(target: self, action:  #selector(buttonTapped)))
         }
@@ -198,12 +211,21 @@ class KeyboardToolbar: UIToolbar {
         } else if button == .addedDueDate {
             self.leftButtons.removeAll(where: {$0 == .dueDate})
             self.leftButtons?.append(button)
+        } else if button == .addToList {
+            self.leftButtons.removeAll(where: {$0 == .addedToList})
+            //            if leftButtons.contains(where: {$0 == .priority}) || leftButtons.contains(where: {$0 == .favorite}) || leftButtons.contains(where: {$0 == .reminder}) || leftButtons.contains(where: {$0 == .dueDate}) {
+            //                self.leftButtons?.insert(button, at: 1)
+            //            } else {
+                        self.leftButtons?.insert(button, at: 0)
+        } else if button == .addedToList {
+            self.leftButtons.removeAll(where: {$0 == .addToList})
+            self.leftButtons?.append(button)
         }
         let space = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
         var leftBarButtons = [UIBarButtonItem]()
         for button in self.leftButtons {
             leftBarButtons.append(button.createButton(target: self, action:  #selector(buttonTapped)))
-            if button == .favorited || button == .prioritized  || button == .addedDueDate || button == .addedReminder {
+            if button == .favorited || button == .prioritized  || button == .addedDueDate || button == .addedReminder || button == .addedToList {
                 space.width = 10
                 leftBarButtons.append(space)
             }

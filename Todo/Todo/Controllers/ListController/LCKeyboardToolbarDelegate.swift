@@ -107,6 +107,14 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             dateDueSelected = ""
             timeDueSelected = ""
             selectedDueDate = ""
+        case .addedToList:
+            selectedList = ""
+            addTaskField.addButton(leftButton: .addToList, toolBarDelegate: self)
+            if !firstAppend {
+                scrollView.contentSize.width = scrollView.contentSize.width - 200
+            } else {
+                scrollView.contentSize.width = scrollView.contentSize.width - 50
+            }
         }
     }
 }

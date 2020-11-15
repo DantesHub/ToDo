@@ -31,6 +31,7 @@ var timeReminderSelected = ""
 var premadeListTapped = false
 var tasksList: [TaskObject] = [TaskObject]()
 var completedTasks: [TaskObject] = [TaskObject]()
+var selectedList = ""
 class ListController: UIViewController, TaskViewDelegate {
     //MARK: - instance variables
     let formatter: DateFormatter = {
@@ -67,6 +68,7 @@ class ListController: UIViewController, TaskViewDelegate {
         let layout = UICollectionViewFlowLayout()
         let cv = UICollectionView(frame: .zero
                                   , collectionViewLayout: layout)
+        cv.showsVerticalScrollIndicator = false
         cv.backgroundColor = .white
         return cv
     }()
@@ -83,6 +85,7 @@ class ListController: UIViewController, TaskViewDelegate {
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
     var completedExpanded = true
+    let lists = uiRealm.objects(ListObject.self)
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -286,6 +289,7 @@ class ListController: UIViewController, TaskViewDelegate {
         timeReminderSelected = ""
         dateDueSelected = ""
         timeDueSelected = ""
+        selectedList = ""
         selectedDate = ""
         firstAppend = true
         added50ToReminder = false
@@ -392,6 +396,22 @@ class ListController: UIViewController, TaskViewDelegate {
         }
     }
     
+    @objc func tappedBack() {
+        planned = false
+        reminder = false
+        favorited = false
+        dateReminderSelected = ""
+        timeReminderSelected = ""
+        dateDueSelected = ""
+        timeDueSelected = ""
+        selectedList = ""
+        selectedDate = ""
+        firstAppend = true
+        added50ToReminder = false
+        added50ToDueDate = false
+        _ = navigationController?.popViewController(animated: true)
+    }
+    
     func configureNavBar() {
         titleLabel.font = UIFont(name: "OpenSans-Regular", size: 18)
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.blue]
@@ -401,6 +421,12 @@ class ListController: UIViewController, TaskViewDelegate {
         let search = UIBarButtonItem(title: "Play", style: .plain, target: self, action: #selector(searchTapped))
         search.imageInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: -10)
         search.image = UIImage(named: "search")?.resize(targetSize: CGSize(width: 25, height: 25))
+        let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(tappedBack))
+        backButton.image = UIImage(named: "arrow")?.rotate(radians: -.pi/2)?.resize(targetSize: CGSize(width: 25, height: 25))
+        backButton.title = "Back"
+        self.navigationItem.leftBarButtonItem = backButton
+
+        
         navigationItem.rightBarButtonItems = [elipsis, search]
         navigationController?.navigationBar.barTintColor = .white
         navigationController?.navigationBar.isTranslucent = false

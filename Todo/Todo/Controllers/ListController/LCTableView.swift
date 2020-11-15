@@ -197,6 +197,39 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             }
          }
     }
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let tasks = uiRealm.objects(TaskObject.self)
+            var delIdx = 0
+            print(indexPath, completedTasks)
+            for task in  tasks {
+                let cell = tableView.cellForRow(at: indexPath) as! TaskCell
+                if indexPath.section == 0 && task.parentList == listTitle && task.id == cell.id && task.name == cell.title.text {
+                    tasksList.removeAll(where: {$0.id == task.id})
+                    delIdx = task.position
+                    try! uiRealm.write {
+                        uiRealm.delete(task)
+                    }
+                } else if (indexPath.section == 1 && task.parentList == listTitle && task.id == cell.id && cell.title.text == task.name) {
+                    completedTasks.removeAll(where: {$0.id == task.id})
+                    delIdx = task.position
+                    try! uiRealm.write {
+                        uiRealm.delete(task)
+                    }
+                }
+            }
+            if delIdx != -1 {
+                for task in tasks {
+                    if task.parentList == listTitle && task.position > delIdx {
+                        try! uiRealm.write {
+                            task.position -= 1
+                        }
+                    }
+                }
+            }
+            tableView.deleteRows(at: [indexPath], with: .fade)
+        }
+    }
     
     func tableView(_ tableView: UITableView, canHandle session: UIDropSession) -> Bool {
         return tasksList.canHandle(session)

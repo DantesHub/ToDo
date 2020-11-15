@@ -96,7 +96,7 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
     } else if tableView == groupTableView {
         let cell = tableView.dequeueReusableCell(withIdentifier: "groupCell", for: indexPath) as! GroupCell
         cell.cellTitle.text = groups[indexPath.section].lists[indexPath.row].name
-        cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 22, height: 22))
+        cell.cellImage.image = UIImage(named: "star")?.resize(targetSize: CGSize(width: 22, height: 22))
         cell.selectionStyle = .none
         return cell
     } else {//topTableView
@@ -255,7 +255,6 @@ func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.Ed
                                     }
                                     i += 1
                                 }
-                                print(idx)
                                 for position in groupPositions {
                                     if position.groupPosition == idx && position.groupName == selectedGroupName {
                                         uiRealm.delete(position)
