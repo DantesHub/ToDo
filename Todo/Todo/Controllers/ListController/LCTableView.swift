@@ -39,6 +39,11 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         }
     }
     
+    func reloadTable() {
+        getRealmData()
+        tableView.reloadData()
+    }
+    
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }

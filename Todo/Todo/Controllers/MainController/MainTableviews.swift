@@ -118,7 +118,7 @@ func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         controller.reloadDelegate = self
         controller.creating = false;
         premadeListTapped = true
-        controller.listTitle = topList[indexPath.row].title
+        listTitle = topList[indexPath.row].title
         controller.navigationController?.isNavigationBarHidden = false
         self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
         self.navigationController?.pushViewController(controller, animated: false)
@@ -127,7 +127,7 @@ func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         controller.reloadDelegate = self
         controller.creating = false;
         premadeListTapped = false
-        controller.listTitle = lists[indexPath.row].name
+       listTitle = lists[indexPath.row].name
         controller.navigationController?.isNavigationBarHidden = false
         self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
         self.navigationController?.pushViewController(controller, animated: false)
@@ -177,9 +177,20 @@ func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSes
 }
 
 //deleting lists and groups
-func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-    let listName = lists[indexPath.row].name
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        if tableView == topTableView && tableView.isEditing {
+            return false
+        } else if tableView == listTableView {
+            return true
+        } else if tableView == groupTableView {
+            return true
+        }
+        return false
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
     if tableView == listTableView {
+        let listName = lists[indexPath.row].name
         if editingStyle == .delete {
             let tasks = uiRealm.objects(TaskObject.self)
             for task in tasks {
@@ -274,6 +285,8 @@ func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.Ed
                 }
             }
         }
+    } else if tableView == topTableView {
+        return
     }
 }
 

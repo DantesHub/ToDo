@@ -32,6 +32,7 @@ var premadeListTapped = false
 var tasksList: [TaskObject] = [TaskObject]()
 var completedTasks: [TaskObject] = [TaskObject]()
 var selectedList = ""
+var listTitle = "Untitled List"
 class ListController: UIViewController, TaskViewDelegate {
     //MARK: - instance variables
     let formatter: DateFormatter = {
@@ -52,7 +53,6 @@ class ListController: UIViewController, TaskViewDelegate {
     var lastKnowContentOfsset: CGFloat = 0
     var scrolledUp = false
     var tableViewTop : NSLayoutConstraint?
-    var listTitle = "Untitled List"
     var nameTaken = false
     var plusTaskView = UIImageView()
     var addTaskField = TextFieldWithPadding()
@@ -72,6 +72,9 @@ class ListController: UIViewController, TaskViewDelegate {
         cv.backgroundColor = .white
         return cv
     }()
+    var tomorrow = false
+    var nextWeek = false
+    
     var pickUpSection = 0
     var dueDateTapped = false
     var pickerTitle = UILabel()
@@ -282,20 +285,44 @@ class ListController: UIViewController, TaskViewDelegate {
                 } else {
                     task.favorited = favorited
                 }
+                let formatter2 = DateFormatter()
+                let formatter3 = DateFormatter()
+                formatter3.dateFormat = "MMM dd,yyyy hh:mm a"
+                formatter2.dateFormat = "hh:mm a"
                 if planned {
-                    task.planned = dateDueSelected + "-" + timeDueSelected
-                    print(task.planned)
+                    if tomorrow {
+                        task.planned = dateDueSelected + "-" + timeDueSelected + "@tomorrow"
+                    } else if nextWeek {
+                        task.planned = dateDueSelected + "-" + timeDueSelected + "@nextWeek"
+                    } else if dateDueSelected == "" {
+                        dateDueSelected = formatter.string(from: Date())
+                        task.planned = dateDueSelected + "-" + timeDueSelected + "@today"
+                        print(task.planned)
+                    } else {
+                        let interval = formatter3.date(from: dateDueSelected + " " + timeDueSelected)! - Date()
+                        task.planned = dateDueSelected + "-" + timeDueSelected + "@" + String(interval.day! + 1)
+                        print(task.planned)
+                    }
                 } else if listTitle == "Planned" {
                     let date = Date()
-                    let formatter2 = DateFormatter()
-                    formatter2.dateFormat = "hh:mm a"
                     task.planned = formatter.string(from: date) + "-" + formatter2.string(from: date)
                 }
                 
                 if reminder {
-                    task.reminder = dateReminderSelected + "-" + timeReminderSelected
-                    print(task.reminder)
+                    if tomorrow {
+                        task.reminder = dateReminderSelected + "-" + timeReminderSelected + "@tomorrow"
+                    } else if nextWeek {
+                        task.reminder = dateReminderSelected + "-" + timeReminderSelected + "@nextWeek"
+                    } else if dateReminderSelected == "" {
+                        dateReminderSelected = formatter.string(from: Date())
+                        task.planned = dateReminderSelected + "-" + timeReminderSelected + "@today"
+                    } else {
+                        let interval = formatter3.date(from: dateReminderSelected + " " + timeReminderSelected)! - Date()
+                        task.reminder = dateReminderSelected + "-" + timeReminderSelected + "@" + String(interval.day! + 1)
+                        print(task.reminder)
+                    }
                 }
+                
                 if selectedList != "" {
                     task.parentList = selectedList
                 } else {
@@ -321,9 +348,12 @@ class ListController: UIViewController, TaskViewDelegate {
         } else {
             print("empty")
         }
+        laterTapped = false
         planned = false
         reminder = false
         favorited = false
+        tomorrow = false
+        nextWeek = false
         dateReminderSelected = ""
         timeReminderSelected = ""
         dateDueSelected = ""
@@ -333,6 +363,7 @@ class ListController: UIViewController, TaskViewDelegate {
         firstAppend = true
         added50ToReminder = false
         added50ToDueDate = false
+        dueDateTapped = false
         scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: 85)
         let leftBarButtons: [KeyboardToolbarButton] = premadeListTapped ? [.addToList, .priority, .dueDate, .reminder, .favorite] : [.priority, .dueDate, .reminder, .favorite]
         addTaskField.addKeyboardToolBar(leftButtons: leftBarButtons, rightButtons: [], toolBarDelegate: self)
@@ -454,6 +485,9 @@ class ListController: UIViewController, TaskViewDelegate {
         planned = false
         reminder = false
         favorited = false
+        laterTapped = false
+        tomorrow = false
+        nextWeek = false
         dateReminderSelected = ""
         timeReminderSelected = ""
         dateDueSelected = ""
@@ -461,6 +495,7 @@ class ListController: UIViewController, TaskViewDelegate {
         selectedList = ""
         selectedDate = ""
         firstAppend = true
+        dueDateTapped = false
         added50ToReminder = false
         added50ToDueDate = false
         _ = navigationController?.popViewController(animated: true)

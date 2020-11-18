@@ -95,6 +95,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     dateReminderSelected = formatter.string(from: addOneWeekToCurrentDate!)
                     let timeFormatter = DateFormatter()
                     timeFormatter.dateFormat = "hh:mm a"
+                    tomorrow = true
                     timeReminderSelected = timeFormatter.string(from: Date())
                 } else if selectedDate == "Next Week" {
                     let calendar = Calendar.current
@@ -102,6 +103,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     dateReminderSelected = formatter.string(from: addOneWeekToCurrentDate!)
                     let timeFormatter = DateFormatter()
                     timeFormatter.dateFormat = "hh:mm a"
+                    nextWeek = true
                     timeReminderSelected = timeFormatter.string(from: Date())
                 }
                 slideUpViewTapped()
@@ -134,6 +136,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                         let timeFormatter = DateFormatter()
                         timeFormatter.dateFormat = "hh:mm a"
                         timeDueSelected = timeFormatter.string(from: Date())
+                        tomorrow = true
                     } else if selectedDueDate == "Next Week" {
                         let calendar = Calendar.current
                         let addOneWeekToCurrentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: Date())
@@ -141,6 +144,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                         let timeFormatter = DateFormatter()
                         timeFormatter.dateFormat = "hh:mm a"
                         timeDueSelected = timeFormatter.string(from: Date())
+                        nextWeek = true
                     }
                 slideUpViewTapped()
                 addTaskField.becomeFirstResponder()
@@ -177,7 +181,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     
     func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
         if dueDateTapped {
+            print("tapped")
             dateDueSelected = self.formatter.string(from: date)
+            print(dateDueSelected)
         } else {
             dateReminderSelected = self.formatter.string(from: date)
         }
@@ -196,6 +202,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             dateReminderSelected = ""
             selectedDate = ""
         }
+        dueDateTapped = false
         pickerView.removeFromSuperview()
         addTaskField.becomeFirstResponder()
         calendar.removeFromSuperview()
@@ -242,6 +249,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
     
     @objc func pickerNext() {
+        print("pickernext")
         let time = self.timePicker?.date
         let formatter = DateFormatter()
         formatter.dateFormat = "hh:mm a"
@@ -276,12 +284,10 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         
         if dueDateTapped {
             timeDueSelected = formatter.string(from: time!)
-            dateDueSelected = self.formatter.string(from: Date())
             addTaskField.addButton(leftButton: .addedDueDate, toolBarDelegate: self)
             dueDateTapped = false
         } else {
             timeReminderSelected = formatter.string(from: time!)
-            dateReminderSelected = self.formatter.string(from: Date())
             addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
         }
        

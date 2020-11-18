@@ -219,8 +219,8 @@
             filePath = "Todo/Controllers/ListController/LCTableView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "42"
-            endingLineNumber = "42"
+            startingLineNumber = "47"
+            endingLineNumber = "47"
             landmarkName = "gestureRecognizer(_:shouldRecognizeSimultaneouslyWith:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -235,8 +235,8 @@
             filePath = "Todo/Views/ListView/TaskCell.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "257"
-            endingLineNumber = "257"
+            startingLineNumber = "258"
+            endingLineNumber = "258"
             landmarkName = "tappedCircle()"
             landmarkType = "7">
          </BreakpointContent>
@@ -251,8 +251,8 @@
             filePath = "Todo/Controllers/ListController/LCTableView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "176"
-            endingLineNumber = "176"
+            startingLineNumber = "181"
+            endingLineNumber = "181"
             landmarkName = "tableView(_:moveRowAt:to:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -267,10 +267,26 @@
             filePath = "Todo/Controllers/ListController/LCTableView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "212"
-            endingLineNumber = "212"
+            startingLineNumber = "217"
+            endingLineNumber = "217"
             landmarkName = "tableView(_:commit:forRowAt:)"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6CC3644D-AE0E-4244-8428-8FC96DB27337"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Todo/Misc/Extensions.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "46"
+            endingLineNumber = "46"
+            landmarkName = "UIView"
+            landmarkType = "21">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

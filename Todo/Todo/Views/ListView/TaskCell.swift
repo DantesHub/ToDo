@@ -11,6 +11,7 @@ import TinyConstraints
 import RealmSwift
 protocol TaskViewDelegate {
     func reloadTaskTableView(at: IndexPath, checked: Bool)
+    func reloadTable()
 }
 
 class TaskCell: UITableViewCell {
@@ -308,7 +309,11 @@ class TaskCell: UITableViewCell {
                 star.image = UIImage(named: task.favorited ? "starfilled" : "star")?.resize(targetSize: CGSize(width: 27, height: 27))
             }
         }
+        if listTitle == "Important" {
+            taskCellDelegate?.reloadTable()
+        }
     }
+    
     
     override func layoutSubviews() {
         super.layoutSubviews()
