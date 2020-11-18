@@ -224,13 +224,36 @@ class ListController: UIViewController, TaskViewDelegate {
         results = results.sorted(byKeyPath: "position", ascending: true)
         completedTasks = []
         tasksList = []
-        for result in results {
-            if result.completed == true && result.parentList == listTitle {
-                completedTasks.append(result)
-            } else if result.parentList == listTitle {
-                tasksList.append(result)
+        if listTitle == "All Tasks" {
+            for result in results {
+                if result.completed == true {
+                    completedTasks.append(result)
+                } else {
+                    tasksList.append(result)
+                }
+            }
+        } else if listTitle == "Important" {
+            for result in results {
+                if result.favorited == true {
+                    tasksList.append(result)
+                }
+            }
+        } else if listTitle == "Planned"{
+            for result in results {
+                if result.planned != "" {
+                    tasksList.append(result)
+                }
+            }
+        } else {
+            for result in results {
+                if result.completed == true && result.parentList == listTitle {
+                    completedTasks.append(result)
+                } else if result.parentList == listTitle {
+                    tasksList.append(result)
+                }
             }
         }
+       
     }
     
 
@@ -253,11 +276,22 @@ class ListController: UIViewController, TaskViewDelegate {
                 task.position = tasksList.count
                 task.completed = false
                 task.name = addTaskField.text!
-                task.favorited = favorited
+                if listTitle == "Important" {
+                    print("in here")
+                    task.favorited = true
+                } else {
+                    task.favorited = favorited
+                }
                 if planned {
                     task.planned = dateDueSelected + "-" + timeDueSelected
                     print(task.planned)
+                } else if listTitle == "Planned" {
+                    let date = Date()
+                    let formatter2 = DateFormatter()
+                    formatter2.dateFormat = "hh:mm a"
+                    task.planned = formatter.string(from: date) + "-" + formatter2.string(from: date)
                 }
+                
                 if reminder {
                     task.reminder = dateReminderSelected + "-" + timeReminderSelected
                     print(task.reminder)
@@ -345,6 +379,7 @@ class ListController: UIViewController, TaskViewDelegate {
         tableViewTop?.isActive = true
         tableView.backgroundColor = .white
         tableView.tableHeaderView = tableHeader
+        tableView.showsVerticalScrollIndicator = false
         let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
         swipeDown.direction = .down
         self.tableView.addGestureRecognizer(swipeDown)
@@ -394,15 +429,19 @@ class ListController: UIViewController, TaskViewDelegate {
             case .down:
                 self.tableView.tableHeaderView?.fadeIn()
                 self.tableViewTop?.constant = -10
-                UIView.animate(withDuration: 0.4) {
-                    self.tableView.layoutIfNeeded()
+                if tasksList.count + completedTasks.count <= 6  {
+                    UIView.animate(withDuration: 0.4) {
+                        self.tableView.layoutIfNeeded()
+                    }
                 }
                 self.navigationItem.title = ""
             case .up:
                 self.tableView.tableHeaderView?.fadeOut()
                 self.tableViewTop?.constant = -80
-                UIView.animate(withDuration: 0.4) {
-                    self.tableView.layoutIfNeeded()
+                if tasksList.count + completedTasks.count <= 6 {
+                    UIView.animate(withDuration: 0.4) {
+                        self.tableView.layoutIfNeeded()
+                    }
                 }
                 self.navigationItem.title = listTitle
             default:

@@ -201,7 +201,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         if editingStyle == .delete {
             let tasks = uiRealm.objects(TaskObject.self)
             var delIdx = 0
-            print(indexPath, completedTasks)
             for task in  tasks {
                 let cell = tableView.cellForRow(at: indexPath) as! TaskCell
                 if indexPath.section == 0 && task.parentList == listTitle && task.id == cell.id && task.name == cell.title.text {
@@ -245,7 +244,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             if session.items.count > 1 {
                 return UITableViewDropProposal(operation: .cancel)
             } else {
-                if pickUpSection == 1 {
+                if pickUpSection == 1 || listTitle == "Planned" || listTitle == "All Tasks" || listTitle == "Important" {
                     return UITableViewDropProposal(operation: .cancel)
                 }
                 return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
