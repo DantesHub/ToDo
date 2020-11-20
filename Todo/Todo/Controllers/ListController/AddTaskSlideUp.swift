@@ -71,44 +71,77 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             slideUpViewTapped()
             addTaskField.becomeFirstResponder()
         case "Reminder":
-            selectedDate = dates[indexPath.row]
-            if selectedDate == "Pick a Date & Time" {
-                dateReminderSelected = self.formatter.string(from: Date())
-                slideUpViewTapped()
-                createSlider(createSlider: false)
-                pickerView.backgroundColor = .white
-                createCalendar()
-            } else if selectedDate == "Later Today" {
-                laterTapped = true
-                calendarNext()
-            } else {
-                addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
-                if !firstAppend {
-                    scrollView.contentSize.width = scrollView.contentSize.width + 170
-                    print("plan, week \(scrollView.contentSize.width)")
-                } else {
-                    firstAppend = false
+        self.getAccessBool()
+            let center = UNUserNotificationCenter.current()
+            center.requestAuthorization(options: [.alert, .sound, .badge]) {  granted, error in
+                if let error = error {
+                    print("inside here")
+                    print(error)
+                    return
                 }
-                if selectedDate == "Tomorrow" {
-                    let calendar = Calendar.current
-                    let addOneWeekToCurrentDate = calendar.date(byAdding: .day, value: 1, to: Date())
-                    dateReminderSelected = formatter.string(from: addOneWeekToCurrentDate!)
-                    let timeFormatter = DateFormatter()
-                    timeFormatter.dateFormat = "hh:mm a"
-                    tomorrow = true
-                    timeReminderSelected = timeFormatter.string(from: Date())
-                } else if selectedDate == "Next Week" {
-                    let calendar = Calendar.current
-                    let addOneWeekToCurrentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: Date())
-                    dateReminderSelected = formatter.string(from: addOneWeekToCurrentDate!)
-                    let timeFormatter = DateFormatter()
-                    timeFormatter.dateFormat = "hh:mm a"
-                    nextWeek = true
-                    timeReminderSelected = timeFormatter.string(from: Date())
-                }
-                slideUpViewTapped()
-                addTaskField.becomeFirstResponder()
             }
+        
+            print("access", accessBool)
+            if accessBool {
+                selectedDate = dates[indexPath.row]
+                if selectedDate == "Pick a Date & Time" {
+                    dateReminderSelected = self.formatter.string(from: Date())
+                    slideUpViewTapped()
+                    createSlider(createSlider: false)
+                    pickerView.backgroundColor = .white
+                    createCalendar()
+                } else if selectedDate == "Later Today" {
+                    laterTapped = true
+                    calendarNext()
+                } else {
+                    addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
+                    if !firstAppend {
+                        scrollView.contentSize.width = scrollView.contentSize.width + 170
+                    } else {
+                        firstAppend = false
+                    }
+                    if selectedDate == "Tomorrow" {
+                        let calendar = Calendar.current
+                        let addOneWeekToCurrentDate = calendar.date(byAdding: .day, value: 1, to: Date())
+                        dateReminderSelected = formatter.string(from: addOneWeekToCurrentDate!)
+                        let timeFormatter = DateFormatter()
+                        timeFormatter.dateFormat = "h:mm a"
+                        timeReminderSelected = timeFormatter.string(from: Date())
+                    } else if selectedDate == "Next Week" {
+                        let calendar = Calendar.current
+                        let addOneWeekToCurrentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: Date())
+                        dateReminderSelected = formatter.string(from: addOneWeekToCurrentDate!)
+                        let timeFormatter = DateFormatter()
+                        timeFormatter.dateFormat = "h:mm a"
+                        timeReminderSelected = timeFormatter.string(from: Date())
+                    }
+                    addTaskField.becomeFirstResponder()
+                }
+                slideUpViewTapped()
+                return
+            } else {
+                let alertController = UIAlertController (title: "Please Enable Notifications", message: "You need to turn on notifications in your settings to add reminders", preferredStyle: .alert)
+                
+                let settingsAction = UIAlertAction(title: "Settings", style: .default) { (_) -> Void in
+                    
+                    guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                        return
+                    }
+                    
+                    if UIApplication.shared.canOpenURL(settingsUrl) {
+                        UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                            print("Settings opened: \(success)") // Prints true
+                        })
+                    }
+                }
+                alertController.addAction(settingsAction)
+                let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: nil)
+                alertController.addAction(cancelAction)
+                
+                present(alertController, animated: true, completion: nil)
+                return
+            }
+        
         case "Due":
             selectedDueDate = dates[indexPath.row]
             dueDateTapped = true
@@ -125,27 +158,24 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 addTaskField.addButton(leftButton: .addedDueDate, toolBarDelegate: self)
                 if !firstAppend {
                     scrollView.contentSize.width = scrollView.contentSize.width + 170
-                    print("plan, week \(scrollView.contentSize.width)")
                 } else {
                     firstAppend = false
                 }
-                    if selectedDueDate == "Tomorrow" {
-                        let calendar = Calendar.current
-                        let addOneWeekToCurrentDate = calendar.date(byAdding: .day, value: 1, to: Date())
-                        dateDueSelected = formatter.string(from: addOneWeekToCurrentDate!)
-                        let timeFormatter = DateFormatter()
-                        timeFormatter.dateFormat = "hh:mm a"
-                        timeDueSelected = timeFormatter.string(from: Date())
-                        tomorrow = true
-                    } else if selectedDueDate == "Next Week" {
-                        let calendar = Calendar.current
-                        let addOneWeekToCurrentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: Date())
-                        dateDueSelected = formatter.string(from: addOneWeekToCurrentDate!)
-                        let timeFormatter = DateFormatter()
-                        timeFormatter.dateFormat = "hh:mm a"
-                        timeDueSelected = timeFormatter.string(from: Date())
-                        nextWeek = true
-                    }
+                if selectedDueDate == "Tomorrow" {
+                    let calendar = Calendar.current
+                    let addOneWeekToCurrentDate = calendar.date(byAdding: .day, value: 1, to: Date())
+                    dateDueSelected = formatter.string(from: addOneWeekToCurrentDate!)
+                    let timeFormatter = DateFormatter()
+                    timeFormatter.dateFormat = "h:mm a"
+                    timeDueSelected = timeFormatter.string(from: Date())
+                } else if selectedDueDate == "Next Week" {
+                    let calendar = Calendar.current
+                    let addOneWeekToCurrentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: Date())
+                    dateDueSelected = formatter.string(from: addOneWeekToCurrentDate!)
+                    let timeFormatter = DateFormatter()
+                    timeFormatter.dateFormat = "h:mm a"
+                    timeDueSelected = timeFormatter.string(from: Date())
+                }
                 slideUpViewTapped()
                 addTaskField.becomeFirstResponder()
             }
@@ -181,9 +211,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     
     func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
         if dueDateTapped {
-            print("tapped")
             dateDueSelected = self.formatter.string(from: date)
-            print(dateDueSelected)
         } else {
             dateReminderSelected = self.formatter.string(from: date)
         }
@@ -202,6 +230,8 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             dateReminderSelected = ""
             selectedDate = ""
         }
+        planned = false
+        reminder = false
         dueDateTapped = false
         pickerView.removeFromSuperview()
         addTaskField.becomeFirstResponder()
@@ -218,7 +248,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         calendar = FSCalendar(frame: CGRect(x: 25, y: 35, width: pickerView.frame.width - 50, height: pickerView.frame.height - 50))
         calendar.delegate = self
         calendar.dataSource = self
-    
+        
         backArrow.setBackgroundImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 25, height: 25)).rotate(radians: -.pi/2)?.withTintColor(.blue), for: .normal)
         backArrow.addTarget(self, action: #selector(tappedCalendarBack), for: .touchUpInside)
         
@@ -249,10 +279,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
     
     @objc func pickerNext() {
-        print("pickernext")
         let time = self.timePicker?.date
         let formatter = DateFormatter()
-        formatter.dateFormat = "hh:mm a"
+        formatter.dateFormat = "h:mm a"
         pickerTitle.removeFromSuperview()
         backArrow.removeTarget(self, action: #selector(tappedPickerBack), for: .touchUpInside)
         backArrow.removeFromSuperview()
@@ -263,7 +292,6 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         if !laterTapped {
             if !firstAppend {
                 scrollView.contentSize.width = scrollView.contentSize.width + 300
-                print(scrollView.contentSize.width)
             } else {
                 if dueDateTapped {
                     added50ToDueDate = true
@@ -290,7 +318,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             timeReminderSelected = formatter.string(from: time!)
             addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
         }
-       
+        
         slideUpViewTapped()
         addTaskField.becomeFirstResponder()
     }
@@ -302,7 +330,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         timePicker?.sizeToFit()
         timePicker = UIDatePicker(frame: CGRect(x: 25, y: 25, width: self.view.bounds.width, height: pickerView.frame.height))
         timePicker?.datePickerMode = .time
- 
+        
         if #available(iOS 13.4, *) {
             timePicker?.preferredDatePickerStyle = .wheels
         } else {
@@ -326,7 +354,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 pickerTitle.text = dateReminderSelected
             }
         }
-      
+        
         pickerTitle.textColor = .blue
         pickerTitle.font = UIFont(name: "OpenSans-Regular", size: 20)
         pickerView.addSubview(pickerTitle)

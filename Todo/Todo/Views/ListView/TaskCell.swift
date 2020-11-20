@@ -34,6 +34,7 @@ class TaskCell: UITableViewCell {
     var completed =  false
     var position = 0
     var id = ""
+    var navigationController = UINavigationController()
     var parentList = ""
     var tasks = uiRealm.objects(TaskObject.self)
     var taskCellDelegate: TaskViewDelegate?
@@ -57,7 +58,8 @@ class TaskCell: UITableViewCell {
         circle.layer.borderColor = UIColor.red.cgColor
         circle.leading(to: self, offset: 15)
         circle.top(to: self, offset: 15)
-        
+        let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
+        self.addGestureRecognizer(cellTapped)
         let circleGest = UITapGestureRecognizer(target: self, action: #selector(tappedCircle))
         circle.addGestureRecognizer(circleGest)
         
@@ -77,6 +79,18 @@ class TaskCell: UITableViewCell {
         steps.text = ""
         plannedDate.text = ""
     }
+    
+    @objc func tappedCell() {
+        let controller = TaskController()
+        controller.plannedDate = plannedDate.text ?? ""
+        controller.reminderDate = reminderDate.text ?? ""
+        controller.taskTitle = title.text ?? ""
+        controller.favorited = favorited
+        controller.completed = completed
+        navigationController.view.layer.add(CATransition().popFromRight(), forKey: nil)
+        navigationController.pushViewController(controller, animated: false)
+    }
+    
     func configureBottomView() {
         star.image = UIImage(named: favorited ? "starfilled" :"star")?.resize(targetSize: CGSize(width: 27, height: 27))
         
@@ -88,7 +102,8 @@ class TaskCell: UITableViewCell {
         bottomView.layer.cornerRadius = 10
         bottomView.backgroundColor = medGray
         self.addSubview(bottomView)
-        
+        let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
+        bottomView.addGestureRecognizer(cellTapped)
         bottomView.addSubview(listLabel)
         listLabel.leading(to: bottomView, offset: 20)
         listLabel.top(to: bottomView, offset: 5)

@@ -90,8 +90,6 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             dateReminderSelected = ""
             timeReminderSelected = ""
             selectedDate = ""
-            tomorrow = false
-            nextWeek = false
         case .addedDueDate:
             planned = false
             addTaskField.addButton(leftButton: .dueDate, toolBarDelegate: self)
@@ -118,8 +116,6 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             dateDueSelected = ""
             timeDueSelected = ""
             selectedDueDate = ""
-            tomorrow = false
-            nextWeek = false
             laterTapped = false
         case .addedToList:
             selectedList = ""

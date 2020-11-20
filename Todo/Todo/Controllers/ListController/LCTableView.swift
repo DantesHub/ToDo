@@ -144,11 +144,12 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         cell.configureBottomView()
         cell.selectionStyle = .none
         cell.backgroundColor = .white
+        cell.navigationController = (self.navigationController)!
         cell.layer.cornerRadius = 10
         cell.layer.borderWidth = CGFloat(4)
             cell.layer.borderColor = tableView.backgroundColor?.cgColor
         cell.contentView.layoutMargins.bottom = 25
-        
+        cell.isUserInteractionEnabled = true
         return cell
     }
     
@@ -163,6 +164,14 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 80; //Choose your custom row height
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath.section == 0 {
+            print(tasksList[indexPath.row].name)
+        } else {
+            print(completedTasks[indexPath.row].name)
+        }
+        print("bingo")
     }
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {

@@ -45,6 +45,7 @@
 		FEF485FE254A080D000CCDF7 /* LCTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF485FD254A080D000CCDF7 /* LCTextField.swift */; };
 		FEF48600254A0833000CCDF7 /* LCTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF485FF254A0833000CCDF7 /* LCTableView.swift */; };
 		FEF48602254A0E60000CCDF7 /* SliderSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF48601254A0E60000CCDF7 /* SliderSectionHeader.swift */; };
+		FEF7F0662568516600E92BC9 /* TaskOptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF7F0652568516600E92BC9 /* TaskOptionCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -90,6 +91,7 @@
 		FEF485FD254A080D000CCDF7 /* LCTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LCTextField.swift; sourceTree = "<group>"; };
 		FEF485FF254A0833000CCDF7 /* LCTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LCTableView.swift; sourceTree = "<group>"; };
 		FEF48601254A0E60000CCDF7 /* SliderSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderSectionHeader.swift; sourceTree = "<group>"; };
+		FEF7F0652568516600E92BC9 /* TaskOptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskOptionCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -183,6 +185,7 @@
 		FE7AE2CE25152C6C00D889DD /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				FEF7F06425684D5D00E92BC9 /* TaskView */,
 				FEF485FA254A06B9000CCDF7 /* ListView */,
 				FEBC2481253668310073EBB1 /* MainView */,
 				FE7C7652252559FA000549A1 /* SelfSizedTableView.swift */,
@@ -262,6 +265,14 @@
 				FE0520D3255608370052F8DA /* TaskCell.swift */,
 			);
 			path = ListView;
+			sourceTree = "<group>";
+		};
+		FEF7F06425684D5D00E92BC9 /* TaskView */ = {
+			isa = PBXGroup;
+			children = (
+				FEF7F0652568516600E92BC9 /* TaskOptionCell.swift */,
+			);
+			path = TaskView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -403,6 +414,7 @@
 				FE76791025435E8200012A59 /* MainTableviews.swift in Sources */,
 				FE7719402537973B00131A5D /* AddListToGroupCell.swift in Sources */,
 				FE7AE2B725152A0300D889DD /* AppDelegate.swift in Sources */,
+				FEF7F0662568516600E92BC9 /* TaskOptionCell.swift in Sources */,
 				FE7C7653252559FA000549A1 /* SelfSizedTableView.swift in Sources */,
 				FE0520CE25536B490052F8DA /* Task.swift in Sources */,
 				FEBC2483253668580073EBB1 /* MainPopUpcell.swift in Sources */,

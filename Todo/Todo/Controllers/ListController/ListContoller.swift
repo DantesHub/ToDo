@@ -1,11 +1,3 @@
-//
-//  TestViewController.swift
-//  Todo
-//
-//  Created by Dante Kim on 10/2/20.
-//  Copyright © 2020 Alarm & Calm. All rights reserved.
-//
-
 import UIKit
 import Layoutless
 import TinyConstraints
@@ -15,7 +7,6 @@ import FSCalendar
 protocol ReloadDelegate {
     func reloadTableView()
 }
-
 
 var keyboard = false
 var lastKeyboardHeight: CGFloat = 0
@@ -72,9 +63,6 @@ class ListController: UIViewController, TaskViewDelegate {
         cv.backgroundColor = .white
         return cv
     }()
-    var tomorrow = false
-    var nextWeek = false
-    
     var pickUpSection = 0
     var dueDateTapped = false
     var pickerTitle = UILabel()
@@ -89,6 +77,9 @@ class ListController: UIViewController, TaskViewDelegate {
     let slideUpViewHeight: CGFloat = 350
     var completedExpanded = true
     let lists = uiRealm.objects(ListObject.self)
+    var accessBool = false
+    
+
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -104,9 +95,11 @@ class ListController: UIViewController, TaskViewDelegate {
     var scrollHeight: CGFloat = 100
     override func viewDidLayoutSubviews() {
         tableView.delegate = self
+        tableView.dataSource = self
         tableView.dragInteractionEnabled = true
         tableView.dragDelegate = self
         tableView.dropDelegate = self
+        tableView.allowsSelection = true
     }
     override func viewWillDisappear(_ animated: Bool) {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -199,6 +192,7 @@ class ListController: UIViewController, TaskViewDelegate {
                                                 action: #selector(slideUpViewTapped))
         containerView.addGestureRecognizer(tapGesture)
     }
+    
     private func animateSlider(height: CGFloat) {
         
         UIView.animate(withDuration: 0.5,
@@ -258,8 +252,38 @@ class ListController: UIViewController, TaskViewDelegate {
         }
        
     }
-    
-
+    func getAccessBool() {
+        let center = UNUserNotificationCenter.current()
+        let semasphore = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            center.getNotificationSettings(completionHandler: { [self] settings in
+                switch settings.authorizationStatus {
+                case .authorized, .provisional:
+                    accessBool = true
+                    print("authorized")
+                    semasphore.signal()
+                    return
+                case .denied:
+                    accessBool = false
+                    print("denied")
+                    semasphore.signal()
+                    return
+                case .notDetermined:
+                    print("not determined, ask user for permission now")
+                    semasphore.signal()
+                case .ephemeral:
+                    print("ephermal")
+                    semasphore.signal()
+                @unknown default:
+                    print("default")
+                    semasphore.signal()
+                }
+            })
+        }
+        semasphore.wait()
+        
+        return
+    }
     @objc func tappedAddTask() {
         addTaskField.becomeFirstResponder()
         let done = UIButton(type: .system)
@@ -271,6 +295,33 @@ class ListController: UIViewController, TaskViewDelegate {
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
     }
     
+    func createReminderNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = self.addTaskField.text!
+        content.body = "Let's Get To It!"
+        let formatter3 = DateFormatter()
+        formatter3.dateFormat = "MMM dd,yyyy h:mm a"
+
+        var dateComponents = DateComponents()
+        dateComponents.calendar = Calendar.current
+        let dat = formatter3.date(from: dateReminderSelected + " " + timeReminderSelected)
+   
+        let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dat!)
+        let trigger = UNCalendarNotificationTrigger(
+                 dateMatching: comps, repeats: true)
+        
+        // Create the request
+        let uuidString = UUID().uuidString
+        let request = UNNotificationRequest(identifier: uuidString,
+                    content: content, trigger: trigger)
+
+        // Schedule the request with the system.
+        let notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter.add(request) { (error) in
+           if error != nil { }
+        }
+    }
+    
     @objc func tappedDone() {
         self.addTaskField.resignFirstResponder()
         if addTaskField.text!.trimmingCharacters(in: .whitespacesAndNewlines) != ""  {
@@ -280,47 +331,24 @@ class ListController: UIViewController, TaskViewDelegate {
                 task.completed = false
                 task.name = addTaskField.text!
                 if listTitle == "Important" {
-                    print("in here")
                     task.favorited = true
                 } else {
                     task.favorited = favorited
                 }
                 let formatter2 = DateFormatter()
-                let formatter3 = DateFormatter()
-                formatter3.dateFormat = "MMM dd,yyyy hh:mm a"
-                formatter2.dateFormat = "hh:mm a"
+                formatter2.dateFormat = "h:mm a"
                 if planned {
-                    if tomorrow {
-                        task.planned = dateDueSelected + "-" + timeDueSelected + "@tomorrow"
-                    } else if nextWeek {
-                        task.planned = dateDueSelected + "-" + timeDueSelected + "@nextWeek"
-                    } else if dateDueSelected == "" {
-                        dateDueSelected = formatter.string(from: Date())
-                        task.planned = dateDueSelected + "-" + timeDueSelected + "@today"
-                        print(task.planned)
-                    } else {
-                        let interval = formatter3.date(from: dateDueSelected + " " + timeDueSelected)! - Date()
-                        task.planned = dateDueSelected + "-" + timeDueSelected + "@" + String(interval.day! + 1)
-                        print(task.planned)
-                    }
+                    dateDueSelected = formatter.string(from: Date())
+                    task.planned = dateDueSelected + "-" + timeDueSelected
                 } else if listTitle == "Planned" {
                     let date = Date()
                     task.planned = formatter.string(from: date) + "-" + formatter2.string(from: date)
                 }
                 
                 if reminder {
-                    if tomorrow {
-                        task.reminder = dateReminderSelected + "-" + timeReminderSelected + "@tomorrow"
-                    } else if nextWeek {
-                        task.reminder = dateReminderSelected + "-" + timeReminderSelected + "@nextWeek"
-                    } else if dateReminderSelected == "" {
-                        dateReminderSelected = formatter.string(from: Date())
-                        task.planned = dateReminderSelected + "-" + timeReminderSelected + "@today"
-                    } else {
-                        let interval = formatter3.date(from: dateReminderSelected + " " + timeReminderSelected)! - Date()
-                        task.reminder = dateReminderSelected + "-" + timeReminderSelected + "@" + String(interval.day! + 1)
-                        print(task.reminder)
-                    }
+                    dateReminderSelected = formatter.string(from: Date())
+                    task.reminder = dateReminderSelected + "-" + timeReminderSelected
+                    createReminderNotification()
                 }
                 
                 if selectedList != "" {
@@ -352,8 +380,6 @@ class ListController: UIViewController, TaskViewDelegate {
         planned = false
         reminder = false
         favorited = false
-        tomorrow = false
-        nextWeek = false
         dateReminderSelected = ""
         timeReminderSelected = ""
         dateDueSelected = ""
@@ -362,6 +388,7 @@ class ListController: UIViewController, TaskViewDelegate {
         selectedDate = ""
         firstAppend = true
         added50ToReminder = false
+        tappedIcon = ""
         added50ToDueDate = false
         dueDateTapped = false
         scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: 85)
@@ -400,7 +427,6 @@ class ListController: UIViewController, TaskViewDelegate {
     func createTableView(top: CGFloat = -10) {
         tableView.register(TaskCell.self, forCellReuseIdentifier: "list")
         tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "completedHeader")
-        tableView.dataSource = self
         tableView.separatorStyle = .none
         view.addSubview(tableView)
         tableView.leadingToSuperview(offset: 10)
@@ -486,13 +512,12 @@ class ListController: UIViewController, TaskViewDelegate {
         reminder = false
         favorited = false
         laterTapped = false
-        tomorrow = false
-        nextWeek = false
         dateReminderSelected = ""
         timeReminderSelected = ""
         dateDueSelected = ""
         timeDueSelected = ""
         selectedList = ""
+        tappedIcon = ""
         selectedDate = ""
         firstAppend = true
         dueDateTapped = false
