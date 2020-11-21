@@ -10,7 +10,7 @@ import UIKit
 import TinyConstraints
 import RealmSwift
 protocol TaskViewDelegate {
-    func reloadTaskTableView(at: IndexPath, checked: Bool)
+    func reloadTaskTableView(at: IndexPath, checked: Bool, reload: Bool)
     func reloadTable()
 }
 
@@ -86,7 +86,11 @@ class TaskCell: UITableViewCell {
         controller.reminderDate = reminderDate.text ?? ""
         controller.taskTitle = title.text ?? ""
         controller.favorited = favorited
+        controller.id = id
         controller.completed = completed
+        controller.path = path
+        controller.parentList = parentList
+        controller.delegate = taskCellDelegate
         navigationController.view.layer.add(CATransition().popFromRight(), forKey: nil)
         navigationController.pushViewController(controller, animated: false)
     }
@@ -231,9 +235,9 @@ class TaskCell: UITableViewCell {
         }
         
         bottomView.addSubview(repeatImage)
-        repeatImage.top(to: bottomView, offset: 3)
+        repeatImage.top(to: bottomView, offset: 7)
         if repeatTask != false {
-            repeatImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 20, height: 20))
+            repeatImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 13, height: 13))
             if reminderDate.text != "" {
                 repeatImage.leadingAnchor.constraint(equalTo: dot5.trailingAnchor, constant: 5).isActive = true
             } else if plannedDate.text != "" {
@@ -247,9 +251,7 @@ class TaskCell: UITableViewCell {
             } else {
                 repeatImage.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor, constant: 15).isActive = true
             }
-    
         }
-        
     }
     
     func configureCircle() {
@@ -266,6 +268,7 @@ class TaskCell: UITableViewCell {
         attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
         title.attributedText = attributeString
     }
+    
     @objc func tappedCircle() {
         configureCircle()
         var delTaskPosition = 0
@@ -286,7 +289,7 @@ class TaskCell: UITableViewCell {
             }
         }
   
-        taskCellDelegate?.reloadTaskTableView(at: path, checked: false)
+        taskCellDelegate?.reloadTaskTableView(at: path, checked: false, reload: false)
     }
     
     @objc func tappedCheck() {
@@ -309,7 +312,7 @@ class TaskCell: UITableViewCell {
         let titleText = title.text
         title.attributedText = .none
         title.text = titleText
-        taskCellDelegate?.reloadTaskTableView(at: path, checked: true)
+        taskCellDelegate?.reloadTaskTableView(at: path, checked: true, reload: false)
     }
     
     

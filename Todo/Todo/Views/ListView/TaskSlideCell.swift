@@ -36,7 +36,7 @@ class TaskSlideCell: BaseCell {
         dateLabel.font = UIFont(name: "OpenSans-Regular", size: 14)
         
         self.addSubview(hr)
-        var hr = UIView(frame: CGRect(x: 0, y: self.frame.height, width: self.frame.width, height: 0.5))
+        let hr = UIView(frame: CGRect(x: 0, y: self.frame.height, width: self.frame.width, height: 0.5))
         hr.backgroundColor = .gray
         
         

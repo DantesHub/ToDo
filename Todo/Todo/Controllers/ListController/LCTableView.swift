@@ -8,7 +8,7 @@
 
 import UIKit
 extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate, UITableViewDragDelegate, UITableViewDropDelegate {
-    func reloadTaskTableView(at: IndexPath, checked: Bool) {
+    func reloadTaskTableView(at: IndexPath, checked: Bool, reload: Bool) {
         getRealmData()
         if checked {
             self.tableView.moveRow(at: at, to: IndexPath(item: tasksList.count - 1, section: 0))
@@ -21,7 +21,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             let cell = self.tableView.cellForRow(at: IndexPath(item: tasksList.count - 1, section: 0)) as! TaskCell
             cell.path = IndexPath(item: tasksList.count - 1, section: 0)
             cell.position = tasksList.count - 1
-            cell.completed = true
+            cell.completed = false
         } else {
             print(1,completedTasks.count - 1)
             self.tableView.moveRow(at: at, to: IndexPath(item: completedTasks.count - 1, section: 1))
@@ -34,8 +34,10 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             let cell = self.tableView.cellForRow(at: IndexPath(item: completedTasks.count - 1, section: 1)) as! TaskCell
             cell.path = IndexPath(item: completedTasks.count - 1 , section: 1)
             cell.position = -1
-            cell.completed = false
-            self.view.setNeedsLayout()
+            cell.completed = true
+        }
+        if reload {
+            tableView.reloadData()
         }
     }
     

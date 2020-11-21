@@ -14,24 +14,27 @@ class TaskOptionCell: UITableViewCell {
     var cellTitle = UILabel()
     var x = UIImageView(image: UIImage(named: "plus")?.rotate(radians: -.pi/4)?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(.gray))
     var needX = false
+    let hr = UIView()
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.addSubview(cellImage)
         self.addSubview(cellTitle)
        
+        cellImage.translatesAutoresizingMaskIntoConstraints = false
+        cellImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30).isActive = true
+        cellImage.topAnchor.constraint(equalTo: self.topAnchor, constant: 5).isActive = true
         
-        cellImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
-        cellImage.centerY(to: self)
-        
-        cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: 20).isActive = true
-        cellTitle.centerY(to: self)
-        cellTitle.font = UIFont(name: "OpenSans-Regular", size: 17)
-        cellTitle.textColor = UIColor.gray
+        cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: 25).isActive = true
+        cellTitle.translatesAutoresizingMaskIntoConstraints = false
+        cellTitle.topAnchor.constraint(equalTo: self.topAnchor, constant: 3).isActive = true
+        cellTitle.font = UIFont(name: "OpenSans-Regular", size: 20)
+        cellTitle.textColor = UIColor.darkGray
         
         if needX {
+            x.translatesAutoresizingMaskIntoConstraints = false
             self.addSubview(x)
             x.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
-            x.centerY(to: self)
+            x.topAnchor.constraint(equalTo: self.topAnchor, constant: 5).isActive = true
         }
     }
 
