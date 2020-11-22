@@ -103,6 +103,8 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
         let cell = tableView.dequeueReusableCell(withIdentifier: "topCell", for: indexPath) as! MainMenuCell
         if indexPath.row == 0 {
             cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 25, height: 25))
+        } else if indexPath.row == 1 {
+            cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 23, height: 23))
         } else {
             cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 30, height: 30))
         }

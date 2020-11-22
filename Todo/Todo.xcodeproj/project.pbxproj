@@ -47,6 +47,7 @@
 		FEF48602254A0E60000CCDF7 /* SliderSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF48601254A0E60000CCDF7 /* SliderSectionHeader.swift */; };
 		FEF7F0662568516600E92BC9 /* TaskOptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF7F0652568516600E92BC9 /* TaskOptionCell.swift */; };
 		FEF7F06A2568698D00E92BC9 /* PaddedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF7F0692568698D00E92BC9 /* PaddedTextField.swift */; };
+		FEF7F06D2569B5ED00E92BC9 /* StepCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF7F06C2569B5ED00E92BC9 /* StepCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -94,6 +95,7 @@
 		FEF48601254A0E60000CCDF7 /* SliderSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderSectionHeader.swift; sourceTree = "<group>"; };
 		FEF7F0652568516600E92BC9 /* TaskOptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskOptionCell.swift; sourceTree = "<group>"; };
 		FEF7F0692568698D00E92BC9 /* PaddedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedTextField.swift; sourceTree = "<group>"; };
+		FEF7F06C2569B5ED00E92BC9 /* StepCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -274,6 +276,7 @@
 			isa = PBXGroup;
 			children = (
 				FEF7F0652568516600E92BC9 /* TaskOptionCell.swift */,
+				FEF7F06C2569B5ED00E92BC9 /* StepCell.swift */,
 			);
 			path = TaskView;
 			sourceTree = "<group>";
@@ -415,6 +418,7 @@
 				FEBC2480253667390073EBB1 /* PopUpController.swift in Sources */,
 				FEF48602254A0E60000CCDF7 /* SliderSectionHeader.swift in Sources */,
 				FE7AE2BB25152A0300D889DD /* MainViewController.swift in Sources */,
+				FEF7F06D2569B5ED00E92BC9 /* StepCell.swift in Sources */,
 				FE76791025435E8200012A59 /* MainTableviews.swift in Sources */,
 				FE7719402537973B00131A5D /* AddListToGroupCell.swift in Sources */,
 				FE7AE2B725152A0300D889DD /* AppDelegate.swift in Sources */,

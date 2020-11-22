@@ -21,6 +21,7 @@ class TaskObject: Object {
     @objc dynamic var completed = false
     @objc dynamic var createdAt = ""
     @objc dynamic var id = UUID().uuidString
+    @objc dynamic var note = ""
     var steps = List<Step>()
     
     override static func primaryKey() -> String? {

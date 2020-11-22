@@ -427,7 +427,7 @@ class ListController: UIViewController, TaskViewDelegate {
     func createTableView(top: CGFloat = -10) {
         tableView.register(TaskCell.self, forCellReuseIdentifier: "list")
         tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "completedHeader")
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
         view.addSubview(tableView)
         tableView.leadingToSuperview(offset: 10)
         tableView.trailingToSuperview(offset: 10)

@@ -9,7 +9,7 @@ import UIKit
 
 class PaddedTextField: UITextField {
     
-    let padding = UIEdgeInsets(top: 0, left: 25, bottom: UIScreen.main.bounds.height/5 - 25, right: 0)
+    let padding = UIEdgeInsets(top: 0, left: 25, bottom: UIScreen.main.bounds.height/6 - 25, right: 0)
     override open func textRect(forBounds bounds: CGRect) -> CGRect {
         return bounds.inset(by: padding)
     }

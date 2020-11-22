@@ -27,9 +27,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             cell.nameLabel.text = lists[indexPath.row].name
         case "Priority":
             if indexPath.row == 3 {
-                cell.icon.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 30, height: 30))
+                cell.icon.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 18, height: 20))
             } else {
-                cell.icon.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(priorities[indexPath.row])
+                cell.icon.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 18, height: 20)).withTintColor(priorities[indexPath.row])
             }
             cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.25)
             cell.nameLabel.text = "Priority " + String(indexPath.row + 1)

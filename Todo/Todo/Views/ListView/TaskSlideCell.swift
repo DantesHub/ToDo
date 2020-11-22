@@ -26,7 +26,7 @@ class TaskSlideCell: BaseCell {
 
         self.addSubview(nameLabel)
         nameLabel.centerY(to: self)
-        nameLabel.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 20).isActive = true
+        nameLabel.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 25).isActive = true
         nameLabel.font = UIFont(name: "OpenSans-Regular", size: 17)
         
         self.addSubview(dateLabel)

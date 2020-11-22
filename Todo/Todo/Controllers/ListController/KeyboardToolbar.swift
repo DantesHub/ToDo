@@ -25,11 +25,11 @@ enum KeyboardToolbarButton: Int {
         var button: UIBarButtonItem!
         switch self {
         case .addToList: button = UIBarButtonItem(image: UIImage(named: "list")?.resize(targetSize: CGSize(width: 30, height: 30)), style: .plain, target: target, action: action)
-        case .favorite: button = UIBarButtonItem(image: UIImage(named: "star")?.resize(targetSize: CGSize(width: 30, height: 30)), style: .plain, target: target, action: action)
+        case .favorite: button = UIBarButtonItem(image: UIImage(named: "star2")?.resize(targetSize: CGSize(width: 25, height: 25)), style: .plain, target: target, action: action)
             
-        case .priority: button = UIBarButtonItem(image: UIImage(named: "flag")?.resize(targetSize: CGSize(width: 40, height: 40)), style: .plain, target: target, action: action)
-        case .dueDate: button = UIBarButtonItem(image: UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 35, height: 35)), style: .plain, target: target, action: action)
-        case .reminder: button = UIBarButtonItem(image: UIImage(named: "bell")?.resize(targetSize: CGSize(width: 40, height: 40)), style: .plain, target: target, action: action)
+        case .priority: button = UIBarButtonItem(image: UIImage(named: "flag")?.resize(targetSize: CGSize(width: 20, height: 22)), style: .plain, target: target, action: action)
+        case .dueDate: button = UIBarButtonItem(image: UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 25, height: 25)), style: .plain, target: target, action: action)
+        case .reminder: button = UIBarButtonItem(image: UIImage(named: "bell")?.resize(targetSize: CGSize(width: 25, height: 25)), style: .plain, target: target, action: action)
         case .done: button = UIBarButtonItem(image: UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 35, height: 35)), style: .plain, target: target, action: action)
         case .addedReminder:
             let  btn = UIButton()
@@ -52,7 +52,7 @@ enum KeyboardToolbarButton: Int {
                 view = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 50))
             }
             
-            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), left: UIImage(named: "bell")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), label: label, width: 25, height: 25)
+            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), left: UIImage(named: "bell")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 20)), label: label, width: 25, height: 25)
             btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 25)
             view.addSubview(btn)
             view.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
@@ -92,10 +92,10 @@ enum KeyboardToolbarButton: Int {
                 print("default")
             }
             btn.addTarget(target, action: action!, for: .touchUpInside)
-            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 20)), left: UIImage(named: "flag")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), label: label,  width: 25, height: 25)
+            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 20)), left: UIImage(named: "flag")?.withTintColor(.white).resize(targetSize: CGSize(width: 16, height: 18)), label: label,  width: 25, height: 25)
             view.addSubview(btn)
-            view.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
-            btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 35)
+            view.layoutMargins = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
+            btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 20)
             button = .init(customView: view)
             btn.tag = rawValue
         case .addedDueDate:
@@ -118,8 +118,8 @@ enum KeyboardToolbarButton: Int {
                 btn.frame = CGRect(x: 10, y: 5, width: 180, height: 40)
                 view = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 50))
             }
-            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), left: UIImage(named:  "calendarOne")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), label: label, width: 25, height: 25)
-            btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 25)
+            btn.setImages(right: UIImage(named: "close")?.withTintColor(.white).resize(targetSize: CGSize(width: 25, height: 25)), left: UIImage(named:  "calendarOne")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 20)), label: label, width: 25, height: 25)
+            btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 15)
             
             view.addSubview(btn)
             view.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
@@ -165,10 +165,16 @@ class KeyboardToolbar: UIToolbar {
         isTranslucent = true
     }
     
+    let space = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
     func setup(leftButtons: [KeyboardToolbarButton], rightButtons: [KeyboardToolbarButton]) {
         var leftBarButtons = [UIBarButtonItem]()
-        for button in leftButtons {
+        for (idx,button) in leftButtons.enumerated() {
+            space.width = 10
+            if idx == 0 {
+                leftBarButtons.append(space)
+            }
             leftBarButtons.append(button.createButton(target: self, action:  #selector(buttonTapped)))
+            leftBarButtons.append(space)
         }
         self.leftButtons = leftButtons
         self.rightButtons = rightButtons
@@ -223,13 +229,13 @@ class KeyboardToolbar: UIToolbar {
         }
         let space = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
         var leftBarButtons = [UIBarButtonItem]()
-        for button in self.leftButtons {
-            leftBarButtons.append(button.createButton(target: self, action:  #selector(buttonTapped)))
-            if button == .favorited || button == .prioritized  || button == .addedDueDate || button == .addedReminder || button == .addedToList {
-                space.width = 10
+        for (idx,button) in self.leftButtons.enumerated() {
+            space.width = 10
+            if idx == 0 {
                 leftBarButtons.append(space)
             }
-            
+            leftBarButtons.append(button.createButton(target: self, action:  #selector(buttonTapped)))
+            leftBarButtons.append(space)
         }
         
         setItems(leftBarButtons, animated: false)

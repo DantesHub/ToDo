@@ -58,8 +58,8 @@ class TaskCell: UITableViewCell {
         circle.layer.borderColor = UIColor.red.cgColor
         circle.leading(to: self, offset: 15)
         circle.top(to: self, offset: 15)
-        let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
-        self.addGestureRecognizer(cellTapped)
+//        let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
+//        self.addGestureRecognizer(cellTapped)
         let circleGest = UITapGestureRecognizer(target: self, action: #selector(tappedCircle))
         circle.addGestureRecognizer(circleGest)
         
@@ -69,7 +69,6 @@ class TaskCell: UITableViewCell {
         title.top(to: self, offset: 15)
         
         self.addSubview(star)
-        
         star.trailing(to: self, offset: -15)
         star.top(to: self, offset: 15)
         let starGest = UITapGestureRecognizer(target: self, action: #selector(tappedStar))
@@ -317,6 +316,8 @@ class TaskCell: UITableViewCell {
     
     
     @objc func tappedStar() {
+        star.isHighlighted = true
+        print("tapped Star")
         for task in tasks {
             if task.position == position && task.parentList == parentList && task.name == title.text {
                 let isFavorited = task.favorited
