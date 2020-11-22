@@ -46,6 +46,43 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         }
         return cell
     }
+    func reminderHelper() {
+        if selectedDate == "Pick a Date & Time" {
+            dateReminderSelected = self.formatter.string(from: Date())
+            slideUpViewTapped()
+            createSlider(createSlider: false)
+            pickerView.backgroundColor = .white
+            createCalendar()
+        } else if selectedDate == "Later Today" {
+            laterTapped = true
+            calendarNext()
+        } else {
+            addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
+            if !firstAppend {
+                scrollView.contentSize.width = scrollView.contentSize.width + 170
+            } else {
+                firstAppend = false
+            }
+            if selectedDate == "Tomorrow" {
+                let calendar = Calendar.current
+                let addOneWeekToCurrentDate = calendar.date(byAdding: .day, value: 1, to: Date())
+                dateReminderSelected = formatter.string(from: addOneWeekToCurrentDate!)
+                let timeFormatter = DateFormatter()
+                timeFormatter.dateFormat = "h:mm a"
+                timeReminderSelected = timeFormatter.string(from: Date())
+            } else if selectedDate == "Next Week" {
+                let calendar = Calendar.current
+                let addOneWeekToCurrentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: Date())
+                dateReminderSelected = formatter.string(from: addOneWeekToCurrentDate!)
+                let timeFormatter = DateFormatter()
+                timeFormatter.dateFormat = "h:mm a"
+                timeReminderSelected = timeFormatter.string(from: Date())
+            }
+            addTaskField.becomeFirstResponder()
+        }
+        slideUpViewTapped()
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         switch tappedIcon {
         //only present in favorite, scheduled and all tasks
@@ -71,75 +108,60 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             slideUpViewTapped()
             addTaskField.becomeFirstResponder()
         case "Reminder":
-        self.getAccessBool()
+            var grantedd = false
             let center = UNUserNotificationCenter.current()
-            center.requestAuthorization(options: [.alert, .sound, .badge]) {  granted, error in
-                if let error = error {
-                    print("inside here")
-                    print(error)
-                    return
-                }
-            }
-        
-            print("access", accessBool)
-            if accessBool {
-                selectedDate = dates[indexPath.row]
-                if selectedDate == "Pick a Date & Time" {
-                    dateReminderSelected = self.formatter.string(from: Date())
-                    slideUpViewTapped()
-                    createSlider(createSlider: false)
-                    pickerView.backgroundColor = .white
-                    createCalendar()
-                } else if selectedDate == "Later Today" {
-                    laterTapped = true
-                    calendarNext()
-                } else {
-                    addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
-                    if !firstAppend {
-                        scrollView.contentSize.width = scrollView.contentSize.width + 170
-                    } else {
-                        firstAppend = false
-                    }
-                    if selectedDate == "Tomorrow" {
-                        let calendar = Calendar.current
-                        let addOneWeekToCurrentDate = calendar.date(byAdding: .day, value: 1, to: Date())
-                        dateReminderSelected = formatter.string(from: addOneWeekToCurrentDate!)
-                        let timeFormatter = DateFormatter()
-                        timeFormatter.dateFormat = "h:mm a"
-                        timeReminderSelected = timeFormatter.string(from: Date())
-                    } else if selectedDate == "Next Week" {
-                        let calendar = Calendar.current
-                        let addOneWeekToCurrentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: Date())
-                        dateReminderSelected = formatter.string(from: addOneWeekToCurrentDate!)
-                        let timeFormatter = DateFormatter()
-                        timeFormatter.dateFormat = "h:mm a"
-                        timeReminderSelected = timeFormatter.string(from: Date())
-                    }
-                    addTaskField.becomeFirstResponder()
-                }
-                slideUpViewTapped()
-                return
-            } else {
-                let alertController = UIAlertController (title: "Please Enable Notifications", message: "You need to turn on notifications in your settings to add reminders", preferredStyle: .alert)
-                
-                let settingsAction = UIAlertAction(title: "Settings", style: .default) { (_) -> Void in
-                    
-                    guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+            let semasphore = DispatchSemaphore(value: 0)
+            DispatchQueue.global().async {
+                center.requestAuthorization(options: [.alert, .sound, .badge]) {  granted, error in
+                    if let _ = error {
                         return
                     }
                     
-                    if UIApplication.shared.canOpenURL(settingsUrl) {
-                        UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
-                            print("Settings opened: \(success)") // Prints true
-                        })
+                    if granted {
+                        print("signaling")
+                        grantedd = true
                     }
+                    semasphore.signal()
                 }
-                alertController.addAction(settingsAction)
-                let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: nil)
-                alertController.addAction(cancelAction)
-                
-                present(alertController, animated: true, completion: nil)
+            }
+            getAccessBool()
+            semasphore.wait()
+            if accessBool || grantedd {
+                print("fasdf")
+                selectedDate = dates[indexPath.row]
+                reminderHelper()
                 return
+            } else {
+                let asked = UserDefaults.standard.bool(forKey: "askForPermission")
+                if asked {
+                    print("shibal")
+                    let alertController = UIAlertController (title: "Please Enable Notifications", message: "You need to turn on notifications in your settings to add reminders", preferredStyle: .alert)
+                    
+                    let settingsAction = UIAlertAction(title: "Settings", style: .default) { (_) -> Void in
+                        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                            return
+                        }
+                        if UIApplication.shared.canOpenURL(settingsUrl) {
+                            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                                print("Settings opened: \(success)") // Prints true
+                            })
+                        }
+                    }
+                    alertController.addAction(settingsAction)
+                    let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: {_ in
+                        print("bing")
+                    })
+                    alertController.addAction(cancelAction)
+                    slideUpViewTapped()
+                    addTaskField.becomeFirstResponder()
+                    present(alertController, animated: true, completion: nil)
+                    return
+                } else {
+                    UserDefaults.standard.setValue(true, forKey: "askForPermission")
+                    print("binggurrae")
+                    slideUpViewTapped()
+                    addTaskField.becomeFirstResponder()
+                }
             }
         
         case "Due":

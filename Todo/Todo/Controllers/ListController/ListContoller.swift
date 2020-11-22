@@ -275,13 +275,12 @@ class ListController: UIViewController, TaskViewDelegate {
                     print("ephermal")
                     semasphore.signal()
                 @unknown default:
-                    print("default")
+                    print("default panda")
                     semasphore.signal()
                 }
             })
         }
         semasphore.wait()
-        
         return
     }
     @objc func tappedAddTask() {
