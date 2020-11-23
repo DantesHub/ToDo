@@ -8,13 +8,22 @@
 
 import UIKit
 import TinyConstraints
-
+protocol TaskOptionProtocol {
+    func setBlues(date: Bool, reminder: Bool)
+}
 class TaskOptionCell: UITableViewCell {
     var cellImage = UIImageView()
     var cellTitle = UILabel()
-    var x = UIImageView(image: UIImage(named: "plus")?.rotate(radians: -.pi/4)?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(.gray))
+    var x = UIImageView(image: UIImage(named: "plus")?.rotate(radians: -.pi/4)?.resize(targetSize: CGSize(width: 35, height: 35)).withTintColor(.gray))
     var needX = false
     let hr = UIView()
+    var reminder = ""
+    var dueDate = ""
+    var repeatTask = ""
+    var parentList = ""
+    var type = ""
+    var delegate: TaskOptionProtocol?
+    var id = ""
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.addSubview(cellImage)
@@ -26,16 +35,70 @@ class TaskOptionCell: UITableViewCell {
         
         cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: 25).isActive = true
         cellTitle.translatesAutoresizingMaskIntoConstraints = false
-        cellTitle.topAnchor.constraint(equalTo: self.topAnchor, constant: 3).isActive = true
+        cellTitle.topAnchor.constraint(equalTo: self.topAnchor, constant: 1).isActive = true
         cellTitle.font = UIFont(name: "OpenSans-Regular", size: 20)
         cellTitle.textColor = UIColor.darkGray
-        
-        if needX {
-            x.translatesAutoresizingMaskIntoConstraints = false
-            self.addSubview(x)
-            x.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
-            x.topAnchor.constraint(equalTo: self.topAnchor, constant: 5).isActive = true
+    }
+    
+    func createX() {
+        x.translatesAutoresizingMaskIntoConstraints = false
+        self.addSubview(x)
+        x.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
+        x.topAnchor.constraint(equalTo: self.topAnchor, constant: 1).isActive = true
+        let xTapped = UITapGestureRecognizer(target: self, action: #selector(tappedX))
+        x.addGestureRecognizer(xTapped)
+        x.isUserInteractionEnabled = true
+    }
+    
+    @objc func tappedX() {
+        let results = uiRealm.objects(TaskObject.self)
+        for result in results {
+            if result.id == id {
+                switch type {
+                case "Add to a List":
+                    try! uiRealm.write {
+                        result.parentList = "All Tasks"
+                    }
+                case "Priority":
+                    try! uiRealm.write {
+                        result.priority = 0
+                    }
+                case "Remind Me":
+                    try! uiRealm.write {
+                        result.reminder = ""
+                    }
+                case "Add Due Date":
+                    try! uiRealm.write {
+                        result.planned = ""
+                    }
+                case "Repeat":
+                    print("repeat")
+                    var due = false
+                    var remind = false
+                    try! uiRealm.write {
+                        print(reminder, dueDate)
+                
+                        result.repeated = ""
+                        if reminder != "" {
+                            result.reminder = ""
+                            remind = true
+                        }
+                        if dueDate != "" {
+                            result.planned = ""
+                            due = true
+                        }
+                    }
+                    delegate?.setBlues(date: due, reminder: remind)
+                case "Add File":
+                    print("add to a file")
+                default:
+                    break
+                }
+            }
         }
+        cellTitle.textColor = .gray
+        cellImage.image = cellImage.image?.withTintColor(.gray)
+        x.removeFromSuperview()
     }
 
     required init?(coder: NSCoder) {

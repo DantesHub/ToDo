@@ -16,6 +16,7 @@ class TaskController: UIViewController {
     var reminderDate = ""
     var taskTitle = ""
     var favorited = false
+    var repeatTask = ""
     let titleTextField = UITextField()
     let addStepField = UITextField()
     let noteTextField = PaddedTextField()
@@ -27,7 +28,6 @@ class TaskController: UIViewController {
     var heightConstraint: NSLayoutConstraint?
     let circle = RoundView()
     let star = UIImageView()
-
     let check: UIImageView = {
         let iv = UIImageView()
         iv.image = UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 35, height: 35)).withTintColor(.red)
@@ -44,13 +44,14 @@ class TaskController: UIViewController {
        view.showsVerticalScrollIndicator = false
        return view
     }()
-    var defaultList = ["Add to a List", "Remind Me", "Add Due Date", "Repeat", "Add File"]
+    var priority = 0
+    var defaultList = ["Add to a List", "Priority", "Remind Me", "Add Due Date", "Repeat", "Add File"]
     var footer = UIView()
     let results = uiRealm.objects(TaskObject.self)
     var stepsFooterView = UIView()
     let plus = UIImageView(image: UIImage(named: "plus")?.resize(targetSize: CGSize(width: 45, height: 45)).withTintColor(.blue))
     let addStepLabel = UILabel()
-    
+
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,6 +62,7 @@ class TaskController: UIViewController {
     func configureUI() {
         view.backgroundColor = .white
         view.addSubview(scrollView)
+        configureNavBar()
         scrollView.leadingToSuperview()
         scrollView.trailingToSuperview()
         scrollView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -90).isActive = true
@@ -89,7 +91,7 @@ class TaskController: UIViewController {
         tableView.dataSource = self
         tableView.register(TaskOptionCell.self, forCellReuseIdentifier: "taskOptionCell")
         tableView.isScrollEnabled = false
-        tableView.height(320)
+        tableView.height(385)
         tableView.backgroundColor = .red
     }
     
@@ -118,6 +120,18 @@ class TaskController: UIViewController {
         stepsTableView.backgroundColor = .white
         stepsTableView.estimatedRowHeight = 60
         stepsTableView.separatorStyle = .none
+    }
+    
+    func configureNavBar() {
+        let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(tappedBack))
+        backButton.image = UIImage(named: "arrow")?.rotate(radians: -.pi/2)?.resize(targetSize: CGSize(width: 25, height: 25))
+        backButton.title = "Back"
+        self.navigationItem.leftBarButtonItem = backButton
+    }
+    
+    @objc func tappedBack() {
+        _ = navigationController?.popViewController(animated: true)
+        delegate?.createObservers()
     }
 
     
@@ -234,10 +248,8 @@ class TaskController: UIViewController {
 }
 extension TaskController:  UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        print("over here")
         if textField == addStepField {
             if textField.text! != "" {
-                
                 for result in results {
                     if result.id == id {
                         try! uiRealm.write {
@@ -246,7 +258,6 @@ extension TaskController:  UITextFieldDelegate {
                             step.done = false
 //                            noteTextField.removeFromSuperview()
 //                            tableView.removeFromSuperview()
-                        
                             self.steps.append(step)
                             heightConstraint?.isActive = false
                             heightConstraint = stepsTableView.heightAnchor.constraint(equalToConstant: CGFloat(130 + (60 * steps.count)))
@@ -264,16 +275,38 @@ extension TaskController:  UITextFieldDelegate {
     }
     
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        if keyboard == false {
+            addedStep = true
+        }
         return true
     }
 }
 
-extension TaskController: UITableViewDelegate, UITableViewDataSource {
+extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOptionProtocol {
+    func setBlues(date: Bool, reminder: Bool) {
+        print(date, reminder, "following")
+        if date {
+            let cell = tableView.cellForRow(at: IndexPath(row: 3, section: 0)) as! TaskOptionCell
+            cell.cellTitle.textColor = .gray
+            cell.cellImage.image = cell.cellImage.image?.withTintColor(.gray)
+            plannedDate = ""
+            self.tableView.reloadRows(at: [IndexPath(row: 3, section: 0)], with: .none)
+        }
+        
+        if reminder {
+            let cell = tableView.cellForRow(at: IndexPath(row: 2, section: 0)) as! TaskOptionCell
+            cell.cellTitle.textColor = .gray
+            cell.cellImage.image = cell.cellImage.image?.withTintColor(.gray)
+            reminderDate = ""
+            self.tableView.reloadRows(at: [IndexPath(row: 2, section: 0)], with: .none)
+        }
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == stepsTableView {
             return steps.count
         } else {
-            return 5
+            return 6
         }
     }
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -344,22 +377,75 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource {
 //            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.35)
             return cell
         } else  {
+            print("shooo")
              let cell = tableView.dequeueReusableCell(withIdentifier: "taskOptionCell") as! TaskOptionCell
+            cell.separatorInset = .zero
             cell.cellTitle.text = defaultList[indexPath.row]
+            cell.type = defaultList[indexPath.row]
+            cell.id = id
             switch defaultList[indexPath.row] {
             case "Add to a List":
-                cell.cellImage.image = UIImage(named: "list")?.resize(targetSize: CGSize(width: 28, height: 28)).withTintColor(.gray)
+                var parented = false
+                print(parentList)
+                if parentList != "All Tasks" && parentList != "Important" && parentList != "Planned" {
+                    parented = true
+                    cell.cellTitle.text = parentList
+                    if !(parentList == "All Tasks") {
+                        cell.createX()
+                    }
+                }
+                cell.cellImage.image = UIImage(named: "list")?.resize(targetSize: CGSize(width: 22, height: 22)).withTintColor(!parented ? .gray : .blue)
+                cell.cellTitle.textColor = !parented ? .gray : .blue
+            case "Priority":
+                if priority == 0 {
+                    cell.cellImage.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 19, height: 22)).withTintColor(.gray)
+                    cell.cellTitle.text = "Priority"
+                } else {
+                    cell.createX()
+                    cell.cellImage.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 19, height: 22))
+                    if priority == 1 {
+                        cell.cellImage.image = cell.cellImage.image?.withTintColor(.red)
+                        cell.cellTitle.text = "Priority 1"
+                        cell.cellTitle.textColor = .red
+                    } else if priority == 2 {
+                        cell.cellImage.image = cell.cellImage.image?.withTintColor(.placeholderGray)
+                        cell.cellTitle.text = "Priority 2"
+                        cell.cellTitle.textColor = .orange
+                    } else if priority == 3 {
+                        cell.cellImage.image = cell.cellImage.image?.withTintColor(.blue)
+                        cell.cellTitle.text = "Priority 3"
+                        cell.cellTitle.textColor = .blue
+                    } else {
+                        cell.cellImage.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 19, height: 22)).withTintColor(.blue)
+                        cell.cellTitle.text = "Priority 4"
+                        cell.cellTitle.textColor = .blue
+                    }
+                }
             case "Remind Me":
-                cell.cellImage.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(.gray)
+                cell.cellImage.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(reminderDate == "" ? .gray : .blue)
+                cell.cellTitle.textColor = reminderDate == "" ? .gray : .blue
+                if reminderDate != "" { cell.createX() }
             case "Add Due Date":
-                cell.cellImage.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 28, height: 28)).withTintColor(.gray)
+                cell.cellImage.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(plannedDate == "" ? .gray : .blue)
+                cell.cellTitle.textColor = plannedDate == "" ? .gray : .blue
+                if plannedDate != "" { cell.createX() }
             case "Repeat":
-                cell.cellImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(.gray)
+                cell.cellImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 23, height: 23)).withTintColor(repeatTask == "" ? .gray : .blue)
+                cell.dueDate = plannedDate
+                cell.reminder = reminderDate
+                cell.delegate = self
+                if repeatTask != "" {
+                    cell.createX()
+                    cell.cellTitle.textColor = .blue
+                }
             case "Add File":
                 cell.cellImage.image = UIImage(named: "file")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(.gray)
             default:
                 break
             }
+            cell.dueDate = plannedDate
+            cell.reminder = reminderDate
+            cell.parentList = parentList
             cell.selectionStyle = .none
             cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.35)
             return cell

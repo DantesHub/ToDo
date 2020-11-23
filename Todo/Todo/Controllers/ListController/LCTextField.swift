@@ -36,6 +36,7 @@ extension ListController: UITextFieldDelegate {
                 try! uiRealm.write {
                     uiRealm.add(list)
                 }
+                addTaskField.isHidden = false
                 reloadDelegate?.reloadTableView()
             }
             
@@ -50,6 +51,7 @@ extension ListController: UITextFieldDelegate {
     
     }
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        print("sh")
         stabilize = true
         return true
     }

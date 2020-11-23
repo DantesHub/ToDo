@@ -139,7 +139,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         cell.favorited = task.favorited
         cell.reminderDate.text = task.reminder
         cell.completed = task.completed
-        cell.repeatTask = true
+        cell.repeatTask = "vvs"
         cell.id = task.id
         cell.position = task.position
         cell.parentList = task.parentList

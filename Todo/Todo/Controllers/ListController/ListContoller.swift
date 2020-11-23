@@ -24,6 +24,7 @@ var tasksList: [TaskObject] = [TaskObject]()
 var completedTasks: [TaskObject] = [TaskObject]()
 var selectedList = ""
 var listTitle = "Untitled List"
+var addedStep = false
 class ListController: UIViewController, TaskViewDelegate {
     //MARK: - instance variables
     let formatter: DateFormatter = {
@@ -82,6 +83,7 @@ class ListController: UIViewController, TaskViewDelegate {
 
     //MARK: - init
     override func viewDidLoad() {
+        print("load")
         super.viewDidLoad()
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
@@ -91,6 +93,10 @@ class ListController: UIViewController, TaskViewDelegate {
         }
         configureUI()
         createTableHeader()
+    }
+    override func viewDidDisappear(_ animated: Bool) {
+        print("dissapearing")
+        print(keyboard, lastKeyboardHeight, stabilize)
     }
     var scrollHeight: CGFloat = 100
     override func viewDidLayoutSubviews() {
@@ -102,9 +108,25 @@ class ListController: UIViewController, TaskViewDelegate {
         tableView.allowsSelection = true
     }
     override func viewWillDisappear(_ animated: Bool) {
+        print("bro")
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        planned = false
+        reminder = false
+        favorited = false
+        laterTapped = false
+        dateReminderSelected = ""
+        timeReminderSelected = ""
+        dateDueSelected = ""
+        timeDueSelected = ""
+        selectedList = ""
+        tappedIcon = ""
+        selectedDate = ""
+        firstAppend = true
+        dueDateTapped = false
+        added50ToReminder = false
+        added50ToDueDate = false
     }
     
     //MARK: - helper variables
@@ -112,10 +134,7 @@ class ListController: UIViewController, TaskViewDelegate {
         configureNavBar()
         createTableHeader()
         createTableView()
-        let center: NotificationCenter = NotificationCenter.default
-        center.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        center.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        center.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        createObservers()
         plusTaskView = UIImageView(frame: CGRect(x: self.view.frame.width - 100, y: self.view.frame.height - 200 , width: 60, height: 60))
         view.addSubview(plusTaskView)
         let padding:CGFloat = 10
@@ -134,14 +153,19 @@ class ListController: UIViewController, TaskViewDelegate {
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOutside))
         self.view.addGestureRecognizer(tapRecognizer)
         addTaskField.isHidden = false
-        addTaskField.frame = CGRect(x: 0, y: view.frame.height + 10, width: view.frame.width, height: 65)
+        addTaskField.frame = CGRect(x: 0, y: view.frame.height - view.frame.height/11.5 , width: view.frame.width, height: 65)
         let leftBarButtons: [KeyboardToolbarButton] = premadeListTapped ? [.addToList, .priority, .dueDate, .reminder, .favorite] : [.priority, .dueDate, .reminder, .favorite]
         addTaskField.addKeyboardToolBar(leftButtons: leftBarButtons, rightButtons: [], toolBarDelegate: self)
         view.addSubview(addTaskField)
-        addTaskField.backgroundColor = .white
+        addTaskField.backgroundColor = .red
         addTaskField.delegate = self
         addTaskField.borderStyle = .none
         addTaskField.borderStyle = .roundedRect
+        
+        if creating {
+//            print("hiding")
+            addTaskField.isHidden = true
+        }
         
         toolbar.textField = addTaskField
         toolbar.toolBarDelegate = self
@@ -151,6 +175,12 @@ class ListController: UIViewController, TaskViewDelegate {
         scrollView.backgroundColor = .white
         scrollView.showsHorizontalScrollIndicator = false
         addTaskField.inputAccessoryView = scrollView
+    }
+    func createObservers() {
+        let center: NotificationCenter = NotificationCenter.default
+        center.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        center.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        center.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
     func createSlider(createSlider: Bool = true, picker: Bool = false) {
@@ -187,14 +217,14 @@ class ListController: UIViewController, TaskViewDelegate {
                 animateSlider(height: slideUpViewHeight + 25)
             }
         }
-        
+
         let tapGesture = UITapGestureRecognizer(target: self,
                                                 action: #selector(slideUpViewTapped))
         containerView.addGestureRecognizer(tapGesture)
     }
     
     private func animateSlider(height: CGFloat) {
-        
+
         UIView.animate(withDuration: 0.5,
                        delay: 0, usingSpringWithDamping: 1.0,
                        initialSpringVelocity: 1.0,
@@ -202,6 +232,7 @@ class ListController: UIViewController, TaskViewDelegate {
                         self.containerView.alpha = 0.8
                         self.pickerView.frame = CGRect(x: 0, y: screenSize.height - height, width: self.pickerView.frame.width, height: height)
                        }, completion: nil)
+        
     }
     
     @objc func slideUpViewTapped() {
@@ -213,7 +244,7 @@ class ListController: UIViewController, TaskViewDelegate {
                         self.containerView.alpha = 0
                         self.slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
                         )
-                       }, completion: nil)
+            }, completion: nil)
     }
     
     func getRealmData() {
@@ -448,11 +479,14 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
+        print("here", stabilize)
         let info:NSDictionary = notification.userInfo! as NSDictionary
         let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
         
         var keyboardHeight: CGFloat = keyboardSize.height
+        print(lastKeyboardHeight, keyboardHeight)
         if keyboard && lastKeyboardHeight != keyboardHeight {
+            print(lastKeyboardHeight)
             keyboardHeight = lastKeyboardHeight
         }
         lastKeyboardHeight = keyboardHeight
@@ -467,7 +501,11 @@ class ListController: UIViewController, TaskViewDelegate {
         let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
         if keyboard == false {
             keyboard = true
-            lastKeyboardHeight = keyboardSize.height
+            if addedStep {
+                lastKeyboardHeight = keyboardSize.height + 85
+            } else {
+                lastKeyboardHeight = keyboardSize.height
+            }
         }
     }
     
@@ -507,21 +545,6 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func tappedBack() {
-        planned = false
-        reminder = false
-        favorited = false
-        laterTapped = false
-        dateReminderSelected = ""
-        timeReminderSelected = ""
-        dateDueSelected = ""
-        timeDueSelected = ""
-        selectedList = ""
-        tappedIcon = ""
-        selectedDate = ""
-        firstAppend = true
-        dueDateTapped = false
-        added50ToReminder = false
-        added50ToDueDate = false
         _ = navigationController?.popViewController(animated: true)
     }
     
@@ -539,11 +562,9 @@ class ListController: UIViewController, TaskViewDelegate {
         backButton.title = "Back"
         self.navigationItem.leftBarButtonItem = backButton
 
-        
         navigationItem.rightBarButtonItems = [elipsis, search]
         navigationController?.navigationBar.barTintColor = .white
         navigationController?.navigationBar.isTranslucent = false
-
     }
     
    

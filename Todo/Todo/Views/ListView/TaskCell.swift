@@ -12,6 +12,7 @@ import RealmSwift
 protocol TaskViewDelegate {
     func reloadTaskTableView(at: IndexPath, checked: Bool, reload: Bool)
     func reloadTable()
+    func createObservers()
 }
 
 class TaskCell: UITableViewCell {
@@ -29,7 +30,7 @@ class TaskCell: UITableViewCell {
     var listLabel = UILabel()
     var prioritized = 0
     var path = IndexPath()
-    var repeatTask  = false
+    var repeatTask  = ""
     var favorited = false
     var completed =  false
     var position = 0
@@ -86,8 +87,10 @@ class TaskCell: UITableViewCell {
         controller.taskTitle = title.text ?? ""
         controller.favorited = favorited
         controller.id = id
+        controller.priority = prioritized
         controller.completed = completed
         controller.path = path
+        controller.repeatTask = repeatTask
         controller.parentList = parentList
         controller.delegate = taskCellDelegate
         navigationController.view.layer.add(CATransition().popFromRight(), forKey: nil)
@@ -174,7 +177,7 @@ class TaskCell: UITableViewCell {
         let dot3 = RoundView()
         bottomView.addSubview(calendar)
         calendar.top(to: bottomView, offset: 5)
-        if prioritized != 0 && (plannedDate.text != "" || reminderDate.text != "" || repeatTask != false) {
+        if prioritized != 0 && (plannedDate.text != "" || reminderDate.text != "" || repeatTask != "") {
             bottomView.addSubview(dot3)
             dot3.width(5)
             dot3.height(5)
@@ -200,7 +203,7 @@ class TaskCell: UITableViewCell {
             plannedDate.top(to: bottomView, offset: 5)
             plannedDate.font = UIFont(name: "OpenSans-Regular", size: 12)
             plannedDate.textColor = .gray
-            if reminderDate.text != "" || repeatTask != false {
+            if reminderDate.text != "" || repeatTask != "" {
                 bottomView.addSubview(dot4)
                 dot4.width(5)
                 dot4.height(5)
@@ -223,7 +226,7 @@ class TaskCell: UITableViewCell {
             } else {
                 bell.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor, constant: 20).isActive = true
             }
-            if repeatTask != false {
+            if repeatTask != "" {
                 bottomView.addSubview(dot5)
                 dot5.width(5)
                 dot5.height(5)
@@ -235,7 +238,7 @@ class TaskCell: UITableViewCell {
         
         bottomView.addSubview(repeatImage)
         repeatImage.top(to: bottomView, offset: 7)
-        if repeatTask != false {
+        if repeatTask != "" {
             repeatImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 13, height: 13))
             if reminderDate.text != "" {
                 repeatImage.leadingAnchor.constraint(equalTo: dot5.trailingAnchor, constant: 5).isActive = true

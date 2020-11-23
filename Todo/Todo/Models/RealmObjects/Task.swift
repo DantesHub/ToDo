@@ -20,6 +20,8 @@ class TaskObject: Object {
     @objc dynamic var priority = 0
     @objc dynamic var completed = false
     @objc dynamic var createdAt = ""
+    @objc dynamic var repeated = ""
+    
     @objc dynamic var id = UUID().uuidString
     @objc dynamic var note = ""
     var steps = List<Step>()

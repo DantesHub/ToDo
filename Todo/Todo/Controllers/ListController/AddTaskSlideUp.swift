@@ -127,14 +127,12 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             getAccessBool()
             semasphore.wait()
             if accessBool || grantedd {
-                print("fasdf")
                 selectedDate = dates[indexPath.row]
                 reminderHelper()
                 return
             } else {
                 let asked = UserDefaults.standard.bool(forKey: "askForPermission")
                 if asked {
-                    print("shibal")
                     let alertController = UIAlertController (title: "Please Enable Notifications", message: "You need to turn on notifications in your settings to add reminders", preferredStyle: .alert)
                     
                     let settingsAction = UIAlertAction(title: "Settings", style: .default) { (_) -> Void in
@@ -149,7 +147,6 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     }
                     alertController.addAction(settingsAction)
                     let cancelAction = UIAlertAction(title: "Cancel", style: .default, handler: {_ in
-                        print("bing")
                     })
                     alertController.addAction(cancelAction)
                     slideUpViewTapped()
@@ -158,7 +155,6 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     return
                 } else {
                     UserDefaults.standard.setValue(true, forKey: "askForPermission")
-                    print("binggurrae")
                     slideUpViewTapped()
                     addTaskField.becomeFirstResponder()
                 }
