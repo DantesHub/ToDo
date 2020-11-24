@@ -182,6 +182,7 @@ class TaskController: UIViewController {
                 try! uiRealm.write {
                     result.completed = false
                     result.position = totalTasks
+                    result.completedDate = Date(timeIntervalSince1970: 0)
                 }
             }
         }
@@ -200,9 +201,11 @@ class TaskController: UIViewController {
                     result.completed = true
                     delTaskPosition = result.position
                     result.position = -1
+                    result.completedDate = Date()
                 }
             }
         }
+        
         for task in results {
             if task.parentList == parentList && task.completed == false && task.position > delTaskPosition {
                 try! uiRealm.write {
@@ -211,7 +214,6 @@ class TaskController: UIViewController {
             }
         }
        
-        
         delegate?.reloadTaskTableView(at: path, checked: false, reload: true)
     }
     
@@ -377,12 +379,12 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
 //            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.35)
             return cell
         } else  {
-            print("shooo")
              let cell = tableView.dequeueReusableCell(withIdentifier: "taskOptionCell") as! TaskOptionCell
             cell.separatorInset = .zero
             cell.cellTitle.text = defaultList[indexPath.row]
             cell.type = defaultList[indexPath.row]
             cell.id = id
+            cell.taskDelegate = delegate
             switch defaultList[indexPath.row] {
             case "Add to a List":
                 var parented = false

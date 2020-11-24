@@ -51,7 +51,6 @@ extension ListController: UITextFieldDelegate {
     
     }
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        print("sh")
         stabilize = true
         return true
     }

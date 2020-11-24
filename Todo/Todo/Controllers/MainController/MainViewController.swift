@@ -106,7 +106,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         scrollView.leadingToSuperview()
         scrollView.trailingToSuperview()
         scrollView.topToSuperview()
-        scrollView.bottomToSuperview()
+        scrollView.bottom(to: view, offset: -80)
         createFooter()
 
         self.scrollView.addSubview(self.stackView)
@@ -158,7 +158,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         createGroupSection()
     }
     func createFooter() {
-        view.addSubview(footerView)
+        view.insertSubview(footerView, aboveSubview: groupHeader)
         footerView.trailingToSuperview()
         footerView.leadingToSuperview()
         footerView.bottomToSuperview()
@@ -234,7 +234,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         label.textColor = .blue
         label.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 20).isActive = true
   
-        view.addSubview(arw)
+        view.insertSubview(arw, belowSubview: footerView)
         arw.centerY(to: groupHeader)
         arw.height(20)
         arw.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -20).isActive = true

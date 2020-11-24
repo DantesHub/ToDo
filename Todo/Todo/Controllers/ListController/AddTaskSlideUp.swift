@@ -118,7 +118,6 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     }
                     
                     if granted {
-                        print("signaling")
                         grantedd = true
                     }
                     semasphore.signal()

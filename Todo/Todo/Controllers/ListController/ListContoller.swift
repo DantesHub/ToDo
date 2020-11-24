@@ -83,7 +83,6 @@ class ListController: UIViewController, TaskViewDelegate {
 
     //MARK: - init
     override func viewDidLoad() {
-        print("load")
         super.viewDidLoad()
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
@@ -95,8 +94,6 @@ class ListController: UIViewController, TaskViewDelegate {
         createTableHeader()
     }
     override func viewDidDisappear(_ animated: Bool) {
-        print("dissapearing")
-        print(keyboard, lastKeyboardHeight, stabilize)
     }
     var scrollHeight: CGFloat = 100
     override func viewDidLayoutSubviews() {
@@ -108,7 +105,6 @@ class ListController: UIViewController, TaskViewDelegate {
         tableView.allowsSelection = true
     }
     override func viewWillDisappear(_ animated: Bool) {
-        print("bro")
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
@@ -163,7 +159,6 @@ class ListController: UIViewController, TaskViewDelegate {
         addTaskField.borderStyle = .roundedRect
         
         if creating {
-//            print("hiding")
             addTaskField.isHidden = true
         }
         
@@ -280,6 +275,9 @@ class ListController: UIViewController, TaskViewDelegate {
                     tasksList.append(result)
                 }
             }
+        }
+        completedTasks = completedTasks.sorted {
+            $0.completedDate < $1.completedDate
         }
        
     }
@@ -479,14 +477,11 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        print("here", stabilize)
         let info:NSDictionary = notification.userInfo! as NSDictionary
         let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
         
         var keyboardHeight: CGFloat = keyboardSize.height
-        print(lastKeyboardHeight, keyboardHeight)
         if keyboard && lastKeyboardHeight != keyboardHeight {
-            print(lastKeyboardHeight)
             keyboardHeight = lastKeyboardHeight
         }
         lastKeyboardHeight = keyboardHeight
@@ -546,6 +541,8 @@ class ListController: UIViewController, TaskViewDelegate {
     
     @objc func tappedBack() {
         _ = navigationController?.popViewController(animated: true)
+        tasksList = []
+        completedTasks = []
     }
     
     func configureNavBar() {

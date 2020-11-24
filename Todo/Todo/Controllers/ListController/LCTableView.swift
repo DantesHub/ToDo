@@ -9,37 +9,32 @@
 import UIKit
 extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate, UITableViewDragDelegate, UITableViewDropDelegate {
     func reloadTaskTableView(at: IndexPath, checked: Bool, reload: Bool) {
-        getRealmData()
         if checked {
-            self.tableView.moveRow(at: at, to: IndexPath(item: tasksList.count - 1, section: 0))
-            for idx in 0..<completedTasks.count {
-                let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 1)) as! TaskCell
-                cell.path = IndexPath(item: idx, section: 1)
-                cell.position = -1
-                cell.completed = true
-            }
-            let cell = self.tableView.cellForRow(at: IndexPath(item: tasksList.count - 1, section: 0)) as! TaskCell
-            cell.path = IndexPath(item: tasksList.count - 1, section: 0)
-            cell.position = tasksList.count - 1
-            cell.completed = false
+            let task = completedTasks.remove(at: at.row)
+            tasksList.append(task)
+            self.tableView.performBatchUpdates({
+                self.tableView.moveRow(at: at, to: IndexPath(item: tasksList.count - 1, section: 0))
+            }, completion: { finished in
+                self.tableView.reloadData()
+            })
+  
         } else {
-            print(1,completedTasks.count - 1)
-            self.tableView.moveRow(at: at, to: IndexPath(item: completedTasks.count - 1, section: 1))
-            for idx in 0..<tasksList.count {
-                let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 0)) as! TaskCell
-                cell.path = IndexPath(item: idx, section: 0)
-                cell.position = idx
-                cell.completed = false
-            }
-            let cell = self.tableView.cellForRow(at: IndexPath(item: completedTasks.count - 1, section: 1)) as! TaskCell
-            cell.path = IndexPath(item: completedTasks.count - 1 , section: 1)
-            cell.position = -1
-            cell.completed = true
-        }
-        if reload {
-            tableView.reloadData()
+            print(tasksList.count, at.row)
+            let task = tasksList.remove(at: at.row)
+            completedTasks.insert(task, at: 0)
+            self.tableView.performBatchUpdates({
+                self.tableView.moveRow(at: at, to: IndexPath(item: 0, section: 1))
+//                self.tableView.scrollToRow(at: IndexPath(item: 0, section: 1), at: UITableView.ScrollPosition.bottom, animated: false)
+            }, completion: { finished in
+                self.tableView.reloadData()
+            })
         }
     }
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        print("shibal")
+    }
+
+
     
     func reloadTable() {
         getRealmData()
@@ -53,7 +48,10 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             return 2
     }
  
-    
+     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        print("here shibal")
+        return true
+    }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
@@ -217,6 +215,8 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         if editingStyle == .delete {
             let tasks = uiRealm.objects(TaskObject.self)
             var delIdx = 0
+            let delCopIdx = 0
+            var completedd = false
             for task in  tasks {
                 let cell = tableView.cellForRow(at: indexPath) as! TaskCell
                 if indexPath.section == 0 && task.parentList == listTitle && task.id == cell.id && task.name == cell.title.text {
@@ -226,6 +226,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                         uiRealm.delete(task)
                     }
                 } else if (indexPath.section == 1 && task.parentList == listTitle && task.id == cell.id && cell.title.text == task.name) {
+                    completedd = true
                     completedTasks.removeAll(where: {$0.id == task.id})
                     delIdx = task.position
                     try! uiRealm.write {
@@ -242,7 +243,27 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                     }
                 }
             }
-            tableView.deleteRows(at: [indexPath], with: .fade)
+            
+            if completedd {
+                tableView.deleteRows(at: [indexPath], with: .fade)
+                for idx in 0..<completedTasks.count {
+                        let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 1)) as! TaskCell
+                        print(idx, cell.title.text)
+                        cell.path = IndexPath(item: idx, section: 1)
+                        cell.position = -1
+                        cell.completed = true
+                }
+            } else {
+                for idx in 0..<tasksList.count {
+                    if idx > delIdx {
+                        let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 0)) as! TaskCell
+                        cell.path = IndexPath(item: idx - 1, section: 0)
+                        cell.position = idx - 1
+                        cell.completed = false
+                    }
+                }
+                tableView.deleteRows(at: [indexPath], with: .fade)
+            }
         }
     }
     

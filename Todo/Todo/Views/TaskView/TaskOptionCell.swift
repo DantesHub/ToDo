@@ -23,6 +23,7 @@ class TaskOptionCell: UITableViewCell {
     var parentList = ""
     var type = ""
     var delegate: TaskOptionProtocol?
+    var taskDelegate: TaskViewDelegate?
     var id = ""
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -89,6 +90,7 @@ class TaskOptionCell: UITableViewCell {
                         }
                     }
                     delegate?.setBlues(date: due, reminder: remind)
+                    
                 case "Add File":
                     print("add to a file")
                 default:
@@ -99,6 +101,7 @@ class TaskOptionCell: UITableViewCell {
         cellTitle.textColor = .gray
         cellImage.image = cellImage.image?.withTintColor(.gray)
         x.removeFromSuperview()
+        taskDelegate?.reloadTable()
     }
 
     required init?(coder: NSCoder) {

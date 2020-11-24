@@ -212,22 +212,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "AC0896A4-EE61-4DB7-BAD3-FECC426A7D2B"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Todo/Controllers/ListController/LCTableView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "49"
-            endingLineNumber = "49"
-            landmarkName = "gestureRecognizer(_:shouldRecognizeSimultaneouslyWith:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "97F2F929-6B33-4460-86F0-83578F82C8EB"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -251,8 +235,8 @@
             filePath = "Todo/Controllers/ListController/LCTableView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "192"
-            endingLineNumber = "192"
+            startingLineNumber = "190"
+            endingLineNumber = "190"
             landmarkName = "tableView(_:moveRowAt:to:)"
             landmarkType = "7">
          </BreakpointContent>

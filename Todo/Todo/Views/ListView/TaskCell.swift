@@ -275,7 +275,7 @@ class TaskCell: UITableViewCell {
         configureCircle()
         var delTaskPosition = 0
         for task in tasks {
-            if task.position == position && task.parentList == parentList && task.name == title.text {
+            if task.id == id {
                 try! uiRealm.write {
                     task.completed = true
                     delTaskPosition = task.position
@@ -290,7 +290,7 @@ class TaskCell: UITableViewCell {
                 }
             }
         }
-  
+        print(path.section, "SECTION")
         taskCellDelegate?.reloadTaskTableView(at: path, checked: false, reload: false)
     }
     
@@ -303,7 +303,7 @@ class TaskCell: UITableViewCell {
             }
         }
         for task in tasks {
-            if task.position == position && task.parentList == parentList && task.name == title.text {
+            if  task.id == id {
                 try! uiRealm.write {
                     task.completed = false
                     task.position = totalTasks
