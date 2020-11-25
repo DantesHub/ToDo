@@ -170,6 +170,7 @@ extension UIFont {
         }
     }
 }
+
 extension UIView {
 
     func fadeIn(_ duration: TimeInterval = 0.5, delay: TimeInterval = 0.0, completion: @escaping ((Bool) -> Void) = {(finished: Bool) -> Void in}) {

@@ -18,11 +18,12 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: popUpCellId, for: indexPath) as! MainPopUpcell
+        cell.nameLabel.font = UIFont(name: "OpenSans-Regular", size: 20)
         if indexPath.row == 0 {
             cell.icon.image = UIImage(named: "plus")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
             cell.nameLabel.text = "Add List"
         } else if indexPath.row == 1 {
-            cell.icon.image = UIImage(named: "edit")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
+            cell.icon.image = UIImage(named: "rename")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
             cell.nameLabel.text = "Edit Group Name"
         } else {
             cell.icon.image = UIImage(named: "close")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
@@ -30,6 +31,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
         }
         return cell
     }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.row == 0 {
             let listGroupTableView = AddListToGroupTableView(frame: view.bounds)
@@ -77,6 +79,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
         let slideUpViewHeight: CGFloat = 200
         slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight)
         slideUpView.register(MainPopUpcell.self, forCellWithReuseIdentifier: popUpCellId)
+        slideUpView.layer.cornerRadius = 15
         slideUpView.dataSource = self
         slideUpView.delegate = self
           

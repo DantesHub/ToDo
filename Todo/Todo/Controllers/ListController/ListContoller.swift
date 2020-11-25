@@ -146,7 +146,7 @@ class ListController: UIViewController, TaskViewDelegate {
         plusTaskView.addGestureRecognizer(addTaskRecognizer)
         plusTaskView.isUserInteractionEnabled = true
         plusTaskView.dropShadow()
-        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOutside))
+        let  tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOutside))
         self.view.addGestureRecognizer(tapRecognizer)
         addTaskField.isHidden = false
         addTaskField.frame = CGRect(x: 0, y: view.frame.height - view.frame.height/11.5 , width: view.frame.width, height: 65)
@@ -170,6 +170,8 @@ class ListController: UIViewController, TaskViewDelegate {
         scrollView.backgroundColor = .white
         scrollView.showsHorizontalScrollIndicator = false
         addTaskField.inputAccessoryView = scrollView
+        slideUpView.dataSource = self
+        slideUpView.delegate = self
     }
     func createObservers() {
         let center: NotificationCenter = NotificationCenter.default
@@ -187,6 +189,7 @@ class ListController: UIViewController, TaskViewDelegate {
             slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight)
             slideUpView.register(TaskSlideCell.self, forCellWithReuseIdentifier: K.taskSlideCell)
             slideUpView.register(SliderSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
+            slideUpView.layer.cornerRadius = 15
             slideUpView.dataSource = self
             slideUpView.delegate = self
             window?.addSubview(slideUpView)
@@ -217,18 +220,16 @@ class ListController: UIViewController, TaskViewDelegate {
                                                 action: #selector(slideUpViewTapped))
         containerView.addGestureRecognizer(tapGesture)
     }
-    
-    private func animateSlider(height: CGFloat) {
+    func animateSlider(height: CGFloat) {
+       UIView.animate(withDuration: 0.5,
+                      delay: 0, usingSpringWithDamping: 1.0,
+                      initialSpringVelocity: 1.0,
+                      options: .curveEaseOut, animations: { [self] in
+                      containerView.alpha = 0.8
+                      pickerView.frame = CGRect(x: 0, y: UIScreen.main.bounds.size.height - height, width: pickerView.frame.width, height: height)
+                      }, completion: nil)
+   }
 
-        UIView.animate(withDuration: 0.5,
-                       delay: 0, usingSpringWithDamping: 1.0,
-                       initialSpringVelocity: 1.0,
-                       options: .curveEaseOut, animations: { [self] in
-                        self.containerView.alpha = 0.8
-                        self.pickerView.frame = CGRect(x: 0, y: screenSize.height - height, width: self.pickerView.frame.width, height: height)
-                       }, completion: nil)
-        
-    }
     
     @objc func slideUpViewTapped() {
         let window = UIApplication.shared.keyWindow

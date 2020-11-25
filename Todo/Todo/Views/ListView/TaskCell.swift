@@ -10,7 +10,7 @@ import UIKit
 import TinyConstraints
 import RealmSwift
 protocol TaskViewDelegate {
-    func reloadTaskTableView(at: IndexPath, checked: Bool, reload: Bool)
+    func reloadTaskTableView(at: IndexPath, checked: Bool)
     func reloadTable()
     func createObservers()
 }
@@ -51,7 +51,7 @@ class TaskCell: UITableViewCell {
     }
     
     func configureUI() {
-        self.addSubview(circle)
+        self.contentView.addSubview(circle)
         circle.width(25)
         circle.height(25)
         circle.backgroundColor = .white
@@ -59,8 +59,8 @@ class TaskCell: UITableViewCell {
         circle.layer.borderColor = UIColor.red.cgColor
         circle.leading(to: self, offset: 15)
         circle.top(to: self, offset: 15)
-//        let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
-//        self.addGestureRecognizer(cellTapped)
+        let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
+        self.contentView.addGestureRecognizer(cellTapped)
         let circleGest = UITapGestureRecognizer(target: self, action: #selector(tappedCircle))
         circle.addGestureRecognizer(circleGest)
         
@@ -69,9 +69,11 @@ class TaskCell: UITableViewCell {
         title.leadingAnchor.constraint(equalTo: circle.trailingAnchor, constant: 10).isActive = true
         title.top(to: self, offset: 15)
         
-        self.addSubview(star)
+        self.contentView.addSubview(star)
+        star.width(30)
+        star.height(30)
         star.trailing(to: self, offset: -15)
-        star.top(to: self, offset: 15)
+        star.top(to: self, offset: 10)
         let starGest = UITapGestureRecognizer(target: self, action: #selector(tappedStar))
         star.isUserInteractionEnabled = true
         star.addGestureRecognizer(starGest)
@@ -107,7 +109,7 @@ class TaskCell: UITableViewCell {
         bottomView.frame = CGRect(x: 0, y: 48, width: UIScreen.main.bounds.width - 20, height: 28)
         bottomView.layer.cornerRadius = 10
         bottomView.backgroundColor = medGray
-        self.addSubview(bottomView)
+        self.contentView.addSubview(bottomView)
         let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
         bottomView.addGestureRecognizer(cellTapped)
         bottomView.addSubview(listLabel)
@@ -291,7 +293,7 @@ class TaskCell: UITableViewCell {
             }
         }
         print(path.section, "SECTION")
-        taskCellDelegate?.reloadTaskTableView(at: path, checked: false, reload: false)
+        taskCellDelegate?.reloadTaskTableView(at: path, checked: false)
     }
     
     @objc func tappedCheck() {
@@ -314,13 +316,12 @@ class TaskCell: UITableViewCell {
         let titleText = title.text
         title.attributedText = .none
         title.text = titleText
-        taskCellDelegate?.reloadTaskTableView(at: path, checked: true, reload: false)
+        taskCellDelegate?.reloadTaskTableView(at: path, checked: true)
     }
     
     
     @objc func tappedStar() {
         star.isHighlighted = true
-        print("tapped Star")
         for task in tasks {
             if task.position == position && task.parentList == parentList && task.name == title.text {
                 let isFavorited = task.favorited

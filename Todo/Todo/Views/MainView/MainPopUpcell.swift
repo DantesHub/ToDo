@@ -21,6 +21,8 @@ class MainPopUpcell: BaseCell {
         self.addSubview(icon)
         icon.bottom(to: self)
         icon.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
+        icon.width(30)
+        icon.height(30)
 
         self.addSubview(nameLabel)
         nameLabel.bottom(to: self)

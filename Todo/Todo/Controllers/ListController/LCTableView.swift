@@ -8,7 +8,7 @@
 
 import UIKit
 extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate, UITableViewDragDelegate, UITableViewDropDelegate {
-    func reloadTaskTableView(at: IndexPath, checked: Bool, reload: Bool) {
+    func reloadTaskTableView(at: IndexPath, checked: Bool) {
         if checked {
             let task = completedTasks.remove(at: at.row)
             tasksList.append(task)
@@ -24,7 +24,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             completedTasks.insert(task, at: 0)
             self.tableView.performBatchUpdates({
                 self.tableView.moveRow(at: at, to: IndexPath(item: 0, section: 1))
-//                self.tableView.scrollToRow(at: IndexPath(item: 0, section: 1), at: UITableView.ScrollPosition.bottom, animated: false)
             }, completion: { finished in
                 self.tableView.reloadData()
             })
@@ -33,8 +32,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         print("shibal")
     }
-
-
     
     func reloadTable() {
         getRealmData()
@@ -171,7 +168,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         } else {
             print(completedTasks[indexPath.row].name)
         }
-        print("bingo")
     }
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {

@@ -9,6 +9,7 @@
 import UIKit
 import RealmSwift
 import TinyConstraints
+import FSCalendar
 class TaskController: UIViewController {
     //MARK: - instance variables
     var plannedDate = ""
@@ -51,6 +52,22 @@ class TaskController: UIViewController {
     var stepsFooterView = UIView()
     let plus = UIImageView(image: UIImage(named: "plus")?.resize(targetSize: CGSize(width: 45, height: 45)).withTintColor(.blue))
     let addStepLabel = UILabel()
+    var slideUpView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        let cv = UICollectionView(frame: .zero
+        , collectionViewLayout: layout)
+        cv.backgroundColor = .white
+        return cv
+    }()
+    var containerView = UIView()
+    var set = UIButton()
+    var calendar = FSCalendar()
+    var timePicker: UIDatePicker?
+    let backArrow = UIButton(frame: CGRect(x: 10, y: 15, width: 25, height: 25))
+    let window = UIApplication.shared.keyWindow
+    let screenSize = UIScreen.main.bounds.size
+    let slideUpViewHeight: CGFloat = 350
+    var pickerView  = UIView()
 
     //MARK: - init
     override func viewDidLoad() {
@@ -78,7 +95,7 @@ class TaskController: UIViewController {
         self.stackView.bottomAnchor.constraint(equalTo: self.scrollView.bottomAnchor).isActive = true;
         self.stackView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true;
         
-       createStepsTable()
+        createStepsTable()
         createTableView()
        createNoteTextField()
         createFooter()
@@ -128,6 +145,67 @@ class TaskController: UIViewController {
         backButton.title = "Back"
         self.navigationItem.leftBarButtonItem = backButton
     }
+    func createSlider(createSlider: Bool = true, picker: Bool = false) {
+        containerView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
+        containerView.frame = self.view.frame
+        window?.addSubview(containerView)
+        containerView.alpha = 0
+        if createSlider {
+            slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight)
+            slideUpView.register(TaskSlideCell.self, forCellWithReuseIdentifier: K.taskSlideCell)
+            slideUpView.register(SliderSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
+            slideUpView.layer.cornerRadius = 15
+            slideUpView.dataSource = self
+            slideUpView.delegate = self
+            window?.addSubview(slideUpView)
+            UIView.animate(withDuration: 0.5,
+                           delay: 0, usingSpringWithDamping: 1.0,
+                           initialSpringVelocity: 1.0,
+                           options: .curveEaseOut, animations: { [self] in
+                            self.containerView.alpha = 0.8
+                            self.slideUpView.frame = CGRect(x: 0, y: self.screenSize.height - slideUpViewHeight, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height)
+                           }, completion: nil)
+        } else {
+            if picker == true {
+                calendar.removeFromSuperview()
+                set.removeFromSuperview()
+                backArrow.removeFromSuperview()
+                pickerView.frame = CGRect(x: 0, y: ((window?.frame.height)! + 40), width: screenSize.width, height: slideUpViewHeight - 40)
+                window?.addSubview(pickerView)
+                animateSlider(height: slideUpViewHeight - 40)
+                
+            } else {
+                pickerView.frame = CGRect(x: 0, y: ((window?.frame.height)! - 50), width: screenSize.width, height: slideUpViewHeight + 50)
+                window?.addSubview(pickerView)
+                animateSlider(height: slideUpViewHeight + 25)
+            }
+        }
+
+        let tapGesture = UITapGestureRecognizer(target: self,
+                                                action: #selector(slideUpViewTapped))
+        containerView.addGestureRecognizer(tapGesture)
+    }
+    func animateSlider(height: CGFloat) {
+       UIView.animate(withDuration: 0.5,
+                      delay: 0, usingSpringWithDamping: 1.0,
+                      initialSpringVelocity: 1.0,
+                      options: .curveEaseOut, animations: { [self] in
+                      containerView.alpha = 0.8
+                      pickerView.frame = CGRect(x: 0, y: UIScreen.main.bounds.size.height - height, width: pickerView.frame.width, height: height)
+                      }, completion: nil)
+   }
+    @objc func slideUpViewTapped() {
+        let window = UIApplication.shared.keyWindow
+        UIView.animate(withDuration: 0.4,
+                       delay: 0, usingSpringWithDamping: 1.0,
+                       initialSpringVelocity: 1.0,
+                       options: .curveEaseInOut, animations: {
+                        self.containerView.alpha = 0
+                        self.slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
+                        )
+            }, completion: nil)
+    }
+
     
     @objc func tappedBack() {
         _ = navigationController?.popViewController(animated: true)
@@ -189,7 +267,7 @@ class TaskController: UIViewController {
         let titleText = taskTitle
         headerTitle.attributedText = .none
         headerTitle.text = titleText
-        delegate?.reloadTaskTableView(at: path, checked: true, reload: true)
+        delegate?.reloadTaskTableView(at: path, checked: true)
     }
     
     @objc func tappedCircle() {
@@ -214,7 +292,7 @@ class TaskController: UIViewController {
             }
         }
        
-        delegate?.reloadTaskTableView(at: path, checked: false, reload: true)
+        delegate?.reloadTaskTableView(at: path, checked: false)
     }
     
     func configureCircle() {

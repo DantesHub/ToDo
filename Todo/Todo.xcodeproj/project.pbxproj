@@ -12,6 +12,8 @@
 		FE0520D125538D230052F8DA /* LCKeyboardToolbarDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0520D025538D230052F8DA /* LCKeyboardToolbarDelegate.swift */; };
 		FE0520D4255608370052F8DA /* TaskCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0520D3255608370052F8DA /* TaskCell.swift */; };
 		FE0520D7255747AD0052F8DA /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0520D6255747AD0052F8DA /* CircleView.swift */; };
+		FE4B42CC256DE418007CFE37 /* TCSlideupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42CB256DE418007CFE37 /* TCSlideupView.swift */; };
+		FE4B42D0256DE645007CFE37 /* TaskSliderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42CF256DE645007CFE37 /* TaskSliderCell.swift */; };
 		FE76790E253E3B9500012A59 /* GroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE76790D253E3B9500012A59 /* GroupCell.swift */; };
 		FE76791025435E8200012A59 /* MainTableviews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE76790F25435E8200012A59 /* MainTableviews.swift */; };
 		FE7679142543816900012A59 /* TaskController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7679132543816900012A59 /* TaskController.swift */; };
@@ -58,6 +60,8 @@
 		FE0520D025538D230052F8DA /* LCKeyboardToolbarDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LCKeyboardToolbarDelegate.swift; sourceTree = "<group>"; };
 		FE0520D3255608370052F8DA /* TaskCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCell.swift; sourceTree = "<group>"; };
 		FE0520D6255747AD0052F8DA /* CircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleView.swift; sourceTree = "<group>"; };
+		FE4B42CB256DE418007CFE37 /* TCSlideupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCSlideupView.swift; sourceTree = "<group>"; };
+		FE4B42CF256DE645007CFE37 /* TaskSliderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSliderCell.swift; sourceTree = "<group>"; };
 		FE76790D253E3B9500012A59 /* GroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCell.swift; sourceTree = "<group>"; };
 		FE76790F25435E8200012A59 /* MainTableviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTableviews.swift; sourceTree = "<group>"; };
 		FE7679132543816900012A59 /* TaskController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskController.swift; sourceTree = "<group>"; };
@@ -127,6 +131,22 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		FE4B42C9256DE3D7007CFE37 /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "New Group";
+			sourceTree = "<group>";
+		};
+		FE4B42CA256DE401007CFE37 /* TaskController */ = {
+			isa = PBXGroup;
+			children = (
+				FE7679132543816900012A59 /* TaskController.swift */,
+				FE4B42CB256DE418007CFE37 /* TCSlideupView.swift */,
+			);
+			path = TaskController;
+			sourceTree = "<group>";
+		};
 		FE7679122543814900012A59 /* ListController */ = {
 			isa = PBXGroup;
 			children = (
@@ -164,6 +184,7 @@
 				FE7AE2D52515457400D889DD /* fonts */,
 				FE7AE2D025152E7E00D889DD /* Misc */,
 				FE7AE2CF25152C7D00D889DD /* Controllers */,
+				FE4B42C9256DE3D7007CFE37 /* New Group */,
 				FE7AE2CE25152C6C00D889DD /* Views */,
 				FE7AE2CD25152C6600D889DD /* Models */,
 				FE7AE2B625152A0300D889DD /* AppDelegate.swift */,
@@ -189,6 +210,7 @@
 		FE7AE2CE25152C6C00D889DD /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				FE4B42CF256DE645007CFE37 /* TaskSliderCell.swift */,
 				FEF7F06425684D5D00E92BC9 /* TaskView */,
 				FEF485FA254A06B9000CCDF7 /* ListView */,
 				FEBC2481253668310073EBB1 /* MainView */,
@@ -204,7 +226,7 @@
 		FE7AE2CF25152C7D00D889DD /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				FE7679132543816900012A59 /* TaskController.swift */,
+				FE4B42CA256DE401007CFE37 /* TaskController */,
 				FE7679122543814900012A59 /* ListController */,
 				FEBC247E253667130073EBB1 /* MainController */,
 			);
@@ -405,6 +427,7 @@
 				FEAEAE62252BBAA2003FD07D /* MainMenuCell.swift in Sources */,
 				FEF7F06A2568698D00E92BC9 /* PaddedTextField.swift in Sources */,
 				FE0520D7255747AD0052F8DA /* CircleView.swift in Sources */,
+				FE4B42CC256DE418007CFE37 /* TCSlideupView.swift in Sources */,
 				FE7AE2D225152E9700D889DD /* Constants.swift in Sources */,
 				FE7679142543816900012A59 /* TaskController.swift in Sources */,
 				FEBC2485253668970073EBB1 /* BaseCell.swift in Sources */,
@@ -423,6 +446,7 @@
 				FE7719402537973B00131A5D /* AddListToGroupCell.swift in Sources */,
 				FE7AE2B725152A0300D889DD /* AppDelegate.swift in Sources */,
 				FEF7F0662568516600E92BC9 /* TaskOptionCell.swift in Sources */,
+				FE4B42D0256DE645007CFE37 /* TaskSliderCell.swift in Sources */,
 				FE7C7653252559FA000549A1 /* SelfSizedTableView.swift in Sources */,
 				FE0520CE25536B490052F8DA /* Task.swift in Sources */,
 				FEBC2483253668580073EBB1 /* MainPopUpcell.swift in Sources */,
@@ -570,7 +594,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 88RX6N8349;
+				DEVELOPMENT_TEAM = M5757NXZKD;
 				INFOPLIST_FILE = Todo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -589,7 +613,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 88RX6N8349;
+				DEVELOPMENT_TEAM = M5757NXZKD;
 				INFOPLIST_FILE = Todo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
