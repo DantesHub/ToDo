@@ -23,7 +23,7 @@ class TaskSliderCell: BaseCell {
         self.addSubview(icon)
         icon.centerY(to: self)
         icon.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
-
+        
         self.addSubview(nameLabel)
         nameLabel.centerY(to: self)
         nameLabel.leadingAnchor.constraint(equalTo: icon.trailingAnchor, constant: 25).isActive = true

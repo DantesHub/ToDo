@@ -10,7 +10,7 @@ import UIKit
 import RealmSwift
 import TinyConstraints
 import FSCalendar
-class TaskController: UIViewController {
+class TaskController: UIViewController, ReloadSlider {
     //MARK: - instance variables
     var plannedDate = ""
     var completed = false
@@ -38,6 +38,7 @@ class TaskController: UIViewController {
     var path = IndexPath()
     let headerTitle = UILabel()
     var id = ""
+    let parentLists = uiRealm.objects(ListObject.self)
     let stackView = UIStackView()
     var delegate: TaskViewDelegate?
     lazy var scrollView: UIScrollView = {
@@ -59,6 +60,10 @@ class TaskController: UIViewController {
         cv.backgroundColor = .white
         return cv
     }()
+    var accessBool2 = false
+    var laterTapped = false
+    var selectedTaskDate = ""
+    var selectedTaskTime = ""
     var containerView = UIView()
     var set = UIButton()
     var calendar = FSCalendar()
@@ -68,11 +73,26 @@ class TaskController: UIViewController {
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
     var pickerView  = UIView()
+    var pickerTitle = UILabel()
+    var selectedDateOption = ""
+    var tappedIcon = ""
+    var dates = ["Later Today", "Tomorrow", "Next Week", "Pick a Date & Time"]
+    var priorities = [UIColor.red, gold, UIColor.blue, UIColor.clear]
+    var accessBool = false
+    let formatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM dd,yyyy"
+        return formatter
+    }()
+    let tasks = uiRealm.objects(TaskObject.self)
 
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        selectedDate = ""
     }
     
     //MARK: - Helper functions
@@ -172,36 +192,41 @@ class TaskController: UIViewController {
                 backArrow.removeFromSuperview()
                 pickerView.frame = CGRect(x: 0, y: ((window?.frame.height)! + 40), width: screenSize.width, height: slideUpViewHeight - 40)
                 window?.addSubview(pickerView)
-                animateSlider(height: slideUpViewHeight - 40)
+                animateSlider(height: slideUpViewHeight - 40, containerView: containerView, pickerView: pickerView)
                 
             } else {
+                print("right here")
                 pickerView.frame = CGRect(x: 0, y: ((window?.frame.height)! - 50), width: screenSize.width, height: slideUpViewHeight + 50)
                 window?.addSubview(pickerView)
-                animateSlider(height: slideUpViewHeight + 25)
+                animateSlider(height: slideUpViewHeight + 25, containerView: containerView, pickerView: pickerView)
             }
         }
 
         let tapGesture = UITapGestureRecognizer(target: self,
-                                                action: #selector(slideUpViewTapped))
+                                                action: #selector(tappedOutside2))
         containerView.addGestureRecognizer(tapGesture)
     }
-    func animateSlider(height: CGFloat) {
-       UIView.animate(withDuration: 0.5,
-                      delay: 0, usingSpringWithDamping: 1.0,
-                      initialSpringVelocity: 1.0,
-                      options: .curveEaseOut, animations: { [self] in
-                      containerView.alpha = 0.8
-                      pickerView.frame = CGRect(x: 0, y: UIScreen.main.bounds.size.height - height, width: pickerView.frame.width, height: height)
-                      }, completion: nil)
-   }
+    @objc func tappedOutside2() {
+        if window!.subviews.contains(pickerView) {
+            print("lomain")
+            UIView.animate(withDuration: 0.4,
+                           delay: 0, usingSpringWithDamping: 1.0,
+                           initialSpringVelocity: 1.0,
+                           options: .curveEaseInOut, animations: { [self] in
+                            self.containerView.alpha = 0
+                            pickerView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: pickerView.frame.width, height: pickerView.frame.height
+                            )
+                }, completion: nil)
+        }
+        slideUpViewTapped()
+    }
     @objc func slideUpViewTapped() {
-        let window = UIApplication.shared.keyWindow
         UIView.animate(withDuration: 0.4,
                        delay: 0, usingSpringWithDamping: 1.0,
                        initialSpringVelocity: 1.0,
                        options: .curveEaseInOut, animations: {
                         self.containerView.alpha = 0
-                        self.slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
+                        self.slideUpView.frame = CGRect(x: 0, y: (self.window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
                         )
             }, completion: nil)
     }
@@ -326,235 +351,5 @@ class TaskController: UIViewController {
         createdLabel.center(in: footer)
     }
 }
-extension TaskController:  UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField == addStepField {
-            if textField.text! != "" {
-                for result in results {
-                    if result.id == id {
-                        try! uiRealm.write {
-                            let step = Step()
-                            step.stepName = textField.text!
-                            step.done = false
-//                            noteTextField.removeFromSuperview()
-//                            tableView.removeFromSuperview()
-                            self.steps.append(step)
-                            heightConstraint?.isActive = false
-                            heightConstraint = stepsTableView.heightAnchor.constraint(equalToConstant: CGFloat(130 + (60 * steps.count)))
-                            heightConstraint?.isActive = true
-                            self.stepsTableView.reloadData()
-                            result.steps.append(step)
-                        }
-                    }
-                }
-            }
-        }
-        
-       
-        return true
-    }
-    
-    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        if keyboard == false {
-            addedStep = true
-        }
-        return true
-    }
-}
 
-extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOptionProtocol {
-    func setBlues(date: Bool, reminder: Bool) {
-        print(date, reminder, "following")
-        if date {
-            let cell = tableView.cellForRow(at: IndexPath(row: 3, section: 0)) as! TaskOptionCell
-            cell.cellTitle.textColor = .gray
-            cell.cellImage.image = cell.cellImage.image?.withTintColor(.gray)
-            plannedDate = ""
-            self.tableView.reloadRows(at: [IndexPath(row: 3, section: 0)], with: .none)
-        }
-        
-        if reminder {
-            let cell = tableView.cellForRow(at: IndexPath(row: 2, section: 0)) as! TaskOptionCell
-            cell.cellTitle.textColor = .gray
-            cell.cellImage.image = cell.cellImage.image?.withTintColor(.gray)
-            reminderDate = ""
-            self.tableView.reloadRows(at: [IndexPath(row: 2, section: 0)], with: .none)
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if tableView == stepsTableView {
-            return steps.count
-        } else {
-            return 6
-        }
-    }
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if tableView == stepsTableView {
-            let stepsHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.width, height: 80))
-            stepsHeaderView.backgroundColor = .white
-            circle.width(35)
-            circle.height(35)
-            circle.backgroundColor = .white
-            circle.layer.borderWidth = 2
-            circle.layer.borderColor = UIColor.darkGray.cgColor
-            stepsHeaderView.addSubview(circle)
-            circle.leading(to: stepsHeaderView, offset: 25)
-            circle.centerY(to: stepsHeaderView)
-            let circleTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCircle))
-            circle.addGestureRecognizer(circleTapped)
-            circle.isUserInteractionEnabled = true
-            
-            if completed {
-                configureCircle()
-            }
-            
-            headerTitle.font = UIFont(name: "OpenSans-Bold", size: 25)
-            headerTitle.text = taskTitle
-            stepsHeaderView.addSubview(headerTitle)
-            headerTitle.leadingToTrailing(of: circle, offset: 25)
-            headerTitle.centerY(to: stepsHeaderView)
-            
-            star.image = UIImage(named: favorited ? "starfilled" : "star")?.resize(targetSize: CGSize(width: 30, height: 30))
-            stepsHeaderView.addSubview(star)
-            star.centerY(to: stepsHeaderView)
-            star.trailing(to: stepsHeaderView, offset: -25)
-            let starTapped = UITapGestureRecognizer(target: self, action: #selector(tappedStar))
-            star.addGestureRecognizer(starTapped)
-            star.isUserInteractionEnabled = true
-            return stepsHeaderView
-        } else {
-            return UIView(frame: .zero)
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        if tableView == stepsTableView {
-            stepsFooterView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 50))
-            stepsFooterView.addSubview(plus)
-            plus.leading(to: stepsFooterView, offset: 20)
-            plus.top(to: stepsFooterView, offset: -7)
-            addStepLabel.font = UIFont(name: "OpenSans-Regular", size: 20)
-            addStepLabel.textColor = .blue
-            addStepLabel.text = "Add Step"
-            stepsFooterView.addSubview(addStepLabel)
-            addStepLabel.top(to: stepsFooterView)
-            addStepLabel.leadingAnchor.constraint(equalTo: plus.trailingAnchor, constant: 15).isActive = true
-            let tappedAddStep = UITapGestureRecognizer(target: self, action: #selector(addStep))
-            stepsFooterView.addGestureRecognizer(tappedAddStep)
-            return stepsFooterView
-        } else {
-            return UIView(frame: .zero)
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if tableView == stepsTableView {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "stepCell") as! StepCell
-            cell.done = steps[indexPath.row].done
-            cell.cellTitle.text = steps[indexPath.row].stepName
-            cell.selectionStyle = .none
-//            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.35)
-            return cell
-        } else  {
-             let cell = tableView.dequeueReusableCell(withIdentifier: "taskOptionCell") as! TaskOptionCell
-            cell.separatorInset = .zero
-            cell.cellTitle.text = defaultList[indexPath.row]
-            cell.type = defaultList[indexPath.row]
-            cell.id = id
-            cell.taskDelegate = delegate
-            switch defaultList[indexPath.row] {
-            case "Add to a List":
-                var parented = false
-                print(parentList)
-                if parentList != "All Tasks" && parentList != "Important" && parentList != "Planned" {
-                    parented = true
-                    cell.cellTitle.text = parentList
-                    if !(parentList == "All Tasks") {
-                        cell.createX()
-                    }
-                }
-                cell.cellImage.image = UIImage(named: "list")?.resize(targetSize: CGSize(width: 22, height: 22)).withTintColor(!parented ? .gray : .blue)
-                cell.cellTitle.textColor = !parented ? .gray : .blue
-            case "Priority":
-                if priority == 0 {
-                    cell.cellImage.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 19, height: 22)).withTintColor(.gray)
-                    cell.cellTitle.text = "Priority"
-                } else {
-                    cell.createX()
-                    cell.cellImage.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 19, height: 22))
-                    if priority == 1 {
-                        cell.cellImage.image = cell.cellImage.image?.withTintColor(.red)
-                        cell.cellTitle.text = "Priority 1"
-                        cell.cellTitle.textColor = .red
-                    } else if priority == 2 {
-                        cell.cellImage.image = cell.cellImage.image?.withTintColor(.placeholderGray)
-                        cell.cellTitle.text = "Priority 2"
-                        cell.cellTitle.textColor = .orange
-                    } else if priority == 3 {
-                        cell.cellImage.image = cell.cellImage.image?.withTintColor(.blue)
-                        cell.cellTitle.text = "Priority 3"
-                        cell.cellTitle.textColor = .blue
-                    } else {
-                        cell.cellImage.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 19, height: 22)).withTintColor(.blue)
-                        cell.cellTitle.text = "Priority 4"
-                        cell.cellTitle.textColor = .blue
-                    }
-                }
-            case "Remind Me":
-                cell.cellImage.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(reminderDate == "" ? .gray : .blue)
-                cell.cellTitle.textColor = reminderDate == "" ? .gray : .blue
-                if reminderDate != "" { cell.createX() }
-            case "Add Due Date":
-                cell.cellImage.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(plannedDate == "" ? .gray : .blue)
-                cell.cellTitle.textColor = plannedDate == "" ? .gray : .blue
-                if plannedDate != "" { cell.createX() }
-            case "Repeat":
-                cell.cellImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 23, height: 23)).withTintColor(repeatTask == "" ? .gray : .blue)
-                cell.dueDate = plannedDate
-                cell.reminder = reminderDate
-                cell.delegate = self
-                if repeatTask != "" {
-                    cell.createX()
-                    cell.cellTitle.textColor = .blue
-                }
-            case "Add File":
-                cell.cellImage.image = UIImage(named: "file")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(.gray)
-            default:
-                break
-            }
-            cell.dueDate = plannedDate
-            cell.reminder = reminderDate
-            cell.parentList = parentList
-            cell.selectionStyle = .none
-            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.35)
-            return cell
-        }
-    }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("Mushyvenom")
-    }
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if tableView == stepsTableView {
-            return 80
-        } else {
-            return 0
-        }
-    }
 
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        if tableView == stepsTableView {
-            return 50
-        } else {
-            return CGFloat.leastNormalMagnitude
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if tableView == stepsTableView {
-            return 60
-        } else {
-            return 65
-        }
-    }
-}

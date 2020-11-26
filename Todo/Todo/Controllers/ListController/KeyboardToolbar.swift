@@ -32,6 +32,7 @@ enum KeyboardToolbarButton: Int {
         case .reminder: button = UIBarButtonItem(image: UIImage(named: "bell")?.resize(targetSize: CGSize(width: 25, height: 25)), style: .plain, target: target, action: action)
         case .done: button = UIBarButtonItem(image: UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 35, height: 35)), style: .plain, target: target, action: action)
         case .addedReminder:
+            print(selectedDate)
             let  btn = UIButton()
             btn.addTarget(target, action: action!, for: .touchUpInside)
             btn.layer.cornerRadius = 20
@@ -105,6 +106,7 @@ enum KeyboardToolbarButton: Int {
             btn.layer.cornerRadius = 20
             btn.backgroundColor = .blue
             var label = ""
+            print("recreating?")
             if selectedDueDate == "Pick a Date & Time" {
                 label = dateDueSelected + " " + timeDueSelected
                 btn.frame = CGRect(x: 10, y: 5, width: 270, height: 40)

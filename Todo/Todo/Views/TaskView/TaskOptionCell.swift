@@ -10,13 +10,13 @@ import UIKit
 import TinyConstraints
 protocol TaskOptionProtocol {
     func setBlues(date: Bool, reminder: Bool)
+    func resetVariable(type: String)
 }
 class TaskOptionCell: UITableViewCell {
     var cellImage = UIImageView()
     var cellTitle = UILabel()
     var x = UIImageView(image: UIImage(named: "plus")?.rotate(radians: -.pi/4)?.resize(targetSize: CGSize(width: 35, height: 35)).withTintColor(.gray))
     var needX = false
-    let hr = UIView()
     var reminder = ""
     var dueDate = ""
     var repeatTask = ""
@@ -60,18 +60,22 @@ class TaskOptionCell: UITableViewCell {
                     try! uiRealm.write {
                         result.parentList = "All Tasks"
                     }
+                    cellTitle.text = "Add to a List"
                 case "Priority":
                     try! uiRealm.write {
                         result.priority = 0
                     }
+                    cellTitle.text = "Priority"
                 case "Remind Me":
                     try! uiRealm.write {
                         result.reminder = ""
                     }
+                    cellTitle.text = "Remind Me"
                 case "Add Due Date":
                     try! uiRealm.write {
                         result.planned = ""
                     }
+                    cellTitle.text = "Add Due Date"
                 case "Repeat":
                     print("repeat")
                     var due = false
@@ -89,15 +93,17 @@ class TaskOptionCell: UITableViewCell {
                             due = true
                         }
                     }
+                    cellTitle.text = "Repeat"
                     delegate?.setBlues(date: due, reminder: remind)
-                    
                 case "Add File":
                     print("add to a file")
+                    cellTitle.text = "Add File"
                 default:
                     break
                 }
             }
         }
+        delegate?.resetVariable(type: type)
         cellTitle.textColor = .gray
         cellImage.image = cellImage.image?.withTintColor(.gray)
         x.removeFromSuperview()

@@ -8,6 +8,20 @@
 
 import Foundation
 import UIKit
+
+extension UIViewController {
+    func animateSlider(height: CGFloat, containerView: UIView, pickerView: UIView) {
+        
+       UIView.animate(withDuration: 0.5,
+                      delay: 0, usingSpringWithDamping: 1.0,
+                      initialSpringVelocity: 1.0,
+                      options: .curveEaseOut, animations: { [self] in
+                      containerView.alpha = 0.8
+                      pickerView.frame = CGRect(x: 0, y: UIScreen.main.bounds.size.height - height, width: pickerView.frame.width, height: height)
+                      }, completion: nil)
+   }
+}
+
 extension UIImageView {
     func dropShadow() {
         self.layer.masksToBounds = false
@@ -172,7 +186,6 @@ extension UIFont {
 }
 
 extension UIView {
-
     func fadeIn(_ duration: TimeInterval = 0.5, delay: TimeInterval = 0.0, completion: @escaping ((Bool) -> Void) = {(finished: Bool) -> Void in}) {
         UIView.animate(withDuration: duration, delay: delay, options: UIView.AnimationOptions.curveEaseIn, animations: {
             self.alpha = 1.0

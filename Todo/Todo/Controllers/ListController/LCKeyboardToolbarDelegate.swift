@@ -25,9 +25,6 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             addTaskField.resignFirstResponder()
             dueDateTapped = false
             laterTapped = false
-            dateDueSelected = ""
-            timeDueSelected = ""
-            selectedDueDate = ""
             createSlider()
         case .reminder:
             reminder = true
@@ -35,9 +32,6 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             createSlider()
             dueDateTapped = false
             laterTapped = false
-            dateDueSelected = ""
-            timeDueSelected = ""
-            selectedDueDate = ""
             tappedIcon = "Reminder"
         case .favorite:
             favorited = true

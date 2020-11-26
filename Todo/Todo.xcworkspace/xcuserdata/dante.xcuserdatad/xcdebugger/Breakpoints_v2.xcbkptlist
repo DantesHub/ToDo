@@ -251,8 +251,8 @@
             filePath = "Todo/Controllers/ListController/LCTableView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "224"
-            endingLineNumber = "224"
+            startingLineNumber = "223"
+            endingLineNumber = "223"
             landmarkName = "tableView(_:commit:forRowAt:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -267,9 +267,9 @@
             filePath = "Todo/Misc/Extensions.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "46"
-            endingLineNumber = "46"
-            landmarkName = "UIView"
+            startingLineNumber = "60"
+            endingLineNumber = "60"
+            landmarkName = "Date"
             landmarkType = "21">
          </BreakpointContent>
       </BreakpointProxy>

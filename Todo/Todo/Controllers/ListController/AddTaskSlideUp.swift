@@ -27,23 +27,21 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             cell.nameLabel.text = lists[indexPath.row].name
         case "Priority":
             if indexPath.row == 3 {
-                cell.icon.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 18, height: 20))
+                cell.icon.image = UIImage(named: "flag2")?.resize(targetSize: CGSize(width: 30, height: 30))
             } else {
-                cell.icon.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 18, height: 20)).withTintColor(priorities[indexPath.row])
+                cell.icon.image = UIImage(named: "flagFilled2")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(priorities[indexPath.row])
             }
-            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.25)
             cell.nameLabel.text = "Priority " + String(indexPath.row + 1)
         case "Reminder":
             cell.nameLabel.text = dates[indexPath.row]
             cell.icon.image = UIImage(named: dates[indexPath.row])?.resize(targetSize: CGSize(width: 30, height: 30))
-            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.25)
         case "Due":
             cell.nameLabel.text = dates[indexPath.row]
             cell.icon.image = UIImage(named: dates[indexPath.row])?.resize(targetSize: CGSize(width: 30, height: 30))
-            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.25)
         default:
             print("default")
         }
+        cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.25)
         return cell
     }
     func reminderHelper() {
@@ -53,9 +51,11 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             createSlider(createSlider: false)
             pickerView.backgroundColor = .white
             createCalendar()
+            return
         } else if selectedDate == "Later Today" {
             laterTapped = true
             calendarNext()
+            return
         } else {
             addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
             if !firstAppend {
@@ -204,6 +204,8 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionHeader {
             let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as! SliderSectionHeader
+            sectionHeader.createButton()
+
             sectionHeader.label.text = tappedIcon
             sectionHeader.reloadDelegate = self
             return sectionHeader
@@ -305,7 +307,6 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         set.removeTarget(self, action: #selector(pickerNext), for: .touchUpInside)
         set.removeFromSuperview()
         timePicker?.removeFromSuperview()
-        pickerView.removeFromSuperview()
         if !laterTapped {
             if !firstAppend {
                 scrollView.contentSize.width = scrollView.contentSize.width + 300
@@ -336,7 +337,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
         }
         
-        slideUpViewTapped()
+        tappedOutside2()
         addTaskField.becomeFirstResponder()
     }
     

@@ -211,7 +211,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         if editingStyle == .delete {
             let tasks = uiRealm.objects(TaskObject.self)
             var delIdx = 0
-            let delCopIdx = 0
             var completedd = false
             for task in  tasks {
                 let cell = tableView.cellForRow(at: indexPath) as! TaskCell

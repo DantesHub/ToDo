@@ -206,42 +206,47 @@ class ListController: UIViewController, TaskViewDelegate {
                 set.removeFromSuperview()
                 backArrow.removeFromSuperview()
                 pickerView.frame = CGRect(x: 0, y: ((window?.frame.height)! + 40), width: screenSize.width, height: slideUpViewHeight - 40)
+                pickerView.layer.cornerRadius = 15
                 window?.addSubview(pickerView)
-                animateSlider(height: slideUpViewHeight - 40)
+                animateSlider(height: slideUpViewHeight - 40, containerView: containerView, pickerView: pickerView)
                 
             } else {
                 pickerView.frame = CGRect(x: 0, y: ((window?.frame.height)! - 50), width: screenSize.width, height: slideUpViewHeight + 50)
                 window?.addSubview(pickerView)
-                animateSlider(height: slideUpViewHeight + 25)
+                animateSlider(height: slideUpViewHeight + 25, containerView: containerView, pickerView: pickerView)
             }
         }
 
         let tapGesture = UITapGestureRecognizer(target: self,
-                                                action: #selector(slideUpViewTapped))
+                                                action: #selector(tappedOutside2))
         containerView.addGestureRecognizer(tapGesture)
     }
-    func animateSlider(height: CGFloat) {
-       UIView.animate(withDuration: 0.5,
-                      delay: 0, usingSpringWithDamping: 1.0,
-                      initialSpringVelocity: 1.0,
-                      options: .curveEaseOut, animations: { [self] in
-                      containerView.alpha = 0.8
-                      pickerView.frame = CGRect(x: 0, y: UIScreen.main.bounds.size.height - height, width: pickerView.frame.width, height: height)
-                      }, completion: nil)
-   }
 
+    @objc func tappedOutside2() {
+        if window!.subviews.contains(pickerView) {
+            UIView.animate(withDuration: 0.4,
+                           delay: 0, usingSpringWithDamping: 1.0,
+                           initialSpringVelocity: 1.0,
+                           options: .curveEaseInOut, animations: { [self] in
+                            self.containerView.alpha = 0
+                            pickerView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: pickerView.frame.width, height: pickerView.frame.height
+                            )
+                }, completion: nil)
+        }
+        slideUpViewTapped()
+    }
     
     @objc func slideUpViewTapped() {
-        let window = UIApplication.shared.keyWindow
         UIView.animate(withDuration: 0.4,
                        delay: 0, usingSpringWithDamping: 1.0,
                        initialSpringVelocity: 1.0,
                        options: .curveEaseInOut, animations: {
                         self.containerView.alpha = 0
-                        self.slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
+                        self.slideUpView.frame = CGRect(x: 0, y: (self.window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
                         )
             }, completion: nil)
     }
+   
     
     func getRealmData() {
         var results = uiRealm.objects(TaskObject.self)
@@ -290,22 +295,17 @@ class ListController: UIViewController, TaskViewDelegate {
                 switch settings.authorizationStatus {
                 case .authorized, .provisional:
                     accessBool = true
-                    print("authorized")
                     semasphore.signal()
                     return
                 case .denied:
                     accessBool = false
-                    print("denied")
                     semasphore.signal()
                     return
                 case .notDetermined:
-                    print("not determined, ask user for permission now")
                     semasphore.signal()
                 case .ephemeral:
-                    print("ephermal")
                     semasphore.signal()
                 @unknown default:
-                    print("default panda")
                     semasphore.signal()
                 }
             })
