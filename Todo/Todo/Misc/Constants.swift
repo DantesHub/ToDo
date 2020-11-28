@@ -17,6 +17,21 @@ let medGray = hexStringToUIColor(hex: "#EEEEEE")
 struct K {
     static let listGroupCell = "listGroupCell"
     static let taskSlideCell = "taskSlideCell"
+    
+    static func getColor(_ pri: Int) -> UIColor {
+        switch pri {
+        case 1:
+            return UIColor.red
+        case 2:
+            return green
+        case 3:
+            return gold
+        case 4:
+            return UIColor.clear
+        default:
+            return UIColor.clear
+        }
+    }
 }
 
 func hexStringToUIColor (hex:String) -> UIColor {

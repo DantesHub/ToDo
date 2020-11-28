@@ -22,6 +22,8 @@ extension UIViewController {
    }
 }
 
+
+
 extension UIImageView {
     func dropShadow() {
         self.layer.masksToBounds = false
@@ -67,6 +69,36 @@ extension Date {
         let second = Calendar.current.dateComponents([.second], from: previous, to: recent).second
 
         return (month: month, day: day, hour: hour, minute: minute, second: second)
+    }
+    
+    func days(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.day], from: self, to: date).day ?? 0
+    }
+    func hours(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.hour], from: self, to: date).day ?? 0
+    }
+    func getDifference(date: String, task: Bool = false) -> String {
+        let newFormatter = DateFormatter()
+        newFormatter.dateFormat = "MMM dd,yyyy h:mm a"
+        let newDate = newFormatter.date(from: date)!
+        if (Calendar.current.isDateInYesterday(newDate)) {
+            return "Yesterday"
+        } else if (Calendar.current.isDateInToday(newDate)) {
+            if !task {
+                return "Due Today"
+            } else {
+                return "Today"
+            }
+        } else if (Calendar.current.isDateInTomorrow(newDate)) {
+            if !task {
+                return "Due Tomorrow"
+            } else {
+                return "Tomorrow"
+            }
+        } else {
+            return date
+        }
+        
     }
 }
 extension UIImage {
@@ -206,6 +238,23 @@ extension UIColor {
         static var placeholderGray: UIColor {
             return UIColor(red: 0, green: 0, blue: 0.0980392, alpha: 0.22)
         }
+    
+    func modified(withAdditionalHue hue: CGFloat, additionalSaturation: CGFloat, additionalBrightness: CGFloat) -> UIColor {
+
+        var currentHue: CGFloat = 0.0
+        var currentSaturation: CGFloat = 0.0
+        var currentBrigthness: CGFloat = 0.0
+        var currentAlpha: CGFloat = 0.0
+
+        if self.getHue(&currentHue, saturation: &currentSaturation, brightness: &currentBrigthness, alpha: &currentAlpha){
+            return UIColor(hue: currentHue + hue,
+                           saturation: currentSaturation + additionalSaturation,
+                           brightness: currentBrigthness + additionalBrightness,
+                           alpha: currentAlpha)
+        } else {
+            return self
+        }
+    }
     
 }
 

@@ -19,7 +19,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             })
   
         } else {
-            print(tasksList.count, at.row)
             let task = tasksList.remove(at: at.row)
             completedTasks.insert(task, at: 0)
             self.tableView.performBatchUpdates({
@@ -122,13 +121,10 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         } else {
             task = completedTasks[indexPath.row]
         }
+        cell.allSteps = task.steps.map { $0 }
         cell.title.text = task.name
         cell.prioritized = task.priority
-        if let index = task.planned.firstIndex(of: ",") {
-                 cell.plannedDate.text = String(task.planned[..<index])
-             } else {
-                 cell.plannedDate.text = String(task.planned)
-             }
+        cell.taskPlannedDate = task.planned
         cell.path = indexPath
         cell.taskCellDelegate = self
         cell.favorited = task.favorited
@@ -243,7 +239,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                 tableView.deleteRows(at: [indexPath], with: .fade)
                 for idx in 0..<completedTasks.count {
                         let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 1)) as! TaskCell
-                        print(idx, cell.title.text)
                         cell.path = IndexPath(item: idx, section: 1)
                         cell.position = -1
                         cell.completed = true

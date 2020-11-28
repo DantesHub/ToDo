@@ -70,7 +70,7 @@ class ListController: UIViewController, TaskViewDelegate {
     var pickerView  = UIView()
     let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 85))
     var containerView = UIView()
-    var priorities = [UIColor.red, gold, UIColor.blue, UIColor.clear]
+    var priorities = [UIColor.red, green, gold, UIColor.clear]
     var dates = ["Later Today", "Tomorrow", "Next Week", "Pick a Date & Time"]
     var firstAppend = true
     let window = UIApplication.shared.keyWindow

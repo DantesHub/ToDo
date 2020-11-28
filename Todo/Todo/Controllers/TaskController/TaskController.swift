@@ -27,17 +27,19 @@ class TaskController: UIViewController, ReloadSlider {
     var steps = [Step]()
     var parentList = ""
     var heightConstraint: NSLayoutConstraint?
+    let circleStep = RoundView()
     let circle = RoundView()
     let star = UIImageView()
     let check: UIImageView = {
         let iv = UIImageView()
-        iv.image = UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 35, height: 35)).withTintColor(.red)
+        iv.image = UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 35, height: 35))
         iv.isUserInteractionEnabled = true
         return iv
     }()
     var path = IndexPath()
     let headerTitle = UILabel()
     var id = ""
+    var selectedRepeat = ""
     let parentLists = uiRealm.objects(ListObject.self)
     let stackView = UIStackView()
     var delegate: TaskViewDelegate?
@@ -60,6 +62,7 @@ class TaskController: UIViewController, ReloadSlider {
         cv.backgroundColor = .white
         return cv
     }()
+    var repeatList = ["Daily", "Weekly", "Weekdays", "Monthly", "Yearly", "Custom"]
     var accessBool2 = false
     var laterTapped = false
     var selectedTaskDate = ""
@@ -89,10 +92,23 @@ class TaskController: UIViewController, ReloadSlider {
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
+        getSteps()
         configureUI()
+    }
+    
+    func getSteps() {
+        steps = []
+        for task in tasks {
+            if task.id == id {
+                steps = task.steps.map { $0 }
+            }
+        }
+        print("complete")
     }
     override func viewWillDisappear(_ animated: Bool) {
         selectedDate = ""
+        selectedTaskDate = ""
+        selectedRepeat = ""
     }
     
     //MARK: - Helper functions
@@ -147,11 +163,12 @@ class TaskController: UIViewController, ReloadSlider {
         hr.backgroundColor = .lightGray
         noteTextField.delegate = self
     }
+
     func createStepsTable() {
         self.stackView.addArrangedSubview(stepsTableView)
         stepsTableView.register(StepCell.self, forCellReuseIdentifier: "stepCell")
         stepsTableView.delegate = self
-        heightConstraint = stepsTableView.heightAnchor.constraint(equalToConstant: 130)
+        heightConstraint = stepsTableView.heightAnchor.constraint(equalToConstant: CGFloat(130 + steps.count * 60))
         heightConstraint?.isActive = true
         stepsTableView.dataSource = self
         stepsTableView.backgroundColor = .white
@@ -163,19 +180,22 @@ class TaskController: UIViewController, ReloadSlider {
         let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(tappedBack))
         backButton.image = UIImage(named: "arrow")?.rotate(radians: -.pi/2)?.resize(targetSize: CGSize(width: 25, height: 25))
         backButton.title = "Back"
+        self.navigationItem.title = "Edit Task"
         self.navigationItem.leftBarButtonItem = backButton
+        navigationItem.rightBarButtonItems = .none
     }
-    func createSlider(createSlider: Bool = true, picker: Bool = false) {
+    func createSlider(createSlider: Bool = true, picker: Bool = false, repeatt: Bool = false) {
         containerView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
         containerView.frame = self.view.frame
         window?.addSubview(containerView)
         containerView.alpha = 0
         if createSlider {
-            slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight)
+            slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight + (repeatt ? 100 : 0))
             slideUpView.register(TaskSlideCell.self, forCellWithReuseIdentifier: K.taskSlideCell)
             slideUpView.register(SliderSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
             slideUpView.layer.cornerRadius = 15
             slideUpView.dataSource = self
+            slideUpView.isScrollEnabled = false
             slideUpView.delegate = self
             window?.addSubview(slideUpView)
             UIView.animate(withDuration: 0.5,
@@ -183,7 +203,7 @@ class TaskController: UIViewController, ReloadSlider {
                            initialSpringVelocity: 1.0,
                            options: .curveEaseOut, animations: { [self] in
                             self.containerView.alpha = 0.8
-                            self.slideUpView.frame = CGRect(x: 0, y: self.screenSize.height - slideUpViewHeight, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height)
+                            self.slideUpView.frame = CGRect(x: 0, y: self.screenSize.height - slideUpViewHeight - (repeatt ? 100 : 0), width: self.slideUpView.frame.width, height: self.slideUpView.frame.height)
                            }, completion: nil)
         } else {
             if picker == true {
@@ -208,7 +228,6 @@ class TaskController: UIViewController, ReloadSlider {
     }
     @objc func tappedOutside2() {
         if window!.subviews.contains(pickerView) {
-            print("lomain")
             UIView.animate(withDuration: 0.4,
                            delay: 0, usingSpringWithDamping: 1.0,
                            initialSpringVelocity: 1.0,
@@ -237,26 +256,6 @@ class TaskController: UIViewController, ReloadSlider {
         delegate?.createObservers()
     }
 
-    
-    @objc func addStep() {
-        plus.removeFromSuperview()
-        let circle = RoundView()
-        circle.width(25)
-        circle.height(25)
-        circle.backgroundColor = .white
-        circle.layer.borderWidth = 2
-        circle.layer.borderColor = UIColor.darkGray.cgColor
-        stepsFooterView.addSubview(circle)
-        circle.leading(to: stepsFooterView, offset: 30)
-        circle.top(to: stepsFooterView)
-        
-        addStepLabel.removeFromSuperview()
-        stepsFooterView.addSubview(addStepField)
-        addStepField.delegate = self
-        addStepField.top(to: stepsFooterView, offset: 3)
-        addStepField.leadingAnchor.constraint(equalTo: circle.trailingAnchor, constant: 15).isActive = true
-        addStepField.becomeFirstResponder()
-    }
     
     @objc func tappedStar() {
         for result in results {
@@ -296,7 +295,7 @@ class TaskController: UIViewController, ReloadSlider {
     }
     
     @objc func tappedCircle() {
-        configureCircle()
+        configureCircle(K.getColor(priority))
         var delTaskPosition = 0
         for result in results {
             if result.id == id {
@@ -320,28 +319,15 @@ class TaskController: UIViewController, ReloadSlider {
         delegate?.reloadTaskTableView(at: path, checked: false)
     }
     
-    func configureCircle() {
-        circle.addSubview(check)
-        check.width(35)
-        check.height(35)
-        check.leadingAnchor.constraint(equalTo: circle.leadingAnchor).isActive = true
-        let checkGest = UITapGestureRecognizer(target: self, action: #selector(tappedCheck))
-        check.addGestureRecognizer(checkGest)
-        
-        let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: taskTitle)
-        attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
-        headerTitle.attributedText = attributeString
-    }
+
     
     func createFooter() {
         view.insertSubview(footer, at: 1000)
         footer.leadingToSuperview()
-        
         footer.trailingToSuperview()
         footer.bottomToSuperview()
         footer.height(75)
         footer.backgroundColor = .white
-        
         
         let createdLabel = UILabel()
         createdLabel.font = UIFont(name: "OpenSans-Regular", size: 18)

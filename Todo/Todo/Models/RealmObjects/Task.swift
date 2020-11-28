@@ -32,8 +32,13 @@ class TaskObject: Object {
 }
 
 class Step: Object {
+    @objc dynamic var id = UUID().uuidString
     @objc dynamic var stepName = ""
     @objc dynamic var done = false
+    
+    override static func primaryKey() -> String? {
+        return "id"
+      }
 }
 
 extension Array where Element == TaskObject {

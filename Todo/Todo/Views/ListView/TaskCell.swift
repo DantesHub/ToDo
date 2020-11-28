@@ -20,6 +20,7 @@ class TaskCell: UITableViewCell {
     var star = UIImageView()
     var circle = RoundView()
     var steps = UILabel()
+    var allSteps = [Step]()
     var priority = UIImageView()
     var calendar = UIImageView()
     var plannedDate = UILabel()
@@ -30,6 +31,7 @@ class TaskCell: UITableViewCell {
     var listLabel = UILabel()
     var prioritized = 0
     var path = IndexPath()
+    var taskPlannedDate = ""
     var repeatTask  = ""
     var favorited = false
     var completed =  false
@@ -84,7 +86,7 @@ class TaskCell: UITableViewCell {
     
     @objc func tappedCell() {
         let controller = TaskController()
-        controller.plannedDate = plannedDate.text ?? ""
+        controller.plannedDate = taskPlannedDate
         controller.reminderDate = reminderDate.text ?? ""
         controller.taskTitle = title.text ?? ""
         controller.favorited = favorited
@@ -105,6 +107,7 @@ class TaskCell: UITableViewCell {
         if completed == true {
             configureCircle()
         }
+        
         
         bottomView.frame = CGRect(x: 0, y: 48, width: UIScreen.main.bounds.width - 20, height: 28)
         bottomView.layer.cornerRadius = 10
@@ -127,12 +130,21 @@ class TaskCell: UITableViewCell {
             dot.top(to: bottomView, offset: 12)
             dot.backgroundColor = .black
         }
+        var completed = 0
+        print("all Steps", allSteps)
+        if allSteps.count != 0 {
+            for step in allSteps {
+                if step.done {
+                    completed += 1
+                }
+            }
+            steps.text = String(completed) + " of " + String(allSteps.count)
+        }
         bottomView.addSubview(steps)
-        steps.leadingAnchor.constraint(equalTo: listLabel.text != "" ? dot.trailingAnchor : listLabel.trailingAnchor, constant: 5).isActive = true
+        steps.leadingAnchor.constraint(equalTo: listLabel.text != "" ? dot.trailingAnchor : listLabel.trailingAnchor, constant: 0).isActive = true
         steps.top(to: bottomView, offset: 5)
-        steps.font = UIFont(name: "OpenSans-Regular", size: 12)
-        steps.text = ""
-        steps.textColor = .gray
+        steps.font = UIFont(name: "OpenSans-Regular", size: 13)
+        steps.textColor = .darkGray
         
         let dot2 = RoundView()
         if steps.text != "" {
@@ -159,9 +171,9 @@ class TaskCell: UITableViewCell {
                 print("boon")
             }
             if color == UIColor.clear {
-                priority.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 20, height: 20))
+                priority.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 14, height: 16))
             } else {
-                priority.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 20, height: 20)).withTintColor(color!)
+                priority.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 14, height: 16)).withTintColor(color!)
             }
         }
         
@@ -179,7 +191,7 @@ class TaskCell: UITableViewCell {
         let dot3 = RoundView()
         bottomView.addSubview(calendar)
         calendar.top(to: bottomView, offset: 5)
-        if prioritized != 0 && (plannedDate.text != "" || reminderDate.text != "" || repeatTask != "") {
+        if prioritized != 0 && (taskPlannedDate != "" || reminderDate.text != "" || repeatTask != "") {
             bottomView.addSubview(dot3)
             dot3.width(5)
             dot3.height(5)
@@ -199,8 +211,16 @@ class TaskCell: UITableViewCell {
         bottomView.addSubview(plannedDate)
         bottomView.addSubview(bell)
         bell.top(to: bottomView, offset: 5)
-        if plannedDate.text != "" {
-            calendar.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 20, height: 20))
+        if taskPlannedDate != "" {
+            let newDatee = taskPlannedDate.replacingOccurrences(of: "-", with: " ")
+            let newDate = Date().getDifference(date: newDatee, task: true)
+            if let index = newDate.firstIndex(of: ",") {
+                plannedDate.text = String(newDate[..<index])
+            } else {
+                plannedDate.text = newDate
+            }
+
+            calendar.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 17, height: 17))
             plannedDate.leadingAnchor.constraint(equalTo: calendar.trailingAnchor, constant: 5).isActive = true
             plannedDate.top(to: bottomView, offset: 5)
             plannedDate.font = UIFont(name: "OpenSans-Regular", size: 12)
@@ -214,9 +234,10 @@ class TaskCell: UITableViewCell {
                 dot4.backgroundColor = .black
             }
         }
+        
         let dot5 = RoundView()
         if reminderDate.text != "" {
-            bell.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 20, height: 20))
+            bell.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 17, height: 17))
             if plannedDate.text != "" {
                 bell.leadingAnchor.constraint(equalTo: dot4.trailingAnchor, constant: 5).isActive = true
             } else if prioritized != 0 {
@@ -228,6 +249,7 @@ class TaskCell: UITableViewCell {
             } else {
                 bell.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor, constant: 20).isActive = true
             }
+            
             if repeatTask != "" {
                 bottomView.addSubview(dot5)
                 dot5.width(5)
@@ -292,7 +314,6 @@ class TaskCell: UITableViewCell {
                 }
             }
         }
-        print(path.section, "SECTION")
         taskCellDelegate?.reloadTaskTableView(at: path, checked: false)
     }
     

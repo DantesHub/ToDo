@@ -9,8 +9,8 @@
 import UIKit
 import TinyConstraints
 protocol TaskOptionProtocol {
-    func setBlues(date: Bool, reminder: Bool)
     func resetVariable(type: String)
+    func reloadTable()
 }
 class TaskOptionCell: UITableViewCell {
     var cellImage = UIImageView()
@@ -77,26 +77,11 @@ class TaskOptionCell: UITableViewCell {
                     }
                     cellTitle.text = "Add Due Date"
                 case "Repeat":
-                    print("repeat")
-                    var due = false
-                    var remind = false
                     try! uiRealm.write {
-                        print(reminder, dueDate)
-                
                         result.repeated = ""
-                        if reminder != "" {
-                            result.reminder = ""
-                            remind = true
-                        }
-                        if dueDate != "" {
-                            result.planned = ""
-                            due = true
-                        }
                     }
                     cellTitle.text = "Repeat"
-                    delegate?.setBlues(date: due, reminder: remind)
                 case "Add File":
-                    print("add to a file")
                     cellTitle.text = "Add File"
                 default:
                     break

@@ -4,14 +4,18 @@ import RealmSwift
 import FSCalendar
 
 extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, FSCalendarDataSource, FSCalendarDelegate {
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if tappedIcon == "Add to a List" {
             return lists.count
+        } else if tappedIcon == "Repeat" {
+            return 6
         } else {
             return 4
         }
     }
     
+
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: K.taskSlideCell, for: indexPath) as! TaskSlideCell
         switch tappedIcon {
@@ -31,7 +35,8 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
             cell.nameLabel.text = dates[indexPath.row]
             cell.icon.image = UIImage(named: dates[indexPath.row])?.resize(targetSize: CGSize(width: 30, height: 30))
         case "Repeat":
-            print("repeat")
+            cell.nameLabel.text = repeatList[indexPath.row]
+            cell.icon.image = UIImage(named: repeatList[indexPath.row])?.resize(targetSize: CGSize(width: 23, height: 23))
         case "Add File":
             print("add file")
         default:
@@ -160,9 +165,41 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
             slideUpViewTapped()
             tableView.reloadData()
             delegate?.reloadTable()
+        case "Repeat":
+            switch repeatList[indexPath.row] {
+            case "Daily":
+                if plannedDate == "" {
+                    
+                } else {
+                    
+                }
+                if reminderDate == "" {
+                    
+                } else {
+                    
+                }
+            case "Weekly":
+            case "Weekdays":
+            case "Monthly":
+            case "Yearly":
+            case "Custom":
+                createCustomRepeat()
+            default:
+                break
+            }
+            for task in tasks {
+                if task.id == id {
+                    try! uiRealm.write {
+                        task.repeated = repeatList[indexPath.row]
+                    }
+                }
+            }
         default:
             break
         }
+    }
+    func createCustomRepeat() {
+        print("create Custom Repeat")
     }
     func dateHelper() {
         if selectedDateOption == "Pick a Date & Time" {
@@ -173,6 +210,7 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
             createCalendar()
             return
         } else if selectedDateOption == "Later Today" {
+            selectedTaskDate = formatter.string(from: Date())
             calendarNext()
             return
         } else {
@@ -191,19 +229,26 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 selectedTaskTime = timeFormatter.string(from: Date())
                 newDate = selectedTaskDate + "-" + selectedTaskTime
             }
+            
             if tappedIcon == "Remind Me" {
                 reminderDate = newDate
             } else {
                 plannedDate = newDate
             }
+            
             slideUpViewTapped()
             for task in tasks {
                 if task.id == id {
                     try! uiRealm.write {
-                        task.reminder = newDate
+                        if tappedIcon == "Remind Me" {
+                            task.reminder = newDate
+                        } else {
+                            task.planned = newDate
+                        }
                     }
                 }
             }
+            delegate?.reloadTable()
             tableView.reloadData()
         }
     }
@@ -263,9 +308,7 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         
         if #available(iOS 13.4, *) {
             timePicker?.preferredDatePickerStyle = .wheels
-        } else {
-            
-        }
+        } else {}
         backArrow.setBackgroundImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 25, height: 25)).rotate(radians: -.pi/2)?.withTintColor(.blue), for: .normal)
         backArrow.removeTarget(self, action: #selector(tappedCalendarBack), for: .allEvents)
         backArrow.addTarget(self, action: #selector(tappedPickerBack), for: .touchUpInside)
@@ -285,6 +328,7 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         pickerView.addSubview(backArrow)
         pickerView.addSubview(timePicker!)
     }
+    
     @objc func pickerNext() {
         let time = self.timePicker?.date
         let formatter = DateFormatter()
@@ -304,9 +348,24 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         set.removeFromSuperview()
         timePicker?.removeFromSuperview()
         slideUpView.removeFromSuperview()
+        
+        for task in tasks {
+            if task.id == id {
+                try! uiRealm.write {
+                    if tappedIcon == "Remind Me" {
+                        task.reminder = fullDate
+                    } else {
+                        task.planned = fullDate
+                    }
+                }
+            }
+        }
+        
         tappedOutside2()
         tableView.reloadData()
+        delegate?.reloadTable()
     }
+    
     @objc func tappedPickerBack() {
         if !laterTapped {
             pickerTitle.removeFromSuperview()

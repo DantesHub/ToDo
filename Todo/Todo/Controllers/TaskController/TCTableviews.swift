@@ -9,7 +9,6 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             print("fking shibal")
             plannedDate = ""
         case "Remind Me":
-            print("jfdsaf")
             reminderDate = ""
         case "Priority":
             priority = 0
@@ -22,22 +21,13 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         }
         self.tableView.reloadData()
     }
-    func setBlues(date: Bool, reminder: Bool) {
-        if date {
-            let cell = tableView.cellForRow(at: IndexPath(row: 3, section: 0)) as! TaskOptionCell
-            cell.cellTitle.textColor = .gray
-            cell.cellImage.image = cell.cellImage.image?.withTintColor(.gray)
-            plannedDate = ""
-            self.tableView.reloadRows(at: [IndexPath(row: 3, section: 0)], with: .none)
-        }
-        
-        if reminder {
-            let cell = tableView.cellForRow(at: IndexPath(row: 2, section: 0)) as! TaskOptionCell
-            cell.cellTitle.textColor = .gray
-            cell.cellImage.image = cell.cellImage.image?.withTintColor(.gray)
-            reminderDate = ""
-            self.tableView.reloadRows(at: [IndexPath(row: 2, section: 0)], with: .none)
-        }
+    
+    func reloadTable() {
+        getSteps()
+        heightConstraint?.isActive = false
+        heightConstraint = stepsTableView.heightAnchor.constraint(equalToConstant: heightConstraint!.constant - 60)
+        heightConstraint?.isActive = true
+        self.stepsTableView.reloadData()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -62,9 +52,16 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             let circleTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCircle))
             circle.addGestureRecognizer(circleTapped)
             circle.isUserInteractionEnabled = true
+            let priColor = K.getColor(priority)
+            circle.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.65, additionalBrightness: 0.30)
+            if priColor == UIColor.clear {
+                circle.layer.borderColor = UIColor.gray.cgColor
+            } else {
+                circle.layer.borderColor = priColor.cgColor
+            }
             
             if completed {
-                configureCircle()
+                configureCircle(priColor)
             }
             
             headerTitle.font = UIFont(name: "OpenSans-Bold", size: 25)
@@ -85,34 +82,94 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             return UIView(frame: .zero)
         }
     }
+    func configureCircle(_ color: UIColor) {
+        circle.addSubview(check)
+        check.width(35)
+        check.height(35)
+        check.leadingAnchor.constraint(equalTo: circle.leadingAnchor).isActive = true
+        let checkGest = UITapGestureRecognizer(target: self, action: #selector(tappedCheck))
+        check.addGestureRecognizer(checkGest)
+        check.image = check.image?.withTintColor(color)
+        let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: taskTitle)
+        attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
+        headerTitle.attributedText = attributeString
+    }
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         if tableView == stepsTableView {
             stepsFooterView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 50))
             stepsFooterView.addSubview(plus)
-            plus.leading(to: stepsFooterView, offset: 20)
-            plus.top(to: stepsFooterView, offset: -7)
-            addStepLabel.font = UIFont(name: "OpenSans-Regular", size: 20)
-            addStepLabel.textColor = .blue
-            addStepLabel.text = "Add Step"
-            stepsFooterView.addSubview(addStepLabel)
-            addStepLabel.top(to: stepsFooterView)
-            addStepLabel.leadingAnchor.constraint(equalTo: plus.trailingAnchor, constant: 15).isActive = true
-            let tappedAddStep = UITapGestureRecognizer(target: self, action: #selector(addStep))
-            stepsFooterView.addGestureRecognizer(tappedAddStep)
+            configureDefaultFooter()
             return stepsFooterView
         } else {
             return UIView(frame: .zero)
         }
     }
     
+    private func configureDefaultFooter() {
+        plus.leading(to: stepsFooterView, offset: 20)
+        plus.top(to: stepsFooterView, offset: -7)
+        addStepLabel.font = UIFont(name: "OpenSans-Regular", size: 20)
+        addStepLabel.textColor = .blue
+        addStepLabel.text = "Add Step"
+        stepsFooterView.addSubview(addStepLabel)
+        addStepLabel.top(to: stepsFooterView)
+        addStepLabel.leadingAnchor.constraint(equalTo: plus.trailingAnchor, constant: 15).isActive = true
+        let tappedAddStep = UITapGestureRecognizer(target: self, action: #selector(addStep))
+        stepsFooterView.addGestureRecognizer(tappedAddStep)
+    }
+    
+    @objc func addStep() {
+        plus.removeFromSuperview()
+        circleStep.width(25)
+        circleStep.height(25)
+        circleStep.backgroundColor = .white
+        circleStep.layer.borderWidth = 2
+        circleStep.layer.borderColor = UIColor.darkGray.cgColor
+        stepsFooterView.addSubview(circleStep)
+        circleStep.leading(to: stepsFooterView, offset: 30)
+        circleStep.top(to: stepsFooterView)
+        
+        addStepLabel.removeFromSuperview()
+        stepsFooterView.addSubview(addStepField)
+        addStepField.delegate = self
+        addStepField.top(to: stepsFooterView, offset: 3)
+        addStepField.leadingAnchor.constraint(equalTo: circleStep.trailingAnchor, constant: 15).isActive = true
+        addStepField.becomeFirstResponder()
+        
+        let done = UIButton(type: .system)
+        done.setTitle("Done", for: .normal)
+        done.setTitleColor(.blue, for: .normal)
+        done.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 18)
+        done.setImage(UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25)), for: .normal)
+        done.addTarget(self, action: #selector(tappedDone), for: .touchUpInside)
+        navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
+    }
+    
+    @objc func tappedDone() {
+        createNewStep(textField: addStepField)
+        stepsFooterView.addSubview(plus)
+        addStepField.resignFirstResponder()
+        addStepField.removeFromSuperview()
+        circleStep.removeFromSuperview()
+        configureDefaultFooter()
+        configureNavBar()
+    }
+    
+    
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if tableView == stepsTableView {
             let cell = tableView.dequeueReusableCell(withIdentifier: "stepCell") as! StepCell
             cell.done = steps[indexPath.row].done
+            cell.priColor = K.getColor(priority)
             cell.cellTitle.text = steps[indexPath.row].stepName
+            cell.id = steps[indexPath.row].id
+            cell.delegate = self
+            cell.taskDelegate = delegate
             cell.selectionStyle = .none
 //            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.35)
+            cell.configureCircle()
             return cell
         } else  {
              let cell = tableView.dequeueReusableCell(withIdentifier: "taskOptionCell") as! TaskOptionCell
@@ -144,14 +201,14 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
                         cell.cellTitle.text = "Priority 1"
                         cell.cellTitle.textColor = .red
                     } else if priority == 2 {
-                        cell.cellImage.image = cell.cellImage.image?.withTintColor(gold)
+                        cell.cellImage.image = cell.cellImage.image?.withTintColor(green)
                         cell.cellTitle.text = "Priority 2"
-                        cell.cellTitle.textColor = .orange
+                        cell.cellTitle.textColor = green
                     } else if priority == 3 {
-                        cell.cellImage.image = cell.cellImage.image?.withTintColor(.blue)
+                        cell.cellImage.image = cell.cellImage.image?.withTintColor(gold)
                         cell.cellTitle.text = "Priority 3"
-                        cell.cellTitle.textColor = .blue
-                    } else {
+                        cell.cellTitle.textColor = gold
+                    } else if priority == 4 {
                         cell.cellImage.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 19, height: 22)).withTintColor(.blue)
                         cell.cellTitle.text = "Priority 4"
                         cell.cellTitle.textColor = .blue
@@ -160,15 +217,17 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             case "Remind Me":
                 cell.cellImage.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(reminderDate == "" ? .gray : .blue)
                 cell.cellTitle.textColor = reminderDate == "" ? .gray : .blue
+                let newReminder = reminderDate.replacingOccurrences(of: "-", with: " ")
                 if reminderDate != "" {
                     cell.createX()
-                    cell.cellTitle.text = reminderDate
+                    cell.cellTitle.text = Date().getDifference(date: newReminder)
                 }
             case "Add Due Date":
                 cell.cellImage.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(plannedDate == "" ? .gray : .blue)
                 cell.cellTitle.textColor = plannedDate == "" ? .gray : .blue
+                let newPlanned = plannedDate.replacingOccurrences(of: "-", with: " ")
                 if plannedDate != "" {
-                    cell.cellTitle.text = plannedDate
+                    cell.cellTitle.text = Date().getDifference(date: newPlanned)
                     cell.createX()
                 }
             case "Repeat":
@@ -194,9 +253,17 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         }
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tappedIcon = defaultList[indexPath.row]
-        slideUpView.reloadData()
-        createSlider()
+        if tableView == self.tableView {
+            tappedIcon = defaultList[indexPath.row]
+            slideUpView.reloadData()
+            if tappedIcon == "Repeat" {
+                createSlider(repeatt: true)
+            } else {
+                createSlider()
+            }
+        } else {
+            return
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
