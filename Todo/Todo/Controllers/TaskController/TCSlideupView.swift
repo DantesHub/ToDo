@@ -3,7 +3,7 @@ import UIKit
 import RealmSwift
 import FSCalendar
 
-extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, FSCalendarDataSource, FSCalendarDelegate {
+extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, FSCalendarDataSource, FSCalendarDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if tappedIcon == "Add to a List" {
@@ -15,7 +15,16 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         }
     }
     
-
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets (top: 10, left: 0, bottom: 0, right: 0)
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: collectionView.frame.width, height: 65)
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: slideUpView.frame.width, height: 50)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: K.taskSlideCell, for: indexPath) as! TaskSlideCell
         switch tappedIcon {
@@ -45,32 +54,7 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.25)
         return cell
     }
-    func getAccessBool() {
-        let center = UNUserNotificationCenter.current()
-        let semasphore = DispatchSemaphore(value: 0)
-        DispatchQueue.global().async {
-            center.getNotificationSettings(completionHandler: { [self] settings in
-                switch settings.authorizationStatus {
-                case .authorized, .provisional:
-                    accessBool2 = true
-                    semasphore.signal()
-                    return
-                case .denied:
-                    accessBool2 = false
-                    semasphore.signal()
-                    return
-                case .notDetermined:
-                    semasphore.signal()
-                case .ephemeral:
-                    semasphore.signal()
-                @unknown default:
-                    semasphore.signal()
-                }
-            })
-        }
-        semasphore.wait()
-        return
-    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         switch tappedIcon {
         case "Remind Me":
@@ -127,12 +111,12 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
             switch priorities[indexPath.row] {
             case UIColor.red:
                 priority = 1
-            case gold:
+            case green:
                 priority = 2
-            case UIColor.blue:
+            case gold:
                 priority = 3
             case UIColor.clear:
-                priority = 3
+                priority = 4
             default:
                 priority = 0
             }
@@ -144,6 +128,7 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 }
             }
             slideUpViewTapped()
+            stepsTableView.reloadData()
             tableView.reloadData()
             delegate?.reloadTable()
         case "Add to a List":
@@ -166,41 +151,123 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
             tableView.reloadData()
             delegate?.reloadTable()
         case "Repeat":
-            switch repeatList[indexPath.row] {
-            case "Daily":
-                if plannedDate == "" {
-                    
-                } else {
-                    
-                }
-                if reminderDate == "" {
-                    
-                } else {
-                    
-                }
-            case "Weekly":
-            case "Weekdays":
-            case "Monthly":
-            case "Yearly":
-            case "Custom":
-                createCustomRepeat()
-            default:
-                break
-            }
-            for task in tasks {
-                if task.id == id {
-                    try! uiRealm.write {
-                        task.repeated = repeatList[indexPath.row]
-                    }
-                }
-            }
+            repeatSwitch(choice: repeatList[indexPath.row])
         default:
             break
         }
     }
-    func createCustomRepeat() {
-        print("create Custom Repeat")
+    
+    //MARK: - Repeat
+    func repeatSwitch(choice: String) {
+        switch choice {
+        case "Daily":
+            if plannedDate == "" { plannedDate = fullFormatter.string(from: Date()) }
+            if reminderDate != "" { createRepeatingNotification("Daily") }
+        case "Weekly":
+            if plannedDate == "" { plannedDate = fullFormatter.string(from: Date()) }
+        case "Weekdays":
+            if plannedDate == "" {
+                let isWeekday = Date().checkIfWeekday(date: Date())
+                if isWeekday {
+                    plannedDate = fullFormatter.string(from: Date())
+                } else {
+                    plannedDate = fullFormatter.string(from: Date.today().next(.monday))
+                }
+            }
+        case "Monthly":
+            if plannedDate == "" { plannedDate = fullFormatter.string(from: Date()) }
+        case "Yearly":
+            if plannedDate == "" { plannedDate = fullFormatter.string(from: Date()) }
+        case "Custom":
+            createCustomRepeat()
+            return
+        default:
+            break
+        }
+        
+        for task in tasks {
+            if task.id == id {
+                try! uiRealm.write {
+                    task.repeated = choice
+                }
+            }
+        }
     }
+    
+    func createRepeatingNotification(_ type : String) {
+        if type == "Daily" {
+            
+        } else if type == "Weekly" {
+            
+        } else if type == "Weekdays" {
+            
+        }
+    }
+    
+    func createCustomRepeat() {
+        slideUpViewTapped()
+        createSlider(createSlider: false, picker: true)
+        createSetAndBack()
+        backArrow.addTarget(self, action: #selector(tappedRepeatPickerBack), for: .touchUpInside)
+        set.addTarget(self, action: #selector(tappedRepeatPickerNext), for: .touchUpInside)
+        set.setTitle("Done", for: .normal)
+        pickerView.addSubview(set)
+        pickerView.addSubview(backArrow)
+        repeatPicker?.sizeToFit()
+        repeatPicker = UIPickerView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: pickerView.frame.height))
+        repeatPicker?.delegate = self
+        repeatPicker?.dataSource = self
+        pickerView.insertSubview(repeatPicker!, belowSubview: set)
+    }
+    
+    @objc func tappedRepeatPickerBack() {
+        slideUpViewTapped()
+        pickerView.removeFromSuperview()
+        calendar.removeFromSuperview()
+        backArrow.removeFromSuperview()
+        set.removeFromSuperview()
+        createSlider(repeatt: true)
+    }
+    
+    @objc func tappedRepeatPickerNext() {
+        let num = (repeatPicker?.selectedRow(inComponent: 0))! + 1
+        var units = repeatPickerList[(repeatPicker?.selectedRow(inComponent: 1))!]
+        if num == 1 {
+            units.removeAll(where: {$0 == "s"})
+            repeatTask = units
+        } else {
+            repeatTask = String(num) + " " + units
+        }
+        for task in tasks {
+            if task.id == id {
+                try! uiRealm.write {
+                    task.repeated = repeatTask
+                }
+            }
+        }
+        repeatPickerDone()
+        tableView.reloadData()
+    }
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 2
+    }
+
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        if component == 0 {
+            return 1500
+        } else {
+            return 4
+        }
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        if component == 0 {
+            return "\(row + 1)"
+        } else {
+            return repeatPickerList[row]
+        }
+    }
+    
     func dateHelper() {
         if selectedDateOption == "Pick a Date & Time" {
             pickerView.backgroundColor = .white
@@ -252,17 +319,15 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
             tableView.reloadData()
         }
     }
+    
     func createReminderNotification(date: String) {
         let content = UNMutableNotificationContent()
         content.title = taskTitle
         content.body = "Let's Get To It!"
-        let formatter3 = DateFormatter()
-        formatter3.dateFormat = "MMM dd,yyyy-h:mm a"
         let newDate = date.replacingOccurrences(of: "-", with: " ")
         var dateComponents = DateComponents()
         dateComponents.calendar = Calendar.current
-        print(newDate)
-        let dat = formatter3.date(from: newDate)
+        let dat = fullFormatter.date(from: newDate)
    
         let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dat!)
         let trigger = UNCalendarNotificationTrigger(
@@ -280,23 +345,26 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         }
     }
     
+    //MARK: - Calendar
     func createCalendar() {
         calendar = FSCalendar(frame: CGRect(x: 25, y: 35, width: pickerView.frame.width - 50, height: pickerView.frame.height - 50))
         calendar.delegate = self
         calendar.dataSource = self
-        
-        backArrow.setBackgroundImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 25, height: 25)).rotate(radians: -.pi/2)?.withTintColor(.blue), for: .normal)
+        createSetAndBack()
         backArrow.addTarget(self, action: #selector(tappedCalendarBack), for: .touchUpInside)
-        
-        set = UIButton(frame: CGRect(x: pickerView.frame.width - 80, y: 10, width: 75, height: 25))
-        set.setTitle("Next", for: .normal)
-        set.titleLabel?.font = UIFont(name: "OpenSans", size: 23)
-        set.setTitleColor(.blue, for: .normal)
         set.addTarget(self, action: #selector(calendarNext), for: .touchUpInside)
         pickerView.layer.cornerRadius = 15
         pickerView.addSubview(set)
         pickerView.addSubview(backArrow)
         pickerView.addSubview(calendar)
+    }
+    func createSetAndBack() {
+        backArrow.setBackgroundImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 25, height: 25)).rotate(radians: -.pi/2)?.withTintColor(.blue), for: .normal)
+        set = UIButton(frame: CGRect(x: pickerView.frame.width - 80, y: 10, width: 75, height: 25))
+        set.setTitle("Next", for: .normal)
+        set.titleLabel?.font = UIFont(name: "OpenSans", size: 23)
+        set.setTitleColor(.blue, for: .normal)
+    
     }
     @objc func calendarNext() {
         pickerView.backgroundColor = .white
@@ -312,7 +380,6 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         backArrow.setBackgroundImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 25, height: 25)).rotate(radians: -.pi/2)?.withTintColor(.blue), for: .normal)
         backArrow.removeTarget(self, action: #selector(tappedCalendarBack), for: .allEvents)
         backArrow.addTarget(self, action: #selector(tappedPickerBack), for: .touchUpInside)
-        
         set = UIButton(frame: CGRect(x: pickerView.frame.width - 80, y: 10, width: 75, height: 25))
         set.setTitle("Set", for: .normal)
         set.titleLabel?.font = UIFont(name: "OpenSans", size: 23)
@@ -384,6 +451,7 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
     @objc func tappedCalendarBack() {
         slideUpViewTapped()
+        createSlider()
         pickerView.removeFromSuperview()
         calendar.removeFromSuperview()
         backArrow.removeFromSuperview()
@@ -408,15 +476,6 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         slideUpViewTapped()
     }
 
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets (top: 10, left: 0, bottom: 0, right: 0)
-    }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 65)
-    }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: slideUpView.frame.width, height: 50)
-    }
     func calendar(_ calendar: FSCalendar, shouldDeselect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
         return monthPosition == .current
     }

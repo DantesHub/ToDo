@@ -54,11 +54,8 @@ class TaskCell: UITableViewCell {
     
     func configureUI() {
         self.contentView.addSubview(circle)
-        circle.width(25)
-        circle.height(25)
-        circle.backgroundColor = .white
-        circle.layer.borderWidth = 2
-        circle.layer.borderColor = UIColor.red.cgColor
+        circle.width(28)
+        circle.height(28)
         circle.leading(to: self, offset: 15)
         circle.top(to: self, offset: 15)
         let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
@@ -103,6 +100,14 @@ class TaskCell: UITableViewCell {
     
     func configureBottomView() {
         star.image = UIImage(named: favorited ? "starfilled" :"star")?.resize(targetSize: CGSize(width: 27, height: 27))
+        var priColor = K.getColor(prioritized)
+        if priColor == UIColor.clear {
+            priColor = .white
+        }
+        circle.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.55, additionalBrightness: 0.90)
+        if priColor == .white { priColor = .gray}
+        circle.layer.borderWidth = 2
+        circle.layer.borderColor = priColor.cgColor
         
         if completed == true {
             configureCircle()
@@ -131,7 +136,6 @@ class TaskCell: UITableViewCell {
             dot.backgroundColor = .black
         }
         var completed = 0
-        print("all Steps", allSteps)
         if allSteps.count != 0 {
             for step in allSteps {
                 if step.done {
@@ -162,9 +166,9 @@ class TaskCell: UITableViewCell {
             case 1:
                 color = .red
             case 2:
-                color = gold
+                color = green
             case 3:
-                color = .blue
+                color = gold
             case 4:
                 color = .clear
             default:
@@ -281,12 +285,13 @@ class TaskCell: UITableViewCell {
     }
     
     func configureCircle() {
-        circle.backgroundColor = .white
         circle.addSubview(check)
-        check.width(25)
-        check.height(25)
+        check.width(28)
+        check.height(28)
         check.top(to: circle)
         check.leadingAnchor.constraint(equalTo: circle.leadingAnchor).isActive = true
+        let pri = K.getColor(prioritized)
+        check.image = check.image?.withTintColor(pri == UIColor.clear ? .gray : pri)
         let checkGest = UITapGestureRecognizer(target: self, action: #selector(tappedCheck))
         check.addGestureRecognizer(checkGest)
         

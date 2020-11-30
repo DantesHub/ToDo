@@ -12,7 +12,7 @@ import UIKit
 let superPurple = hexStringToUIColor(hex: "#A73CDE")
 let gold = hexStringToUIColor(hex: "#F8D003")
 let lightGray = hexStringToUIColor(hex: "#EAEAEA")
-let green = hexStringToUIColor(hex: "#50C778")
+let green = hexStringToUIColor(hex: "#096408")
 let medGray = hexStringToUIColor(hex: "#EEEEEE")
 struct K {
     static let listGroupCell = "listGroupCell"

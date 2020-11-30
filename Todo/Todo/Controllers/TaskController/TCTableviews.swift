@@ -6,7 +6,6 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
     func resetVariable(type: String) {
         switch type {
         case "Add Due Date":
-            print("fking shibal")
             plannedDate = ""
         case "Remind Me":
             reminderDate = ""
@@ -22,12 +21,16 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         self.tableView.reloadData()
     }
     
-    func reloadTable() {
+    func reloadStepsTable() {
         getSteps()
         heightConstraint?.isActive = false
         heightConstraint = stepsTableView.heightAnchor.constraint(equalToConstant: heightConstraint!.constant - 60)
         heightConstraint?.isActive = true
         self.stepsTableView.reloadData()
+    }
+    func reloadTable() {
+        self.stepsTableView.reloadData()
+        self.tableView.reloadData()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -53,7 +56,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             circle.addGestureRecognizer(circleTapped)
             circle.isUserInteractionEnabled = true
             let priColor = K.getColor(priority)
-            circle.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.65, additionalBrightness: 0.30)
+            circle.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.55, additionalBrightness: 0.30)
             if priColor == UIColor.clear {
                 circle.layer.borderColor = UIColor.gray.cgColor
             } else {
@@ -89,7 +92,11 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         check.leadingAnchor.constraint(equalTo: circle.leadingAnchor).isActive = true
         let checkGest = UITapGestureRecognizer(target: self, action: #selector(tappedCheck))
         check.addGestureRecognizer(checkGest)
-        check.image = check.image?.withTintColor(color)
+        if color == UIColor.clear {
+            check.image = check.image?.withTintColor(.gray)
+        } else {
+            check.image = check.image?.withTintColor(color)
+        }
         let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: taskTitle)
         attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
         headerTitle.attributedText = attributeString
@@ -235,6 +242,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
                 cell.dueDate = plannedDate
                 cell.reminder = reminderDate
                 if repeatTask != "" {
+                    cell.cellTitle.text = "Every " + repeatTask
                     cell.createX()
                     cell.cellTitle.textColor = .blue
                 }

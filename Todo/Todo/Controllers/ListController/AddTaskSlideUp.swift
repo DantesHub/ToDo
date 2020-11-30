@@ -17,6 +17,28 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             return 4
         }
     }
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        if kind == UICollectionView.elementKindSectionHeader {
+            let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as! SliderSectionHeader
+            sectionHeader.createButton()
+
+            sectionHeader.label.text = tappedIcon
+            sectionHeader.reloadDelegate = self
+            return sectionHeader
+        } else { //No footer in this case but can add option for that
+            return UICollectionReusableView()
+        }
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets (top: 10, left: 0, bottom: 0, right: 0)
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: collectionView.frame.width, height: 65)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: slideUpView.frame.width, height: 50)
+    }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: K.taskSlideCell, for: indexPath) as! TaskSlideCell
@@ -201,29 +223,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             print("default")
         }
     }
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        if kind == UICollectionView.elementKindSectionHeader {
-            let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as! SliderSectionHeader
-            sectionHeader.createButton()
 
-            sectionHeader.label.text = tappedIcon
-            sectionHeader.reloadDelegate = self
-            return sectionHeader
-        } else { //No footer in this case but can add option for that
-            return UICollectionReusableView()
-        }
-    }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets (top: 10, left: 0, bottom: 0, right: 0)
-    }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 65)
-    }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: slideUpView.frame.width, height: 50)
-    }
-    
+    //MARK: calendar + time picker
     func calendar(_ calendar: FSCalendar, shouldDeselect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
         return monthPosition == .current
     }
@@ -253,10 +255,10 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         reminder = false
         dueDateTapped = false
         pickerView.removeFromSuperview()
-        addTaskField.becomeFirstResponder()
         calendar.removeFromSuperview()
         backArrow.removeFromSuperview()
         set.removeFromSuperview()
+        createSlider()
     }
     @objc func startTimeDiveChanged(sender: UIDatePicker) {
         let formatter = DateFormatter()

@@ -211,6 +211,7 @@ class ListController: UIViewController, TaskViewDelegate {
                 animateSlider(height: slideUpViewHeight - 40, containerView: containerView, pickerView: pickerView)
                 
             } else {
+                pickerView.layer.cornerRadius = 15
                 pickerView.frame = CGRect(x: 0, y: ((window?.frame.height)! - 50), width: screenSize.width, height: slideUpViewHeight + 50)
                 window?.addSubview(pickerView)
                 animateSlider(height: slideUpViewHeight + 25, containerView: containerView, pickerView: pickerView)
@@ -233,6 +234,11 @@ class ListController: UIViewController, TaskViewDelegate {
                             )
                 }, completion: nil)
         }
+        timePicker?.removeFromSuperview()
+        calendar.removeFromSuperview()
+        pickerView.removeFromSuperview()
+        set.removeFromSuperview()
+        backArrow.removeFromSuperview()
         slideUpViewTapped()
     }
     
@@ -283,7 +289,7 @@ class ListController: UIViewController, TaskViewDelegate {
             }
         }
         completedTasks = completedTasks.sorted {
-            $0.completedDate < $1.completedDate
+            return $0.completedDate > $1.completedDate
         }
        
     }

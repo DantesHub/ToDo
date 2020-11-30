@@ -71,24 +71,31 @@ class TaskController: UIViewController, ReloadSlider {
     var set = UIButton()
     var calendar = FSCalendar()
     var timePicker: UIDatePicker?
+    var repeatPicker: UIPickerView?
     let backArrow = UIButton(frame: CGRect(x: 10, y: 15, width: 25, height: 25))
     let window = UIApplication.shared.keyWindow
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
+    var repeatPickerList = ["Days", "Weeks", "Months", "Years"]
     var pickerView  = UIView()
     var pickerTitle = UILabel()
     var selectedDateOption = ""
     var tappedIcon = ""
     var dates = ["Later Today", "Tomorrow", "Next Week", "Pick a Date & Time"]
-    var priorities = [UIColor.red, gold, UIColor.blue, UIColor.clear]
+    var priorities = [UIColor.red, green, gold, UIColor.clear]
     var accessBool = false
     let formatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM dd,yyyy"
         return formatter
     }()
+    let fullFormatter: DateFormatter = {
+       let formatter = DateFormatter()
+        formatter.dateFormat = "MMM dd,yyyy-h:mm a"
+        return formatter
+    }()
     let tasks = uiRealm.objects(TaskObject.self)
-
+    
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -103,8 +110,8 @@ class TaskController: UIViewController, ReloadSlider {
                 steps = task.steps.map { $0 }
             }
         }
-        print("complete")
     }
+    
     override func viewWillDisappear(_ animated: Bool) {
         selectedDate = ""
         selectedTaskDate = ""
@@ -211,11 +218,12 @@ class TaskController: UIViewController, ReloadSlider {
                 set.removeFromSuperview()
                 backArrow.removeFromSuperview()
                 pickerView.frame = CGRect(x: 0, y: ((window?.frame.height)! + 40), width: screenSize.width, height: slideUpViewHeight - 40)
+                pickerView.layer.cornerRadius = 15
+                pickerView.backgroundColor = .white
                 window?.addSubview(pickerView)
                 animateSlider(height: slideUpViewHeight - 40, containerView: containerView, pickerView: pickerView)
                 
             } else {
-                print("right here")
                 pickerView.frame = CGRect(x: 0, y: ((window?.frame.height)! - 50), width: screenSize.width, height: slideUpViewHeight + 50)
                 window?.addSubview(pickerView)
                 animateSlider(height: slideUpViewHeight + 25, containerView: containerView, pickerView: pickerView)
@@ -237,6 +245,28 @@ class TaskController: UIViewController, ReloadSlider {
                             )
                 }, completion: nil)
         }
+        removals()
+    }
+    @objc func repeatPickerDone() {
+        if window!.subviews.contains(repeatPicker!) {
+            UIView.animate(withDuration: 0.4,
+                           delay: 0, usingSpringWithDamping: 1.0,
+                           initialSpringVelocity: 1.0,
+                           options: .curveEaseInOut, animations: { [self] in
+                            self.containerView.alpha = 0
+                            repeatPicker!.frame = CGRect(x: 0, y: (window?.frame.height)!, width: repeatPicker!.frame.width, height: repeatPicker!.frame.height
+                            )
+                }, completion: nil)
+        }
+        removals()
+    }
+    func removals() {
+        timePicker?.removeFromSuperview()
+        calendar.removeFromSuperview()
+        pickerView.removeFromSuperview()
+        repeatPicker?.removeFromSuperview()
+        set.removeFromSuperview()
+        backArrow.removeFromSuperview()
         slideUpViewTapped()
     }
     @objc func slideUpViewTapped() {
@@ -288,10 +318,13 @@ class TaskController: UIViewController, ReloadSlider {
                 }
             }
         }
+        
         let titleText = taskTitle
         headerTitle.attributedText = .none
         headerTitle.text = titleText
-        delegate?.reloadTaskTableView(at: path, checked: true)
+        delegate?.reloadTable()
+        completed = false
+        path = IndexPath(row: tasksList.count - 1, section: 0)
     }
     
     @objc func tappedCircle() {
@@ -316,10 +349,37 @@ class TaskController: UIViewController, ReloadSlider {
             }
         }
        
-        delegate?.reloadTaskTableView(at: path, checked: false)
+        delegate?.reloadTable()
+        completed = true
+        path = IndexPath(row: 0, section: 1)
     }
     
-
+    func getAccessBool() {
+        let center = UNUserNotificationCenter.current()
+        let semasphore = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            center.getNotificationSettings(completionHandler: { [self] settings in
+                switch settings.authorizationStatus {
+                case .authorized, .provisional:
+                    accessBool2 = true
+                    semasphore.signal()
+                    return
+                case .denied:
+                    accessBool2 = false
+                    semasphore.signal()
+                    return
+                case .notDetermined:
+                    semasphore.signal()
+                case .ephemeral:
+                    semasphore.signal()
+                @unknown default:
+                    semasphore.signal()
+                }
+            })
+        }
+        semasphore.wait()
+        return
+    }
     
     func createFooter() {
         view.insertSubview(footer, at: 1000)

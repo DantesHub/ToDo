@@ -11,6 +11,7 @@ import TinyConstraints
 protocol TaskOptionProtocol {
     func resetVariable(type: String)
     func reloadTable()
+    func reloadStepsTable()
 }
 class TaskOptionCell: UITableViewCell {
     var cellImage = UIImageView()
@@ -89,6 +90,7 @@ class TaskOptionCell: UITableViewCell {
             }
         }
         delegate?.resetVariable(type: type)
+        delegate?.reloadTable()
         cellTitle.textColor = .gray
         cellImage.image = cellImage.image?.withTintColor(.gray)
         x.removeFromSuperview()

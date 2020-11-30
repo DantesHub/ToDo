@@ -55,7 +55,7 @@ class StepCell: UITableViewCell {
         circleView.isUserInteractionEnabled = true
         let circleTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCircle))
         circleView.addGestureRecognizer(circleTapped)
-        circleView.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.65, additionalBrightness: 0.30)
+        circleView.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.55, additionalBrightness: 0.30)
         if priColor == UIColor.clear {
             circleView.layer.borderColor = UIColor.gray.cgColor
         } else {
