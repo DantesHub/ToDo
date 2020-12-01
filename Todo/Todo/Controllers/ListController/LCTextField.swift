@@ -36,12 +36,26 @@ extension ListController: UITextFieldDelegate {
                 try! uiRealm.write {
                     uiRealm.add(list)
                 }
+                creating = false
+                if keyboard == false { createdNewList = true }
                 addTaskField.isHidden = false
                 reloadDelegate?.reloadTableView()
             }
             
         default:
             break
+        }
+        return true
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if let char = string.cString(using: String.Encoding.utf8) {
+            let isBackSpace = strcmp(char, "\\b")
+            if (isBackSpace == -92) {
+                if bigTextField.text == "Untitled List" {
+                    bigTextField.text = ""
+                }
+            }
         }
         return true
     }

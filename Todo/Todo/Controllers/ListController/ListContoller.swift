@@ -64,6 +64,7 @@ class ListController: UIViewController, TaskViewDelegate {
         cv.backgroundColor = .white
         return cv
     }()
+    var createdNewList = false
     var pickUpSection = 0
     var dueDateTapped = false
     var pickerTitle = UILabel()
@@ -93,8 +94,11 @@ class ListController: UIViewController, TaskViewDelegate {
         configureUI()
         createTableHeader()
     }
+    
     override func viewDidDisappear(_ animated: Bool) {
+        listTitle = "Untitled List"
     }
+    
     var scrollHeight: CGFloat = 100
     override func viewDidLayoutSubviews() {
         tableView.delegate = self
@@ -105,9 +109,7 @@ class ListController: UIViewController, TaskViewDelegate {
         tableView.allowsSelection = true
     }
     override func viewWillDisappear(_ animated: Bool) {
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        removeObservers()
         planned = false
         reminder = false
         favorited = false
@@ -178,6 +180,11 @@ class ListController: UIViewController, TaskViewDelegate {
         center.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         center.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         center.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+    }
+    func removeObservers() {
+//        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     func createSlider(createSlider: Bool = true, picker: Bool = false) {
@@ -484,26 +491,33 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        let info:NSDictionary = notification.userInfo! as NSDictionary
-        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-        
-        var keyboardHeight: CGFloat = keyboardSize.height
-        if keyboard && lastKeyboardHeight != keyboardHeight {
-            keyboardHeight = lastKeyboardHeight
+        print("keyboard showing")
+        if !creating {
+            print("choppies")
+            let info:NSDictionary = notification.userInfo! as NSDictionary
+            let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
+            var keyboardHeight: CGFloat = keyboardSize.height
+
+            if keyboard && lastKeyboardHeight != keyboardHeight {
+                keyboardHeight = lastKeyboardHeight
+            }
+            lastKeyboardHeight = keyboardHeight
+            let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
+            if stabilize {
+                self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - keyboardHeight - 65
+            }
+            stabilize = false
         }
-        lastKeyboardHeight = keyboardHeight
-        let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
-        if stabilize {
-            self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - keyboardHeight - 65
-        }
-        stabilize = false
     }
     @objc func keyboardWillChangeFrame(notification: NSNotification) {
-        let info:NSDictionary = notification.userInfo! as NSDictionary
-        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-        if keyboard == false {
+        print("keyboard will change frame")
+        if keyboard == false && !creating {
+            print("choppies2")
+            let info:NSDictionary = notification.userInfo! as NSDictionary
+            let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
             keyboard = true
-            if addedStep {
+            if addedStep || createdNewList {
+                print("niga")
                 lastKeyboardHeight = keyboardSize.height + 85
             } else {
                 lastKeyboardHeight = keyboardSize.height

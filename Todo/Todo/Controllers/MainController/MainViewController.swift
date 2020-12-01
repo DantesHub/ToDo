@@ -285,13 +285,30 @@ class MainViewController: UIViewController, ReloadDelegate {
             let createdGroup = ListGroup()
             createdGroup.name = firstTextField.text ?? "Untitled Group"
             createdGroup.position = (groups.count - 1) + 1
-            try! uiRealm.write {
-                uiRealm.add(createdGroup)
+            let groups = uiRealm.objects(ListGroup.self)
+            var nameTaken = false
+            for group in groups {
+                if group.name == firstTextField.text {
+                    nameTaken = true
+                    let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
+                    let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
+                        (action : UIAlertAction!) -> Void in })
+                    
+                    alertController.addAction(okayAction)
+                    self.present(alertController, animated: true, completion: nil)
+                }
             }
-            self.groupTableView.heightAnchor.constraint(greaterThanOrEqualToConstant: CGFloat(groups.count * 70)).isActive = true
-            self.getRealmData()
-            self.groupTableView.reloadData()
+            if !nameTaken {
+                try! uiRealm.write {
+                    uiRealm.add(createdGroup)
+                }
+                self.groupTableView.heightAnchor.constraint(greaterThanOrEqualToConstant: CGFloat(groups.count * 70)).isActive = true
+                self.getRealmData()
+                self.groupTableView.reloadData()
+            }
+          
         })
+        
         let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.default, handler: {
             (action : UIAlertAction!) -> Void in })
         

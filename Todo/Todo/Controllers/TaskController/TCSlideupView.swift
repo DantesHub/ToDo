@@ -162,9 +162,10 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         switch choice {
         case "Daily":
             if plannedDate == "" { plannedDate = fullFormatter.string(from: Date()) }
-            if reminderDate != "" { createRepeatingNotification("Daily") }
+            repeatTask = "Day"
         case "Weekly":
             if plannedDate == "" { plannedDate = fullFormatter.string(from: Date()) }
+            repeatTask = "Week"
         case "Weekdays":
             if plannedDate == "" {
                 let isWeekday = Date().checkIfWeekday(date: Date())
@@ -174,10 +175,13 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     plannedDate = fullFormatter.string(from: Date.today().next(.monday))
                 }
             }
+            repeatTask = "Weekday"
         case "Monthly":
             if plannedDate == "" { plannedDate = fullFormatter.string(from: Date()) }
+            repeatTask = "Month"
         case "Yearly":
             if plannedDate == "" { plannedDate = fullFormatter.string(from: Date()) }
+            repeatTask = "Year"
         case "Custom":
             createCustomRepeat()
             return
@@ -188,20 +192,13 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         for task in tasks {
             if task.id == id {
                 try! uiRealm.write {
-                    task.repeated = choice
+                    task.repeated = repeatTask
                 }
             }
         }
-    }
-    
-    func createRepeatingNotification(_ type : String) {
-        if type == "Daily" {
-            
-        } else if type == "Weekly" {
-            
-        } else if type == "Weekdays" {
-            
-        }
+        
+        tappedOutside2()
+        tableView.reloadData()
     }
     
     func createCustomRepeat() {
@@ -245,9 +242,11 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 }
             }
         }
+        
         repeatPickerDone()
         tableView.reloadData()
     }
+    
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 2
     }
