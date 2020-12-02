@@ -10,9 +10,10 @@ import UIKit
 import TinyConstraints
 import RealmSwift
 protocol TaskViewDelegate {
-    func reloadTaskTableView(at: IndexPath, checked: Bool)
+    func reloadTaskTableView(at: IndexPath, checked: Bool, repeats: String)
     func reloadTable()
     func createObservers()
+    func resignResponder()
 }
 
 class TaskCell: UITableViewCell {
@@ -94,6 +95,7 @@ class TaskCell: UITableViewCell {
         controller.repeatTask = repeatTask
         controller.parentList = parentList
         controller.delegate = taskCellDelegate
+        taskCellDelegate?.resignResponder()
         navigationController.view.layer.add(CATransition().popFromRight(), forKey: nil)
         navigationController.pushViewController(controller, animated: false)
     }
@@ -104,7 +106,7 @@ class TaskCell: UITableViewCell {
         if priColor == UIColor.clear {
             priColor = .white
         }
-        circle.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.55, additionalBrightness: 0.90)
+        circle.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.70, additionalBrightness: 0.25)
         if priColor == .white { priColor = .gray}
         circle.layer.borderWidth = 2
         circle.layer.borderColor = priColor.cgColor
@@ -301,17 +303,50 @@ class TaskCell: UITableViewCell {
     }
     
     @objc func tappedCircle() {
+        var repeats = ""
         configureCircle()
         var delTaskPosition = 0
+        var totalTasks = tasksList.count
         for task in tasks {
             if task.id == id {
                 try! uiRealm.write {
                     task.completed = true
                     delTaskPosition = task.position
                     task.position = -1
+                    if task.repeated != "" {
+                        let formatter = DateFormatter()
+                        formatter.dateFormat = "MMM dd,yyyy-h:mm a"
+                        repeats = task.repeated
+                        task.completed = false
+                        task.position = totalTasks
+                        var newDate = Date()
+                        if task.reminder != "" {
+                            newDate = formatter.date(from: task.reminder)!
+                        }
+                        var modifiedDateReminder = Date()
+                        var modifiedDatePlanned = Date()
+                        switch repeats {
+                        case "Day":
+                            modifiedDateReminder = Calendar.current.date(byAdding: .day, value: 1, to: newDate)!
+                        case "Week":
+                            modifiedDateReminder = Calendar.current.date(byAdding: .weekOfMonth, value: 1, to: newDate)!
+                        case "Month":
+                            modifiedDateReminder = Calendar.current.date(byAdding: .month, value: 1, to: newDate)!
+                        case "Weekday":
+                            modifiedDateReminder = Calendar.current.date(byAdding: .weekday, value: 1, to: newDate)!
+                        case "Year":
+                            modifiedDateReminder = Calendar.current.date(byAdding: .year, value: 1, to: newDate)!
+                        default:
+                            break
+                        }
+                        if task.reminder != "" {
+                            task.reminder = formatter.string(from: modifiedDateReminder)
+                        }
+                    }
                 }
             }
         }
+        
         for task in tasks {
             if task.parentList == parentList && task.completed == false && task.position > delTaskPosition {
                 try! uiRealm.write {
@@ -319,7 +354,8 @@ class TaskCell: UITableViewCell {
                 }
             }
         }
-        taskCellDelegate?.reloadTaskTableView(at: path, checked: false)
+        
+        taskCellDelegate?.reloadTaskTableView(at: path, checked: false, repeats: repeats)
     }
     
     @objc func tappedCheck() {
@@ -342,7 +378,7 @@ class TaskCell: UITableViewCell {
         let titleText = title.text
         title.attributedText = .none
         title.text = titleText
-        taskCellDelegate?.reloadTaskTableView(at: path, checked: true)
+        taskCellDelegate?.reloadTaskTableView(at: path, checked: true, repeats: "")
     }
     
     

@@ -111,9 +111,9 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
             switch priorities[indexPath.row] {
             case UIColor.red:
                 priority = 1
-            case green:
+            case orange:
                 priority = 2
-            case gold:
+            case .blue:
                 priority = 3
             case UIColor.clear:
                 priority = 4

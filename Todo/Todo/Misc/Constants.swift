@@ -14,6 +14,7 @@ let gold = hexStringToUIColor(hex: "#F8D003")
 let lightGray = hexStringToUIColor(hex: "#EAEAEA")
 let green = hexStringToUIColor(hex: "#096408")
 let medGray = hexStringToUIColor(hex: "#EEEEEE")
+let orange = hexStringToUIColor(hex: "#F08802")
 struct K {
     static let listGroupCell = "listGroupCell"
     static let taskSlideCell = "taskSlideCell"
@@ -23,9 +24,9 @@ struct K {
         case 1:
             return UIColor.red
         case 2:
-            return green
+            return orange
         case 3:
-            return gold
+            return UIColor.blue
         case 4:
             return UIColor.clear
         default:

@@ -191,6 +191,12 @@ extension Date {
         return date!
     }
 }
+extension UITableView {
+    func reloadData(completion:@escaping ()->()) {
+        UIView.animate(withDuration: 0, animations: { self.reloadData() })
+            { _ in completion() }
+    }
+}
 extension UIImage {
     func resize(targetSize: CGSize) -> UIImage {
         return UIGraphicsImageRenderer(size:targetSize).image { _ in

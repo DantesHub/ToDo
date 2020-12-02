@@ -56,7 +56,8 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             circle.addGestureRecognizer(circleTapped)
             circle.isUserInteractionEnabled = true
             let priColor = K.getColor(priority)
-            circle.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.55, additionalBrightness: 0.30)
+            circle.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.70, additionalBrightness: 0.25)
+
             if priColor == UIColor.clear {
                 circle.layer.borderColor = UIColor.gray.cgColor
             } else {
@@ -208,13 +209,13 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
                         cell.cellTitle.text = "Priority 1"
                         cell.cellTitle.textColor = .red
                     } else if priority == 2 {
-                        cell.cellImage.image = cell.cellImage.image?.withTintColor(green)
+                        cell.cellImage.image = cell.cellImage.image?.withTintColor(orange)
                         cell.cellTitle.text = "Priority 2"
-                        cell.cellTitle.textColor = green
+                        cell.cellTitle.textColor = orange
                     } else if priority == 3 {
-                        cell.cellImage.image = cell.cellImage.image?.withTintColor(gold)
+                        cell.cellImage.image = cell.cellImage.image?.withTintColor(.blue)
                         cell.cellTitle.text = "Priority 3"
-                        cell.cellTitle.textColor = gold
+                        cell.cellTitle.textColor = .blue
                     } else if priority == 4 {
                         cell.cellImage.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 19, height: 22)).withTintColor(.blue)
                         cell.cellTitle.text = "Priority 4"

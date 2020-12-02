@@ -10,6 +10,7 @@ import UIKit
 import RealmSwift
 import TinyConstraints
 import FSCalendar
+import IQKeyboardManagerSwift
 class TaskController: UIViewController, ReloadSlider {
     //MARK: - instance variables
     var plannedDate = ""
@@ -82,7 +83,7 @@ class TaskController: UIViewController, ReloadSlider {
     var selectedDateOption = ""
     var tappedIcon = ""
     var dates = ["Later Today", "Tomorrow", "Next Week", "Pick a Date & Time"]
-    var priorities = [UIColor.red, green, gold, UIColor.clear]
+    var priorities = [UIColor.red, orange, .blue, UIColor.clear]
     var accessBool = false
     let formatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -99,10 +100,30 @@ class TaskController: UIViewController, ReloadSlider {
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
+        IQKeyboardManager.shared.enable = true
         getSteps()
         configureUI()
+        createObserver()
     }
     
+    func createObserver() {
+        let center: NotificationCenter = NotificationCenter.default
+        center.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+    }
+    
+    @objc func keyboardWillChangeFrame(notification: NSNotification) {
+        if keyboard == false {
+            let info:NSDictionary = notification.userInfo! as NSDictionary
+            let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
+            keyboard = true
+            if addedStep {
+                lastKeyboardHeight = keyboardSize.height + 85
+            } else {
+                lastKeyboardHeight = keyboardSize.height
+            }
+        }
+    }
+        
     func getSteps() {
         steps = []
         for task in tasks {
@@ -113,9 +134,11 @@ class TaskController: UIViewController, ReloadSlider {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
+        IQKeyboardManager.shared.enable = false
         selectedDate = ""
         selectedTaskDate = ""
         selectedRepeat = ""
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
     //MARK: - Helper functions

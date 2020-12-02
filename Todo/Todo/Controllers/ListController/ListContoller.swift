@@ -3,7 +3,7 @@ import Layoutless
 import TinyConstraints
 import RealmSwift
 import FSCalendar
-
+import IQKeyboardManagerSwift
 protocol ReloadDelegate {
     func reloadTableView()
 }
@@ -71,7 +71,7 @@ class ListController: UIViewController, TaskViewDelegate {
     var pickerView  = UIView()
     let scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 85))
     var containerView = UIView()
-    var priorities = [UIColor.red, green, gold, UIColor.clear]
+    var priorities = [UIColor.red, orange, .blue, UIColor.clear]
     var dates = ["Later Today", "Tomorrow", "Next Week", "Pick a Date & Time"]
     var firstAppend = true
     let window = UIApplication.shared.keyWindow
@@ -85,6 +85,7 @@ class ListController: UIViewController, TaskViewDelegate {
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
+        IQKeyboardManager.shared.enable = false
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.view.backgroundColor = .white
@@ -93,10 +94,6 @@ class ListController: UIViewController, TaskViewDelegate {
         }
         configureUI()
         createTableHeader()
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        listTitle = "Untitled List"
     }
     
     var scrollHeight: CGFloat = 100
@@ -125,6 +122,9 @@ class ListController: UIViewController, TaskViewDelegate {
         dueDateTapped = false
         added50ToReminder = false
         added50ToDueDate = false
+    }
+    deinit {
+        removeObservers()
     }
     
     //MARK: - helper variables
@@ -182,9 +182,12 @@ class ListController: UIViewController, TaskViewDelegate {
         center.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     func removeObservers() {
-//        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    func resignResponder() {
+        addTaskField.resignFirstResponder()
     }
     
     func createSlider(createSlider: Bool = true, picker: Bool = false) {
@@ -491,9 +494,7 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
-        print("keyboard showing")
         if !creating {
-            print("choppies")
             let info:NSDictionary = notification.userInfo! as NSDictionary
             let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
             var keyboardHeight: CGFloat = keyboardSize.height
@@ -510,14 +511,11 @@ class ListController: UIViewController, TaskViewDelegate {
         }
     }
     @objc func keyboardWillChangeFrame(notification: NSNotification) {
-        print("keyboard will change frame")
         if keyboard == false && !creating {
-            print("choppies2")
             let info:NSDictionary = notification.userInfo! as NSDictionary
             let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
             keyboard = true
             if addedStep || createdNewList {
-                print("niga")
                 lastKeyboardHeight = keyboardSize.height + 85
             } else {
                 lastKeyboardHeight = keyboardSize.height
@@ -527,8 +525,8 @@ class ListController: UIViewController, TaskViewDelegate {
     
     @objc func keyboardWillHide(notification: NSNotification) {
         self.addTaskField.frame.origin.y = self.view.frame.height + 10
-        
     }
+    
     @objc func respondToSwipeGesture(gesture: UIGestureRecognizer) {
         if let swipeGesture = gesture as? UISwipeGestureRecognizer {
             let fadeTextAnimation = CATransition()

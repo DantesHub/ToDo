@@ -10,6 +10,8 @@ import UIKit
 import CoreData
 import RealmSwift
 import Realm
+import IQKeyboardManagerSwift
+
 var uiRealm = try! Realm()
 @UIApplicationMain
 
@@ -20,8 +22,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window = UIWindow()
         window?.rootViewController = UINavigationController(rootViewController: MainViewController())
         window?.makeKeyAndVisible()
+        IQKeyboardManager.shared.enableAutoToolbar = false
         print(Realm.Configuration.defaultConfiguration.fileURL!)
-
         return true
     }
 

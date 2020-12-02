@@ -101,6 +101,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         listTableView.reloadData()
     }
     func configureUI() {
+        listTitle = "Untitled List"
         view.backgroundColor = .white
         view.addSubview(scrollView)
         scrollView.leadingToSuperview()

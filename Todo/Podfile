@@ -11,4 +11,5 @@ target 'Todo' do
   pod 'Layoutless'
   pod 'FSCalendar'
   pod "GWInfinitePickerView"
+  pod 'IQKeyboardManagerSwift'
 end

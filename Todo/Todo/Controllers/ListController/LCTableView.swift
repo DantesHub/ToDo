@@ -8,13 +8,13 @@
 
 import UIKit
 extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate, UITableViewDragDelegate, UITableViewDropDelegate {
-    func reloadTaskTableView(at: IndexPath, checked: Bool) {
+    func reloadTaskTableView(at: IndexPath, checked: Bool, repeats: String = "") {
         if checked {
             let task = completedTasks.remove(at: at.row)
             tasksList.append(task)
             self.tableView.performBatchUpdates({
                 self.tableView.moveRow(at: at, to: IndexPath(item: tasksList.count - 1, section: 0))
-            }, completion: { finished in
+            }, completion: { [self] finished in
                 self.tableView.reloadData()
             })
   
@@ -23,8 +23,12 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             completedTasks.insert(task, at: 0)
             self.tableView.performBatchUpdates({
                 self.tableView.moveRow(at: at, to: IndexPath(item: 0, section: 1))
-            }, completion: { finished in
-                self.tableView.reloadData()
+            }, completion: {  finished in
+                self.tableView.reloadData { [self] in
+                    if repeats != "" {
+                       reloadTaskTableView(at: IndexPath(row: 0, section: 1), checked: true)
+                    }
+                }
             })
         }
     }
