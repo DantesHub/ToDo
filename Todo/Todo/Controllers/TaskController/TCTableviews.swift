@@ -87,21 +87,26 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         }
     }
     func configureCircle(_ color: UIColor) {
-        circle.addSubview(check)
-        check.width(35)
-        check.height(35)
-        check.leadingAnchor.constraint(equalTo: circle.leadingAnchor).isActive = true
-        let checkGest = UITapGestureRecognizer(target: self, action: #selector(tappedCheck))
-        check.addGestureRecognizer(checkGest)
-        if color == UIColor.clear {
-            check.image = check.image?.withTintColor(.gray)
-        } else {
-            check.image = check.image?.withTintColor(color)
-        }
-        let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: taskTitle)
-        attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
-        headerTitle.attributedText = attributeString
+        DispatchQueue.main.async { [self] in
+            circle.addSubview(check)
+            check.width(35)
+            check.height(35)
+            check.leadingAnchor.constraint(equalTo: circle.leadingAnchor).isActive = true
+            let checkGest = UITapGestureRecognizer(target: self, action: #selector(tappedCheck))
+            check.addGestureRecognizer(checkGest)
+            if color == UIColor.clear {
+                check.image = check.image?.withTintColor(.gray)
+            } else {
+                check.image = check.image?.withTintColor(color)
+            }
+            let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: taskTitle)
+            attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
+            headerTitle.attributedText = attributeString
+            
+
+         }
     }
+
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         if tableView == stepsTableView {
@@ -257,7 +262,11 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             cell.reminder = reminderDate
             cell.parentList = parentList
             cell.selectionStyle = .none
-            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.35)
+            if !cell.addedBorder {
+                cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.35)
+                cell.addedBorder = true
+            }
+            
             return cell
         }
     }

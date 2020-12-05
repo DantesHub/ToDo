@@ -7,8 +7,25 @@
 //
 
 import UIKit
-enum KeyboardToolbarButton: Int {
+class KeyboardCollectionButton: UIBarButtonItem {
+    var parentView = RoundView()
+    init(image: String = "", color: UIColor = UIColor.clear) {
+        super.init()
+        if image != "" {
+            self.image = UIImage(named: image)
+            self.width = 100
+            self.customView = parentView
+            parentView.layer.cornerRadius = 25
+            parentView.backgroundColor = .blue
+            parentView.frame = CGRect(x: 0, y: 0, width: 250, height: 250)
+        }
+    }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+enum KeyboardToolbarButton: Int {
     case addToList
     case priority
     case dueDate
@@ -20,6 +37,7 @@ enum KeyboardToolbarButton: Int {
     case addedDueDate
     case prioritized
     case addedToList
+
     
     func createButton(target: Any?, action: Selector?) -> UIBarButtonItem {
         var button: UIBarButtonItem!
@@ -32,7 +50,6 @@ enum KeyboardToolbarButton: Int {
         case .reminder: button = UIBarButtonItem(image: UIImage(named: "bell")?.resize(targetSize: CGSize(width: 25, height: 25)), style: .plain, target: target, action: action)
         case .done: button = UIBarButtonItem(image: UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 35, height: 35)), style: .plain, target: target, action: action)
         case .addedReminder:
-            print(selectedDate)
             let  btn = UIButton()
             btn.addTarget(target, action: action!, for: .touchUpInside)
             btn.layer.cornerRadius = 20
@@ -155,8 +172,39 @@ protocol KeyboardToolbarDelegate: class {
     func keyboardToolbar(button: UIButton, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField)
 }
 
-class KeyboardToolbar: UIToolbar {
+protocol KeyboardCollectionDelegate: class {
+    func keyboardCollection(button: UIButton, type: KeyboardCollectionButton,
+                            isInputAccessoryViewOf textField: UITextField)
+}
+class KeyboardCollectionBar: UIToolbar {
+    weak var toolBarDelegate: KeyboardCollectionDelegate?
+    weak var textField: UITextField!
+    var button: [KeyboardCollectionButton]!
+    init() {
+        super.init(frame: .init(origin: .zero, size: CGSize(width: UIScreen.main.bounds.width + 1000, height: 85)))
+        barStyle = .default
+        isTranslucent = true
+    }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    func setup(buttons: [KeyboardCollectionButton]) {
+        let space = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        space.width = 10
+        print("eureka")
+        var mainButtons = [UIBarButtonItem]()
+        for button in buttons {
+            mainButtons.append(space)
+            mainButtons.append(button)
+        }
+        setItems(mainButtons, animated: false)
+    }
+    
+    
+}
+
+class KeyboardToolbar: UIToolbar {
     weak var toolBarDelegate: KeyboardToolbarDelegate?
     weak var textField: UITextField!
     var leftButtons: [KeyboardToolbarButton]!
@@ -221,10 +269,7 @@ class KeyboardToolbar: UIToolbar {
             self.leftButtons?.append(button)
         } else if button == .addToList {
             self.leftButtons.removeAll(where: {$0 == .addedToList})
-            //            if leftButtons.contains(where: {$0 == .priority}) || leftButtons.contains(where: {$0 == .favorite}) || leftButtons.contains(where: {$0 == .reminder}) || leftButtons.contains(where: {$0 == .dueDate}) {
-            //                self.leftButtons?.insert(button, at: 1)
-            //            } else {
-                        self.leftButtons?.insert(button, at: 0)
+            self.leftButtons?.insert(button, at: 0)
         } else if button == .addedToList {
             self.leftButtons.removeAll(where: {$0 == .addToList})
             self.leftButtons?.append(button)
@@ -261,5 +306,10 @@ class KeyboardToolbar: UIToolbar {
         func addButton(leftButton: KeyboardToolbarButton, toolBarDelegate: KeyboardToolbarDelegate) {
             toolbar.barTintColor = .white
             toolbar.addButton(button: leftButton)
+        }
+        func addKeyboardCollection(buttons: [KeyboardCollectionButton], toolBarDelegate: KeyboardCollectionDelegate) {
+            collectionToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
+            collectionToolbar.barTintColor = .white
+            collectionToolbar.setup(buttons: buttons)
         }
     }

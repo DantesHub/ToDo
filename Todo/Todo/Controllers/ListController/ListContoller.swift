@@ -12,6 +12,7 @@ var keyboard = false
 var lastKeyboardHeight: CGFloat = 0
 var stabilize = false
 let toolbar = KeyboardToolbar()
+let collectionToolbar = KeyboardCollectionBar()
 var selectedPriority = UIColor.white
 var selectedDate = ""
 var selectedDueDate = ""
@@ -93,7 +94,6 @@ class ListController: UIViewController, TaskViewDelegate {
             getRealmData()
         }
         configureUI()
-        createTableHeader()
     }
     
     var scrollHeight: CGFloat = 100
@@ -162,18 +162,25 @@ class ListController: UIViewController, TaskViewDelegate {
         
         if creating {
             addTaskField.isHidden = true
+            collectionToolbar.textField = bigTextField
+            let done = UIButton(type: .system)
+            done.setTitle("Done", for: .normal)
+            done.setTitleColor(.blue, for: .normal)
+            done.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 18)
+            done.setImage(UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25)), for: .normal)
+            done.addTarget(self, action: #selector(tappedCreateDone), for: .touchUpInside)
+            navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
         }
-        
         toolbar.textField = addTaskField
         toolbar.toolBarDelegate = self
         scrollView.addSubview(toolbar)
         scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: 85)
-        
         scrollView.backgroundColor = .white
         scrollView.showsHorizontalScrollIndicator = false
         addTaskField.inputAccessoryView = scrollView
         slideUpView.dataSource = self
         slideUpView.delegate = self
+        createTableHeader()
     }
     func createObservers() {
         let center: NotificationCenter = NotificationCenter.default
@@ -181,11 +188,13 @@ class ListController: UIViewController, TaskViewDelegate {
         center.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         center.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
+    
     func removeObservers() {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
+    
     func resignResponder() {
         addTaskField.resignFirstResponder()
     }
@@ -340,24 +349,19 @@ class ListController: UIViewController, TaskViewDelegate {
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
     }
     
-    func createReminderNotification() {
+    func createReminderNotification(id: String) {
         let content = UNMutableNotificationContent()
         content.title = self.addTaskField.text!
         content.body = "Let's Get To It!"
         let formatter3 = DateFormatter()
         formatter3.dateFormat = "MMM dd,yyyy h:mm a"
 
-        var dateComponents = DateComponents()
-        dateComponents.calendar = Calendar.current
         let dat = formatter3.date(from: dateReminderSelected + " " + timeReminderSelected)
-   
         let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dat!)
-        let trigger = UNCalendarNotificationTrigger(
-                 dateMatching: comps, repeats: true)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
         
         // Create the request
-        let uuidString = UUID().uuidString
-        let request = UNNotificationRequest(identifier: uuidString,
+        let request = UNNotificationRequest(identifier: id,
                     content: content, trigger: trigger)
 
         // Schedule the request with the system.
@@ -366,12 +370,17 @@ class ListController: UIViewController, TaskViewDelegate {
            if error != nil { }
         }
     }
+    @objc func tappedCreateDone() {
+        createNewList()
+    }
     
     @objc func tappedDone() {
         self.addTaskField.resignFirstResponder()
         if addTaskField.text!.trimmingCharacters(in: .whitespacesAndNewlines) != ""  {
             try! uiRealm.write {
+                let id = UUID().uuidString
                 let task = TaskObject()
+                task.id = id
                 task.position = tasksList.count
                 task.completed = false
                 task.name = addTaskField.text!
@@ -393,7 +402,7 @@ class ListController: UIViewController, TaskViewDelegate {
                 if reminder {
                     dateReminderSelected = formatter.string(from: Date())
                     task.reminder = dateReminderSelected + "-" + timeReminderSelected
-                    createReminderNotification()
+                    createReminderNotification(id: id)
                 }
                 
                 if selectedList != "" {
@@ -465,6 +474,11 @@ class ListController: UIViewController, TaskViewDelegate {
         bigTextField.text = listTitle
         if !creating {
             bigTextField.isUserInteractionEnabled = false
+        } else {
+            print("shibal")
+            collectionToolbar.toolBarDelegate = self
+            scrollView.addSubview(collectionToolbar)
+            bigTextField.addKeyboardCollection(buttons: [KeyboardCollectionButton(image: "nature"), KeyboardCollectionButton(image: "rain")], toolBarDelegate: self)
         }
         
         self.tableView.tableHeaderView = headerView
@@ -516,8 +530,9 @@ class ListController: UIViewController, TaskViewDelegate {
             let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
             keyboard = true
             if addedStep || createdNewList {
-                lastKeyboardHeight = keyboardSize.height + 85
+                lastKeyboardHeight = keyboardSize.height + 185
             } else {
+                print("gero")
                 lastKeyboardHeight = keyboardSize.height
             }
         }

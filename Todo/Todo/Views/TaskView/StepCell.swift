@@ -117,7 +117,6 @@ class StepCell: UITableViewCell {
     }
     
     @objc func tappedX() {
-        print("tappedX")
         let steps = uiRealm.objects(Step.self)
         for step in steps {
             if step.id == id {
@@ -126,7 +125,7 @@ class StepCell: UITableViewCell {
                 }
             }
         }
-        delegate?.reloadTable()
+        delegate?.reloadStepsTable()
         taskDelegate?.reloadTable()
     }
 

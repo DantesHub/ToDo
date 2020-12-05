@@ -133,7 +133,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         cell.favorited = task.favorited
         cell.reminderDate.text = task.reminder
         cell.completed = task.completed
-        cell.repeatTask = "vvs"
+        cell.repeatTask = task.repeated
         cell.id = task.id
         cell.position = task.position
         cell.parentList = task.parentList
@@ -213,6 +213,14 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             var completedd = false
             for task in  tasks {
                 let cell = tableView.cellForRow(at: indexPath) as! TaskCell
+                if task.id == cell.id {
+                    UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [task.id])
+                    for step in task.steps {
+                        try! uiRealm.write {
+                            uiRealm.delete(step)
+                        }
+                    }
+                }
                 if indexPath.section == 0 && task.parentList == listTitle && task.id == cell.id && task.name == cell.title.text {
                     tasksList.removeAll(where: {$0.id == task.id})
                     delIdx = task.position
@@ -227,6 +235,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                         uiRealm.delete(task)
                     }
                 }
+        
             }
             if delIdx != -1 {
                 for task in tasks {

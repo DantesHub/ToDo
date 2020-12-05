@@ -191,6 +191,21 @@ extension Date {
         return date!
     }
 }
+extension String {
+
+    func containsWhiteSpace() -> Bool {
+
+        // check if there's a range for a whitespace
+        let range = self.rangeOfCharacter(from: .whitespacesAndNewlines)
+
+        // returns false when there's no range for whitespace
+        if let _ = range {
+            return true
+        } else {
+            return false
+        }
+    }
+}
 extension UITableView {
     func reloadData(completion:@escaping ()->()) {
         UIView.animate(withDuration: 0, animations: { self.reloadData() })

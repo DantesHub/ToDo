@@ -303,10 +303,12 @@ class TaskCell: UITableViewCell {
     }
     
     @objc func tappedCircle() {
-        var repeats = ""
         configureCircle()
         var delTaskPosition = 0
-        var totalTasks = tasksList.count
+        var repeats = ""
+        let totalTasks = tasksList.count
+        //delete any pending notifications
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
         for task in tasks {
             if task.id == id {
                 try! uiRealm.write {
@@ -314,34 +316,9 @@ class TaskCell: UITableViewCell {
                     delTaskPosition = task.position
                     task.position = -1
                     if task.repeated != "" {
-                        let formatter = DateFormatter()
-                        formatter.dateFormat = "MMM dd,yyyy-h:mm a"
-                        repeats = task.repeated
-                        task.completed = false
-                        task.position = totalTasks
-                        var newDate = Date()
-                        if task.reminder != "" {
-                            newDate = formatter.date(from: task.reminder)!
-                        }
-                        var modifiedDateReminder = Date()
-                        var modifiedDatePlanned = Date()
-                        switch repeats {
-                        case "Day":
-                            modifiedDateReminder = Calendar.current.date(byAdding: .day, value: 1, to: newDate)!
-                        case "Week":
-                            modifiedDateReminder = Calendar.current.date(byAdding: .weekOfMonth, value: 1, to: newDate)!
-                        case "Month":
-                            modifiedDateReminder = Calendar.current.date(byAdding: .month, value: 1, to: newDate)!
-                        case "Weekday":
-                            modifiedDateReminder = Calendar.current.date(byAdding: .weekday, value: 1, to: newDate)!
-                        case "Year":
-                            modifiedDateReminder = Calendar.current.date(byAdding: .year, value: 1, to: newDate)!
-                        default:
-                            break
-                        }
-                        if task.reminder != "" {
-                            task.reminder = formatter.string(from: modifiedDateReminder)
-                        }
+                        repeats = taskRepeats(task: task, totalTasks: totalTasks)
+                    } else {
+                        task.completedDate = Date()
                     }
                 }
             }
@@ -356,6 +333,83 @@ class TaskCell: UITableViewCell {
         }
         
         taskCellDelegate?.reloadTaskTableView(at: path, checked: false, repeats: repeats)
+    }
+    
+     func taskRepeats(task: TaskObject, totalTasks: Int) -> String {
+        var repeats = ""
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM dd,yyyy-h:mm a"
+        repeats = task.repeated
+        task.completed = false
+        task.position = totalTasks
+        var newDate = Date()
+        if task.reminder != "" {
+            newDate = formatter.date(from: task.reminder)!
+        }
+        let plannedDate = formatter.date(from: task.planned)!
+        var modifiedDateReminder = Date()
+        var modifiedDatePlanned = Date()
+        var val = 1
+        
+        if repeats.containsWhiteSpace() {
+            let components = repeats.components(separatedBy: " ")
+            val = Int(components[0])!
+            repeats = components[1]
+            repeats.removeAll(where: {$0 == "s"})
+        }
+        
+        switch repeats {
+        case "Day":
+            modifiedDateReminder = Calendar.current.date(byAdding: .day, value: val, to: newDate)!
+            modifiedDatePlanned = Calendar.current.date(byAdding: .day, value: val, to: plannedDate)!
+        case "Week":
+            modifiedDateReminder = Calendar.current.date(byAdding: .weekOfMonth, value: val, to: newDate)!
+            modifiedDatePlanned = Calendar.current.date(byAdding: .weekOfMonth, value: val, to: plannedDate)!
+        case "Month":
+            modifiedDateReminder = Calendar.current.date(byAdding: .month, value: val, to: newDate)!
+            modifiedDatePlanned = Calendar.current.date(byAdding: .month, value: val, to: plannedDate)!
+        case "Weekday":
+            let calendar = Calendar(identifier: .gregorian)
+            let componentsReminder = calendar.dateComponents([.weekday], from: newDate)
+            let componentsPlanned = calendar.dateComponents([.weekday], from: plannedDate)
+            if componentsReminder.weekday == 6 || !Date().checkIfWeekday(date: newDate){
+                //set to monday
+                modifiedDateReminder = newDate.next(.monday)
+            } else {
+                modifiedDateReminder = Calendar.current.date(byAdding: .weekday, value: val, to: newDate)!
+            }
+            
+            if componentsPlanned.weekday == 6 || !Date().checkIfWeekday(date: plannedDate) {
+                //set to monday
+                modifiedDatePlanned = plannedDate.next(.monday)
+            } else {
+                modifiedDatePlanned = Calendar.current.date(byAdding: .weekday, value: val, to: plannedDate)!
+            }
+        case "Year":
+            modifiedDateReminder = Calendar.current.date(byAdding: .year, value: val, to: newDate)!
+            modifiedDatePlanned = Calendar.current.date(byAdding: .year, value: val, to: plannedDate)!
+        default:
+            break
+        }
+        
+        task.planned = formatter.string(from: modifiedDatePlanned)
+        if task.reminder != "" {
+            //create new notification and reset reminder in realm
+            let content = UNMutableNotificationContent()
+            content.title = task.name
+            content.body = "Let's Get To It!"
+            let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: modifiedDateReminder)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
+            let request = UNNotificationRequest(identifier: task.id,
+                        content: content, trigger: trigger)
+            task.reminder = formatter.string(from: modifiedDateReminder)
+            
+            let notificationCenter = UNUserNotificationCenter.current()
+            notificationCenter.add(request) { (error) in
+               if error != nil { }
+            }
+        }
+        return repeats
     }
     
     @objc func tappedCheck() {

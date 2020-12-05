@@ -26,6 +26,7 @@ class TaskOptionCell: UITableViewCell {
     var delegate: TaskOptionProtocol?
     var taskDelegate: TaskViewDelegate?
     var id = ""
+    var addedBorder = false
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.addSubview(cellImage)

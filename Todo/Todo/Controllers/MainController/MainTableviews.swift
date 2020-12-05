@@ -194,17 +194,10 @@ func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSes
     if tableView == listTableView {
         let listName = lists[indexPath.row].name
         if editingStyle == .delete {
-            let tasks = uiRealm.objects(TaskObject.self)
-            for task in tasks {
-                if task.parentList == lists[indexPath.row].name {
-                    try! uiRealm.write {
-                        uiRealm.delete(task)
-                    }
-                }
-            }
             lists.remove(at: indexPath.row)
             listTableView.deleteRows(at: [indexPath], with: .fade)
             let lists = uiRealm.objects(ListObject.self)
+            let tasks = uiRealm.objects(TaskObject.self)
             let positions = uiRealm.objects(GroupPosition.self)
             var deletedPozs: [(pos: Int, name: String)] = []
             try! uiRealm.write {
@@ -212,6 +205,14 @@ func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSes
                 for (idx,list) in lists.enumerated() {
                     if list.name == listName{
                         deletedIndex = idx
+                        //delete all tasks in deleted list
+                        for task in tasks {
+                            if task.parentList == list.name {
+                                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [task.id])
+                                uiRealm.delete(task.steps)
+                                uiRealm.delete(task)
+                            }
+                        }
                         //delete group positions for deleted list
                         for poz in list.groupPositions {
                             for poz2 in positions {

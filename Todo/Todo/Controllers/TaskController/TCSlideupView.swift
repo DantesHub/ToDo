@@ -197,6 +197,10 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
             }
         }
         
+        if plannedDate == "" {
+            plannedDate = fullFormatter.string(from: Date())
+        }
+        
         tappedOutside2()
         tableView.reloadData()
     }

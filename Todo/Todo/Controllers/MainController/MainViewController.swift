@@ -101,7 +101,6 @@ class MainViewController: UIViewController, ReloadDelegate {
         listTableView.reloadData()
     }
     func configureUI() {
-        listTitle = "Untitled List"
         view.backgroundColor = .white
         view.addSubview(scrollView)
         scrollView.leadingToSuperview()
@@ -320,6 +319,7 @@ class MainViewController: UIViewController, ReloadDelegate {
     }
     @objc func tappedAddList() {
         let controller = ListController()
+        listTitle = "Untitled List"
         controller.reloadDelegate = self
         controller.creating = true;
         tasksList = []

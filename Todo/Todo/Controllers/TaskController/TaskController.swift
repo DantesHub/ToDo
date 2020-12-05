@@ -96,6 +96,7 @@ class TaskController: UIViewController, ReloadSlider {
         return formatter
     }()
     let tasks = uiRealm.objects(TaskObject.self)
+    var addedBorder = false
     
     //MARK: - init
     override func viewDidLoad() {
@@ -309,7 +310,6 @@ class TaskController: UIViewController, ReloadSlider {
         delegate?.createObservers()
     }
 
-    
     @objc func tappedStar() {
         for result in results {
             if result.id == id {
@@ -351,15 +351,99 @@ class TaskController: UIViewController, ReloadSlider {
     }
     
     @objc func tappedCircle() {
+
         configureCircle(K.getColor(priority))
         var delTaskPosition = 0
-        for result in results {
-            if result.id == id {
+        let totalTasks = tasksList.count
+        var repeats = ""
+        print(tasksList.count, "aloha")
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
+        for task in results {
+            if task.id == id {
                 try! uiRealm.write {
-                    result.completed = true
-                    delTaskPosition = result.position
-                    result.position = -1
-                    result.completedDate = Date()
+                    task.completed = true
+                    delTaskPosition = task.position
+                    task.position = -1
+                    if task.repeated != "" {
+                        let formatter = DateFormatter()
+                        formatter.dateFormat = "MMM dd,yyyy-h:mm a"
+                        repeats = task.repeated
+                        task.completed = false
+                        task.position = totalTasks
+                        var newDate = Date()
+                        if task.reminder != "" {
+                            newDate = formatter.date(from: task.reminder)!
+                        }
+                        let plannedDate = formatter.date(from: task.planned)!
+                        var modifiedDateReminder = Date()
+                        var modifiedDatePlanned = Date()
+                        var val = 1
+                        
+                        if repeats.containsWhiteSpace() {
+                            let components = repeats.components(separatedBy: " ")
+                            val = Int(components[0])!
+                            repeats = components[1]
+                            repeats.removeAll(where: {$0 == "s"})
+                        }
+                        
+                        switch repeats {
+                        case "Day":
+                            modifiedDateReminder = Calendar.current.date(byAdding: .day, value: val, to: newDate)!
+                            modifiedDatePlanned = Calendar.current.date(byAdding: .day, value: val, to: plannedDate)!
+                        case "Week":
+                            modifiedDateReminder = Calendar.current.date(byAdding: .weekOfMonth, value: val, to: newDate)!
+                            modifiedDatePlanned = Calendar.current.date(byAdding: .weekOfMonth, value: val, to: plannedDate)!
+                        case "Month":
+                            modifiedDateReminder = Calendar.current.date(byAdding: .month, value: val, to: newDate)!
+                            modifiedDatePlanned = Calendar.current.date(byAdding: .month, value: val, to: plannedDate)!
+                        case "Weekday":
+                            let calendar = Calendar(identifier: .gregorian)
+                            let componentsReminder = calendar.dateComponents([.weekday], from: newDate)
+                            let componentsPlanned = calendar.dateComponents([.weekday], from: plannedDate)
+                            if componentsReminder.weekday == 6 || !Date().checkIfWeekday(date: newDate){
+                                //set to monday
+                                modifiedDateReminder = newDate.next(.monday)
+                            } else {
+                                modifiedDateReminder = Calendar.current.date(byAdding: .weekday, value: val, to: newDate)!
+                            }
+                            
+                            if componentsPlanned.weekday == 6 || !Date().checkIfWeekday(date: plannedDate) {
+                                //set to monday
+                                modifiedDatePlanned = plannedDate.next(.monday)
+                            } else {
+                                modifiedDatePlanned = Calendar.current.date(byAdding: .weekday, value: val, to: plannedDate)!
+                            }
+                        case "Year":
+                            modifiedDateReminder = Calendar.current.date(byAdding: .year, value: val, to: newDate)!
+                            modifiedDatePlanned = Calendar.current.date(byAdding: .year, value: val, to: plannedDate)!
+                        default:
+                            break
+                        }
+                        
+                        task.planned = formatter.string(from: modifiedDatePlanned)
+                        self.plannedDate = formatter.string(from: modifiedDatePlanned)
+                        if task.reminder != "" {
+                            //create new notification and reset reminder in realm
+                            let content = UNMutableNotificationContent()
+                            content.title = task.name
+                            content.body = "Let's Get To It!"
+                            let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: modifiedDateReminder)
+                            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
+                            let request = UNNotificationRequest(identifier: task.id,
+                                        content: content, trigger: trigger)
+                            task.reminder = formatter.string(from: modifiedDateReminder)
+                            self.reminderDate = formatter.string(from: modifiedDateReminder)
+                            let notificationCenter = UNUserNotificationCenter.current()
+                            notificationCenter.add(request) { (error) in
+                               if error != nil { }
+                            }
+                        }
+                        DispatchQueue.main.async { [self] in
+                        
+                        }
+                    } else {
+                        task.completedDate = Date()
+                    }
                 }
             }
         }
@@ -372,9 +456,22 @@ class TaskController: UIViewController, ReloadSlider {
             }
         }
        
-        delegate?.reloadTable()
-        completed = true
-        path = IndexPath(row: 0, section: 1)
+        if repeats == "" {
+            delegate?.reloadTable()
+            completed = true
+            path = IndexPath(row: 0, section: 1)
+        } else {
+            self.tableView.reloadData { [self] in
+                do {
+                    Thread.sleep(forTimeInterval: 0.3)
+                }
+                check.removeFromSuperview()
+                let titleText = taskTitle
+                headerTitle.attributedText = .none
+                headerTitle.text = titleText
+            }
+            completed = false
+        }
     }
     
     func getAccessBool() {
