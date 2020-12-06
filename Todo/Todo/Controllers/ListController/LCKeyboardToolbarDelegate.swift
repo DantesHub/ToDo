@@ -1,9 +1,6 @@
 import UIKit
 
-extension ListController: KeyboardToolbarDelegate, ReloadSlider, KeyboardCollectionDelegate {
-    func keyboardCollection(button: UIButton, type: KeyboardCollectionButton, isInputAccessoryViewOf textField: UITextField) {
-        print("bingo")
-    }
+extension ListController: KeyboardToolbarDelegate, ReloadSlider {
     func reloadSlider() {
         slideUpViewTapped()
         addTaskField.becomeFirstResponder()

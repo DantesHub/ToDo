@@ -16,6 +16,7 @@
 		FE4B42D0256DE645007CFE37 /* TaskSliderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42CF256DE645007CFE37 /* TaskSliderCell.swift */; };
 		FE4B42D9256EE7F3007CFE37 /* TCTableviews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42D8256EE7F3007CFE37 /* TCTableviews.swift */; };
 		FE4B42DC256EE877007CFE37 /* TCTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42DB256EE877007CFE37 /* TCTextField.swift */; };
+		FE4B42EF257C3C05007CFE37 /* CircleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42EE257C3C05007CFE37 /* CircleCell.swift */; };
 		FE76790E253E3B9500012A59 /* GroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE76790D253E3B9500012A59 /* GroupCell.swift */; };
 		FE76791025435E8200012A59 /* MainTableviews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE76790F25435E8200012A59 /* MainTableviews.swift */; };
 		FE7679142543816900012A59 /* TaskController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7679132543816900012A59 /* TaskController.swift */; };
@@ -44,7 +45,7 @@
 		FEBC2483253668580073EBB1 /* MainPopUpcell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBC2482253668580073EBB1 /* MainPopUpcell.swift */; };
 		FEBC2485253668970073EBB1 /* BaseCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEBC2484253668970073EBB1 /* BaseCell.swift */; };
 		FEF485F72549F9D5000CCDF7 /* TextFieldWithPadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF485F62549F9D5000CCDF7 /* TextFieldWithPadding.swift */; };
-		FEF485F9254A00FA000CCDF7 /* AddTaskSlideUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF485F8254A00FA000CCDF7 /* AddTaskSlideUp.swift */; };
+		FEF485F9254A00FA000CCDF7 /* LCCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF485F8254A00FA000CCDF7 /* LCCollectionView.swift */; };
 		FEF485FC254A06D3000CCDF7 /* TaskSlideCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF485FB254A06D3000CCDF7 /* TaskSlideCell.swift */; };
 		FEF485FE254A080D000CCDF7 /* LCTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF485FD254A080D000CCDF7 /* LCTextField.swift */; };
 		FEF48600254A0833000CCDF7 /* LCTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF485FF254A0833000CCDF7 /* LCTableView.swift */; };
@@ -66,6 +67,7 @@
 		FE4B42CF256DE645007CFE37 /* TaskSliderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSliderCell.swift; sourceTree = "<group>"; };
 		FE4B42D8256EE7F3007CFE37 /* TCTableviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCTableviews.swift; sourceTree = "<group>"; };
 		FE4B42DB256EE877007CFE37 /* TCTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCTextField.swift; sourceTree = "<group>"; };
+		FE4B42EE257C3C05007CFE37 /* CircleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleCell.swift; sourceTree = "<group>"; };
 		FE76790D253E3B9500012A59 /* GroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCell.swift; sourceTree = "<group>"; };
 		FE76790F25435E8200012A59 /* MainTableviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTableviews.swift; sourceTree = "<group>"; };
 		FE7679132543816900012A59 /* TaskController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskController.swift; sourceTree = "<group>"; };
@@ -96,7 +98,7 @@
 		FEBC2482253668580073EBB1 /* MainPopUpcell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainPopUpcell.swift; sourceTree = "<group>"; };
 		FEBC2484253668970073EBB1 /* BaseCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCell.swift; sourceTree = "<group>"; };
 		FEF485F62549F9D5000CCDF7 /* TextFieldWithPadding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldWithPadding.swift; sourceTree = "<group>"; };
-		FEF485F8254A00FA000CCDF7 /* AddTaskSlideUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTaskSlideUp.swift; sourceTree = "<group>"; };
+		FEF485F8254A00FA000CCDF7 /* LCCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LCCollectionView.swift; sourceTree = "<group>"; };
 		FEF485FB254A06D3000CCDF7 /* TaskSlideCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSlideCell.swift; sourceTree = "<group>"; };
 		FEF485FD254A080D000CCDF7 /* LCTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LCTextField.swift; sourceTree = "<group>"; };
 		FEF485FF254A0833000CCDF7 /* LCTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LCTableView.swift; sourceTree = "<group>"; };
@@ -158,7 +160,7 @@
 			children = (
 				FEAEAE5F2527C0D9003FD07D /* ListContoller.swift */,
 				FE7679152543AC3800012A59 /* KeyboardToolbar.swift */,
-				FEF485F8254A00FA000CCDF7 /* AddTaskSlideUp.swift */,
+				FEF485F8254A00FA000CCDF7 /* LCCollectionView.swift */,
 				FEF485FD254A080D000CCDF7 /* LCTextField.swift */,
 				FEF485FF254A0833000CCDF7 /* LCTableView.swift */,
 				FE0520D025538D230052F8DA /* LCKeyboardToolbarDelegate.swift */,
@@ -296,6 +298,7 @@
 				FEF485FB254A06D3000CCDF7 /* TaskSlideCell.swift */,
 				FEF485F62549F9D5000CCDF7 /* TextFieldWithPadding.swift */,
 				FE0520D3255608370052F8DA /* TaskCell.swift */,
+				FE4B42EE257C3C05007CFE37 /* CircleCell.swift */,
 			);
 			path = ListView;
 			sourceTree = "<group>";
@@ -427,7 +430,7 @@
 			files = (
 				FE7AE2E025166E3100D889DD /* Model.swift in Sources */,
 				FEF485F72549F9D5000CCDF7 /* TextFieldWithPadding.swift in Sources */,
-				FEF485F9254A00FA000CCDF7 /* AddTaskSlideUp.swift in Sources */,
+				FEF485F9254A00FA000CCDF7 /* LCCollectionView.swift in Sources */,
 				FE4B42D9256EE7F3007CFE37 /* TCTableviews.swift in Sources */,
 				FE4B42DC256EE877007CFE37 /* TCTextField.swift in Sources */,
 				FEAEAE64252BC141003FD07D /* MainMenuTop.swift in Sources */,
@@ -436,6 +439,7 @@
 				FEF7F06A2568698D00E92BC9 /* PaddedTextField.swift in Sources */,
 				FE0520D7255747AD0052F8DA /* CircleView.swift in Sources */,
 				FE4B42CC256DE418007CFE37 /* TCSlideupView.swift in Sources */,
+				FE4B42EF257C3C05007CFE37 /* CircleCell.swift in Sources */,
 				FE7AE2D225152E9700D889DD /* Constants.swift in Sources */,
 				FE7679142543816900012A59 /* TaskController.swift in Sources */,
 				FEBC2485253668970073EBB1 /* BaseCell.swift in Sources */,

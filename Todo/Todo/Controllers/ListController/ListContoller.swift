@@ -9,10 +9,10 @@ protocol ReloadDelegate {
 }
 
 var keyboard = false
+var keyboard2 = false
 var lastKeyboardHeight: CGFloat = 0
 var stabilize = false
 let toolbar = KeyboardToolbar()
-let collectionToolbar = KeyboardCollectionBar()
 var selectedPriority = UIColor.white
 var selectedDate = ""
 var selectedDueDate = ""
@@ -26,6 +26,7 @@ var completedTasks: [TaskObject] = [TaskObject]()
 var selectedList = ""
 var listTitle = "Untitled List"
 var addedStep = false
+var createdNewList = false
 class ListController: UIViewController, TaskViewDelegate {
     //MARK: - instance variables
     let formatter: DateFormatter = {
@@ -65,7 +66,6 @@ class ListController: UIViewController, TaskViewDelegate {
         cv.backgroundColor = .white
         return cv
     }()
-    var createdNewList = false
     var pickUpSection = 0
     var dueDateTapped = false
     var pickerTitle = UILabel()
@@ -75,13 +75,27 @@ class ListController: UIViewController, TaskViewDelegate {
     var priorities = [UIColor.red, orange, .blue, UIColor.clear]
     var dates = ["Later Today", "Tomorrow", "Next Week", "Pick a Date & Time"]
     var firstAppend = true
+    var customizeListView = UIView()
+    var customizeSelection = "Photo"
+    var customizeCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        let cv = UICollectionView(frame: .zero
+                                  , collectionViewLayout: layout)
+        cv.showsHorizontalScrollIndicator = false
+        cv.backgroundColor = .white
+        return cv
+    }()
     let window = UIApplication.shared.keyWindow
+    var photos: [String] = ["campfire", "mountain", "nature", "forest", "rain", "seaside", "seaside2", "space"]
+    var backgroundColors:[UIColor] = [blue, purple, darkRed, darkOrange, darkGreen, turq, gray]
+    var backgroundButton = UIButton()
+    var photoButton = UIButton()
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
     var completedExpanded = true
     let lists = uiRealm.objects(ListObject.self)
     var accessBool = false
-    
 
     //MARK: - init
     override func viewDidLoad() {
@@ -149,6 +163,7 @@ class ListController: UIViewController, TaskViewDelegate {
         plusTaskView.isUserInteractionEnabled = true
         plusTaskView.dropShadow()
         let  tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOutside))
+        tapRecognizer.cancelsTouchesInView = false
         self.view.addGestureRecognizer(tapRecognizer)
         addTaskField.isHidden = false
         addTaskField.frame = CGRect(x: 0, y: view.frame.height - view.frame.height/11.5 , width: view.frame.width, height: 65)
@@ -162,7 +177,6 @@ class ListController: UIViewController, TaskViewDelegate {
         
         if creating {
             addTaskField.isHidden = true
-            collectionToolbar.textField = bigTextField
             let done = UIButton(type: .system)
             done.setTitle("Done", for: .normal)
             done.setTitleColor(.blue, for: .normal)
@@ -455,9 +469,10 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func tappedOutside() {
-        self.view.endEditing(true)
+        if !creating {
+            self.view.endEditing(true)
+        }
     }
-    
     
     func createTableHeader() {
         let headerView: UIView = UIView.init(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 100))
@@ -475,14 +490,85 @@ class ListController: UIViewController, TaskViewDelegate {
         if !creating {
             bigTextField.isUserInteractionEnabled = false
         } else {
-            print("shibal")
-            collectionToolbar.toolBarDelegate = self
-            scrollView.addSubview(collectionToolbar)
-            bigTextField.addKeyboardCollection(buttons: [KeyboardCollectionButton(image: "nature"), KeyboardCollectionButton(image: "rain")], toolBarDelegate: self)
+            createCustomListView()
         }
-        
+
         self.tableView.tableHeaderView = headerView
     }
+    //MARK: - custom list view
+    private func createCustomListView() {
+        view.addSubview(customizeListView)
+        customizeListView.frame = CGRect(x: 0, y: view.frame.height - view.frame.height/11.5, width: view.frame.width, height: 150)
+        customizeListView.layer.cornerRadius = 15
+        customizeListView.backgroundColor = .white
+        
+        customizeListView.addSubview(photoButton)
+        photoButton.height(35)
+        photoButton.width(customizeListView.frame.width/5)
+        photoButton.leading(to: customizeListView, offset: 20)
+        photoButton.top(to: customizeListView, offset: 15)
+        photoButton.setTitle("Photo", for: .normal)
+        photoButton.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 18)
+        photoButton.layer.cornerRadius = 20
+        photoButton.backgroundColor = .darkGray
+        let photoGest = UITapGestureRecognizer(target: self, action: #selector(tappedPhoto(button:)))
+        photoGest.cancelsTouchesInView = false
+        photoButton.addGestureRecognizer(photoGest)
+        
+        customizeListView.addSubview(backgroundButton)
+        backgroundButton.height(35)
+        backgroundButton.width(customizeListView.frame.width/2.5)
+        backgroundButton.leadingAnchor.constraint(equalTo: photoButton.trailingAnchor, constant: 10).isActive = true
+        backgroundButton.top(to: customizeListView, offset: 15)
+        backgroundButton.setTitle("Background Color", for: .normal)
+        backgroundButton.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 16)
+        backgroundButton.layer.cornerRadius = 20
+        backgroundButton.setTitleColor(.darkGray, for: .normal)
+        backgroundButton.backgroundColor = lightGray
+        let backGest = UITapGestureRecognizer(target: self, action: #selector(tappedBackground(button:)))
+        backGest.cancelsTouchesInView = false
+        backgroundButton.addGestureRecognizer(backGest)
+        
+        self.view.isUserInteractionEnabled = true
+        customizeCollectionView.register(CircleCell.self, forCellWithReuseIdentifier: K.circleCell)
+        customizeCollectionView.isUserInteractionEnabled = true
+        customizeListView.isUserInteractionEnabled = true
+        customizeCollectionView.delegate = self
+        customizeCollectionView.dataSource = self
+        customizeListView.addSubview(customizeCollectionView)
+        customizeCollectionView.leading(to: customizeListView)
+        customizeCollectionView.trailing(to: customizeListView)
+        customizeCollectionView.bottom(to: customizeListView)
+        customizeCollectionView.backgroundColor = .white
+        customizeCollectionView.height(customizeListView.frame.height * 0.65)
+    }
+    @objc func tappedBackground(button: UIButton) {
+        backgroundColors = []
+        photos = []
+        customizeSelection = "Background Color"
+        backgroundButton.backgroundColor = .darkGray
+        backgroundButton.setTitleColor(.white, for: .normal)
+        
+        photoButton.backgroundColor = lightGray
+        photoButton.setTitleColor(.black, for: .normal)
+        backgroundColors = [blue, purple, darkRed, darkOrange, darkGreen, turq, gray]
+        customizeCollectionView.reloadData()
+    }
+    
+    @objc func tappedPhoto(button: UIButton) {
+        backgroundColors = []
+        photos = []
+        customizeSelection = "Photo"
+        photoButton.backgroundColor = .darkGray
+        photoButton.setTitleColor(.white, for: .normal)
+        
+        backgroundButton.backgroundColor = lightGray
+        backgroundButton.setTitleColor(.black, for: .normal)
+        photos = ["campfire", "mountain", "nature", "forest", "rain", "seaside", "seaside2", "space"]
+
+        customizeCollectionView.reloadData()
+    }
+    
     func createTableView(top: CGFloat = -10) {
         tableView.register(TaskCell.self, forCellReuseIdentifier: "list")
         tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "completedHeader")
@@ -508,38 +594,42 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
+        let info:NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
         if !creating {
-            let info:NSDictionary = notification.userInfo! as NSDictionary
-            let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-            var keyboardHeight: CGFloat = keyboardSize.height
-
-            if keyboard && lastKeyboardHeight != keyboardHeight {
-                keyboardHeight = lastKeyboardHeight
-            }
-            lastKeyboardHeight = keyboardHeight
             let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
             if stabilize {
-                self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - keyboardHeight - 65
+                self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - 65
             }
             stabilize = false
+        } else {
+            if keyboard == true || keyboard2 {
+                lastKeyboardHeight = keyboardSize.height + 93
+            } else {
+                lastKeyboardHeight = keyboardSize.height
+                keyboard2 = true
+            }
+            self.customizeListView.frame.origin.y = self.customizeListView.frame.origin.y - lastKeyboardHeight - 140
+            createdNewList = true
         }
     }
     @objc func keyboardWillChangeFrame(notification: NSNotification) {
-        if keyboard == false && !creating {
-            let info:NSDictionary = notification.userInfo! as NSDictionary
-            let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-            keyboard = true
+        let info:NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
+        if !creating {
             if addedStep || createdNewList {
                 lastKeyboardHeight = keyboardSize.height + 185
             } else {
-                print("gero")
                 lastKeyboardHeight = keyboardSize.height
+                keyboard = true
             }
         }
+           
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
         self.addTaskField.frame.origin.y = self.view.frame.height + 10
+        self.customizeListView.frame.origin.y = self.view.frame.height
     }
     
     @objc func respondToSwipeGesture(gesture: UIGestureRecognizer) {

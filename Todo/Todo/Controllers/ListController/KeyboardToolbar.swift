@@ -172,38 +172,6 @@ protocol KeyboardToolbarDelegate: class {
     func keyboardToolbar(button: UIButton, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField)
 }
 
-protocol KeyboardCollectionDelegate: class {
-    func keyboardCollection(button: UIButton, type: KeyboardCollectionButton,
-                            isInputAccessoryViewOf textField: UITextField)
-}
-class KeyboardCollectionBar: UIToolbar {
-    weak var toolBarDelegate: KeyboardCollectionDelegate?
-    weak var textField: UITextField!
-    var button: [KeyboardCollectionButton]!
-    init() {
-        super.init(frame: .init(origin: .zero, size: CGSize(width: UIScreen.main.bounds.width + 1000, height: 85)))
-        barStyle = .default
-        isTranslucent = true
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    func setup(buttons: [KeyboardCollectionButton]) {
-        let space = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
-        space.width = 10
-        print("eureka")
-        var mainButtons = [UIBarButtonItem]()
-        for button in buttons {
-            mainButtons.append(space)
-            mainButtons.append(button)
-        }
-        setItems(mainButtons, animated: false)
-    }
-    
-    
-}
-
 class KeyboardToolbar: UIToolbar {
     weak var toolBarDelegate: KeyboardToolbarDelegate?
     weak var textField: UITextField!
@@ -307,9 +275,5 @@ class KeyboardToolbar: UIToolbar {
             toolbar.barTintColor = .white
             toolbar.addButton(button: leftButton)
         }
-        func addKeyboardCollection(buttons: [KeyboardCollectionButton], toolBarDelegate: KeyboardCollectionDelegate) {
-            collectionToolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
-            collectionToolbar.barTintColor = .white
-            collectionToolbar.setup(buttons: buttons)
-        }
+
     }

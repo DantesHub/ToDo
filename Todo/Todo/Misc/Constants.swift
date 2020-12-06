@@ -10,6 +10,14 @@ import Foundation
 import UIKit
 
 let superPurple = hexStringToUIColor(hex: "#A73CDE")
+var blue = hexStringToUIColor(hex: "4b68e9")
+var purple = hexStringToUIColor(hex: "94609b")
+var darkRed = hexStringToUIColor(hex: "b3536c")
+var darkOrange = hexStringToUIColor(hex: "b3564e")
+var turq = hexStringToUIColor(hex: "427f7c")
+var darkGreen = hexStringToUIColor(hex: "458160")
+var gray = hexStringToUIColor(hex: "6a7580")
+
 let gold = hexStringToUIColor(hex: "#F8D003")
 let lightGray = hexStringToUIColor(hex: "#EAEAEA")
 let green = hexStringToUIColor(hex: "#096408")
@@ -18,7 +26,7 @@ let orange = hexStringToUIColor(hex: "#F08802")
 struct K {
     static let listGroupCell = "listGroupCell"
     static let taskSlideCell = "taskSlideCell"
-    
+    static let circleCell = "circleCell"
     static func getColor(_ pri: Int) -> UIColor {
         switch pri {
         case 1:

@@ -113,16 +113,7 @@ class TaskController: UIViewController, ReloadSlider {
     }
     
     @objc func keyboardWillChangeFrame(notification: NSNotification) {
-        if keyboard == false {
-            let info:NSDictionary = notification.userInfo! as NSDictionary
-            let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-            keyboard = true
-            if addedStep {
-                lastKeyboardHeight = keyboardSize.height + 85
-            } else {
-                lastKeyboardHeight = keyboardSize.height
-            }
-        }
+        addedStep = true
     }
         
     func getSteps() {
