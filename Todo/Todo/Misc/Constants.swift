@@ -42,7 +42,51 @@ struct K {
         }
     }
     
-   
+    static func getListColor(_ col: String) -> UIColor {
+        switch col {
+        case "white":
+            return UIColor.white
+        case "blue":
+            return blue
+        case "purple":
+            return purple
+        case "darkOrange":
+            return darkOrange
+        case "darkRed":
+            return darkRed
+        case "turq":
+            return turq
+        case "gray":
+            return gray
+        case "darkGreen":
+            return darkGreen
+        default:
+            return UIColor.clear
+        }
+    }
+    
+    static func getStringColor(_ col: UIColor) -> String {
+        switch col {
+        case UIColor.white:
+            return "white"
+        case blue:
+            return "blue"
+        case purple:
+            return "purple"
+        case darkOrange:
+           return "darkOrange"
+        case darkRed:
+            return "darkRed"
+        case turq:
+            return "turq"
+        case gray:
+            return "gray"
+        case darkGreen:
+            return "darkGreen"
+        default:
+            return ""
+        }
+    }
 }
 
 func hexStringToUIColor (hex:String) -> UIColor {

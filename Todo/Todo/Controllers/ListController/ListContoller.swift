@@ -66,6 +66,15 @@ class ListController: UIViewController, TaskViewDelegate {
         cv.backgroundColor = .white
         return cv
     }()
+    var backgroundImage: UIImageView = {
+        let img = UIImage(named: "mountainBackground")
+        let iv = UIImageView(image: img)
+        iv.isUserInteractionEnabled = true
+        return iv
+    }()
+    var selectedListImage = ""
+    var selectedListBackground = UIColor.clear
+    var selectedListTextColor = UIColor.clear
     var pickUpSection = 0
     var dueDateTapped = false
     var pickerTitle = UILabel()
@@ -87,10 +96,12 @@ class ListController: UIViewController, TaskViewDelegate {
         return cv
     }()
     let window = UIApplication.shared.keyWindow
-    var photos: [String] = ["campfire", "mountain", "nature", "forest", "rain", "seaside", "seaside2", "space"]
+    var photos: [String] = ["addPicture", "campfire", "mountain", "nature", "forest", "rain", "seaside", "seaside2", "space"]
     var backgroundColors:[UIColor] = [blue, purple, darkRed, darkOrange, darkGreen, turq, gray]
+    var textColors:[UIColor] = [.white, blue, purple, darkRed, darkOrange, darkGreen, turq, gray]
     var backgroundButton = UIButton()
     var photoButton = UIButton()
+    var textButton = UIButton()
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
     var completedExpanded = true
@@ -103,10 +114,16 @@ class ListController: UIViewController, TaskViewDelegate {
         IQKeyboardManager.shared.enable = false
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
-        self.view.backgroundColor = .white
         if !creating {
             getRealmData()
         }
+        self.view.isUserInteractionEnabled = true
+        self.view.insertSubview(backgroundImage, at: 0)
+        backgroundImage.leadingToSuperview()
+        backgroundImage.trailingToSuperview()
+        backgroundImage.topToSuperview()
+        backgroundImage.bottomToSuperview()
+ 
         configureUI()
     }
     
@@ -118,6 +135,10 @@ class ListController: UIViewController, TaskViewDelegate {
         tableView.dragDelegate = self
         tableView.dropDelegate = self
         tableView.allowsSelection = true
+        tableView.backgroundColor = .clear
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOutside))
+        tapRecognizer.cancelsTouchesInView = false
+        self.tableView.addGestureRecognizer(tapRecognizer)
     }
     override func viewWillDisappear(_ animated: Bool) {
         removeObservers()
@@ -137,6 +158,7 @@ class ListController: UIViewController, TaskViewDelegate {
         added50ToReminder = false
         added50ToDueDate = false
     }
+    
     deinit {
         removeObservers()
     }
@@ -147,7 +169,7 @@ class ListController: UIViewController, TaskViewDelegate {
         createTableHeader()
         createTableView()
         createObservers()
-        plusTaskView = UIImageView(frame: CGRect(x: self.view.frame.width - 100, y: self.view.frame.height - 200 , width: 60, height: 60))
+        plusTaskView = UIImageView(frame: CGRect(x: self.view.frame.width - 100, y: self.view.frame.height - 200, width: 60, height: 60))
         view.addSubview(plusTaskView)
         let padding:CGFloat = 10
         plusTaskView.contentMode = .scaleAspectFit
@@ -162,11 +184,9 @@ class ListController: UIViewController, TaskViewDelegate {
         plusTaskView.addGestureRecognizer(addTaskRecognizer)
         plusTaskView.isUserInteractionEnabled = true
         plusTaskView.dropShadow()
-        let  tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOutside))
-        tapRecognizer.cancelsTouchesInView = false
-        self.view.addGestureRecognizer(tapRecognizer)
+
         addTaskField.isHidden = false
-        addTaskField.frame = CGRect(x: 0, y: view.frame.height - view.frame.height/11.5 , width: view.frame.width, height: 65)
+        addTaskField.frame = CGRect(x: 0, y: view.frame.height , width: view.frame.width, height: 65)
         let leftBarButtons: [KeyboardToolbarButton] = premadeListTapped ? [.addToList, .priority, .dueDate, .reminder, .favorite] : [.priority, .dueDate, .reminder, .favorite]
         addTaskField.addKeyboardToolBar(leftButtons: leftBarButtons, rightButtons: [], toolBarDelegate: self)
         view.addSubview(addTaskField)
@@ -195,6 +215,7 @@ class ListController: UIViewController, TaskViewDelegate {
         slideUpView.dataSource = self
         slideUpView.delegate = self
         createTableHeader()
+        
     }
     func createObservers() {
         let center: NotificationCenter = NotificationCenter.default
@@ -253,6 +274,7 @@ class ListController: UIViewController, TaskViewDelegate {
 
         let tapGesture = UITapGestureRecognizer(target: self,
                                                 action: #selector(tappedOutside2))
+        tapGesture.cancelsTouchesInView = false
         containerView.addGestureRecognizer(tapGesture)
     }
 
@@ -290,6 +312,13 @@ class ListController: UIViewController, TaskViewDelegate {
     func getRealmData() {
         var results = uiRealm.objects(TaskObject.self)
         results = results.sorted(byKeyPath: "position", ascending: true)
+        for list in lists {
+            if list.name == listTitle {
+                selectedListBackground = K.getListColor(list.backgroundColor)
+                selectedListTextColor = K.getListColor(list.textColor)
+                selectedListImage = list.backgroundImage
+            }
+        }
         completedTasks = []
         tasksList = []
         if listTitle == "All Tasks" {
@@ -386,6 +415,15 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     @objc func tappedCreateDone() {
         createNewList()
+        try! uiRealm.write {
+            for list in lists  {
+                if list.name == listTitle {
+                    list.backgroundColor = K.getStringColor(selectedListBackground)
+                    list.textColor = K.getStringColor(selectedListTextColor)
+                    list.backgroundImage = selectedListImage
+                }
+            }
+        }
     }
     
     @objc func tappedDone() {
@@ -469,6 +507,7 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func tappedOutside() {
+        print("tapped Outside")
         if !creating {
             self.view.endEditing(true)
         }
@@ -498,7 +537,7 @@ class ListController: UIViewController, TaskViewDelegate {
     //MARK: - custom list view
     private func createCustomListView() {
         view.addSubview(customizeListView)
-        customizeListView.frame = CGRect(x: 0, y: view.frame.height - view.frame.height/11.5, width: view.frame.width, height: 150)
+        customizeListView.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: 150)
         customizeListView.layer.cornerRadius = 15
         customizeListView.backgroundColor = .white
         
@@ -529,6 +568,20 @@ class ListController: UIViewController, TaskViewDelegate {
         backGest.cancelsTouchesInView = false
         backgroundButton.addGestureRecognizer(backGest)
         
+        customizeListView.addSubview(textButton)
+        textButton.height(35)
+        textButton.width(customizeListView.frame.width/4)
+        textButton.leadingAnchor.constraint(equalTo: backgroundButton.trailingAnchor, constant: 10).isActive = true
+        textButton.top(to: customizeListView, offset: 15)
+        textButton.setTitle("Text Color", for: .normal)
+        textButton.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 16)
+        textButton.layer.cornerRadius = 20
+        textButton.setTitleColor(.darkGray, for: .normal)
+        textButton.backgroundColor = lightGray
+        let textGest = UITapGestureRecognizer(target: self, action: #selector(tappedText))
+        textGest.cancelsTouchesInView = false
+        textButton.addGestureRecognizer(textGest)
+        
         self.view.isUserInteractionEnabled = true
         customizeCollectionView.register(CircleCell.self, forCellWithReuseIdentifier: K.circleCell)
         customizeCollectionView.isUserInteractionEnabled = true
@@ -540,32 +593,38 @@ class ListController: UIViewController, TaskViewDelegate {
         customizeCollectionView.trailing(to: customizeListView)
         customizeCollectionView.bottom(to: customizeListView)
         customizeCollectionView.backgroundColor = .white
+        customizeCollectionView.allowsSelection = true
         customizeCollectionView.height(customizeListView.frame.height * 0.65)
     }
+    @objc func tappedText() {
+        customizeSelection = "Text Color"
+        textButton.backgroundColor = .darkGray
+        textButton.setTitleColor(.white, for: .normal)
+        backgroundButton.backgroundColor = lightGray
+        backgroundButton.setTitleColor(.black, for: .normal)
+        photoButton.backgroundColor = lightGray
+        photoButton.setTitleColor(.black, for: .normal)
+        customizeCollectionView.reloadData()
+    }
     @objc func tappedBackground(button: UIButton) {
-        backgroundColors = []
-        photos = []
         customizeSelection = "Background Color"
         backgroundButton.backgroundColor = .darkGray
         backgroundButton.setTitleColor(.white, for: .normal)
-        
         photoButton.backgroundColor = lightGray
         photoButton.setTitleColor(.black, for: .normal)
-        backgroundColors = [blue, purple, darkRed, darkOrange, darkGreen, turq, gray]
+        textButton.backgroundColor = lightGray
+        textButton.setTitleColor(.black, for: .normal)
         customizeCollectionView.reloadData()
     }
     
     @objc func tappedPhoto(button: UIButton) {
-        backgroundColors = []
-        photos = []
         customizeSelection = "Photo"
         photoButton.backgroundColor = .darkGray
         photoButton.setTitleColor(.white, for: .normal)
-        
+        textButton.backgroundColor = lightGray
+        textButton.setTitleColor(.black, for: .normal)
         backgroundButton.backgroundColor = lightGray
         backgroundButton.setTitleColor(.black, for: .normal)
-        photos = ["campfire", "mountain", "nature", "forest", "rain", "seaside", "seaside2", "space"]
-
         customizeCollectionView.reloadData()
     }
     
@@ -584,9 +643,11 @@ class ListController: UIViewController, TaskViewDelegate {
         tableView.showsVerticalScrollIndicator = false
         let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
         swipeDown.direction = .down
+        swipeDown.cancelsTouchesInView = false
         self.tableView.addGestureRecognizer(swipeDown)
         let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
         swipeUp.direction = .up
+        swipeUp.cancelsTouchesInView = false
         self.tableView.addGestureRecognizer(swipeUp)
         tableView.isUserInteractionEnabled = true
         swipeUp.delegate = self
@@ -613,6 +674,7 @@ class ListController: UIViewController, TaskViewDelegate {
             createdNewList = true
         }
     }
+    
     @objc func keyboardWillChangeFrame(notification: NSNotification) {
         let info:NSDictionary = notification.userInfo! as NSDictionary
         let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
@@ -682,10 +744,9 @@ class ListController: UIViewController, TaskViewDelegate {
         backButton.image = UIImage(named: "arrow")?.rotate(radians: -.pi/2)?.resize(targetSize: CGSize(width: 25, height: 25))
         backButton.title = "Back"
         self.navigationItem.leftBarButtonItem = backButton
-
         navigationItem.rightBarButtonItems = [elipsis, search]
-        navigationController?.navigationBar.barTintColor = .white
-        navigationController?.navigationBar.isTranslucent = false
+        navigationController?.navigationBar.barTintColor = .clear
+        navigationController?.navigationBar.isTranslucent = true
     }
     
    

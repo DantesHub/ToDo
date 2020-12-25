@@ -17,7 +17,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             } else if customizeSelection == "Background Color" {
                 return backgroundColors.count
             } else {
-                return backgroundColors.count
+                return textColors.count
             }
         } else {
             if tappedIcon == "Add to a List" {
@@ -26,6 +26,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 return 4
             }
         }
+
+    }
+    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
     }
     func reloadCollection() {
         self.customizeCollectionView.reloadData()
@@ -72,13 +75,24 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
+        print("romain")
         let cell = collectionView.cellForItem(at: indexPath) as! CircleCell
-        print("gulbi2")
+        if customizeSelection == "Photo" {
+            cell.tappedImage()
+            selectedListImage = photos[indexPath.row]
+            selectedListBackground = UIColor.clear
+        } else {
+            cell.tappedColor()
+            if customizeSelection == "Background Color" {
+                selectedListBackground = backgroundColors[indexPath.row]
+                selectedListImage = ""
+            } else {
+                selectedListTextColor = textColors[indexPath.row]
+            }
+        }
         return true
     }
-    func tableView(_ tableView: UITableView, didHighlightRowAt indexPath: IndexPath) {
-        print("zoonkl")
-    }
+
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == customizeCollectionView {
@@ -90,14 +104,27 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 cell.image = photos[indexPath.row]
                 cell.color = UIColor.clear
                 cell.baseView.backgroundColor = .clear
-            } else  {
+            } else {
                 cell.baseView.backgroundColor = .clear
-                cell.color = backgroundColors[indexPath.row]
                 cell.image = ""
                 cell.imgView.image = UIImage()
+                cell.baseView.layer.borderColor = UIColor.clear.cgColor
+                if customizeSelection == "Background Color" {
+                    cell.color = backgroundColors[indexPath.row]
+                } else {
+                    cell.color = textColors[indexPath.row]
+                }
             }
             cell.isUserInteractionEnabled = true
             cell.configureUI()
+            if customizeSelection == "Background Color" && selectedListBackground == backgroundColors[indexPath.row] {
+                cell.isHighlighted = true
+
+            } else if customizeSelection == "Text Color" && selectedListTextColor == textColors[indexPath.row] {
+                cell.isHighlighted = true
+            } else if customizeSelection == "Photo" && selectedListImage == photos[indexPath.row] {
+                cell.isHighlighted = true
+            }
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: K.taskSlideCell, for: indexPath) as! TaskSlideCell
@@ -129,24 +156,17 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) as? CircleCell {
             if collectionView == customizeCollectionView {
-                if customizeSelection == "Photo" {
-                    cell.resetImage()
-                } else {
-                    cell.resetColor()
-                }
+                cell.isHighlighted = false
             }
-        }
     }
+}
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print("calling")
         if collectionView == customizeCollectionView {
-            print("gulbi")
             let cell = collectionView.cellForItem(at: indexPath) as! CircleCell
-            if customizeSelection == "Photo" {
-                cell.tappedImage()
-            } else {
-                cell.tappedColor()
-            }
-     
+            cell.isHighlighted = true
+            collectionView.reloadData()
         } else {
             switch tappedIcon {
             //only present in favorite, scheduled and all tasks

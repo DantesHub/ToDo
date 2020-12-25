@@ -11,8 +11,27 @@ class CircleCell: BaseCell {
     var imgView = UIImageView()
     var type = ""
     var delegate: ReloadCollection?
-//    var imgGest = UITapGestureRecognizer()
-//    var colorGest = UITapGestureRecognizer()
+    override var isHighlighted: Bool {
+        didSet {
+            if self.isHighlighted {
+                if type == "Photo" {
+                    tappedImage()
+                } else if type == "Background Color"{
+                    tappedColor()
+                } else {
+                    tappedColor()
+                }
+            } else {
+                if type == "Photo" {
+                    resetImage()
+                } else if type == "Background Color"{
+                    resetColor()
+                } else {
+                    resetColor()
+                }
+            }
+        }
+    }
     override func setUpViews() {
         super.setUpViews()
         self.isUserInteractionEnabled = true
@@ -20,7 +39,6 @@ class CircleCell: BaseCell {
         imgView.isUserInteractionEnabled = true
     }
     func removeBase() {
-        imgView.removeFromSuperview()
         baseView.clearConstraints()
         baseView.removeFromSuperview()
     }
@@ -31,22 +49,22 @@ class CircleCell: BaseCell {
         if image != "" {
             baseView.backgroundColor = .clear
             baseView.layer.borderColor = UIColor.clear.cgColor
-//            baseView.removeGestureRecognizer(colorGest)
             baseView.width(self.frame.width)
             baseView.height(self.frame.height)
             imgView.image = UIImage(named: image)
-//             imgGest = UITapGestureRecognizer(target: self, action: #selector(tappedImage))
             imgView.width(self.frame.width)
             imgView.height(self.frame.height)
             imgView.isUserInteractionEnabled = true
-//            imgView.addGestureRecognizer(imgGest)
             
         } else if color != UIColor.clear {
+            baseView.backgroundColor = color
+            if color == .white {
+                baseView.layer.borderWidth = 2
+                baseView.layer.borderColor = UIColor.gray.cgColor
+            }
+            
             baseView.width(self.frame.width * 0.80)
             baseView.height(self.frame.height * 0.80)
-            baseView.backgroundColor = color
-//            colorGest = UITapGestureRecognizer(target: self, action: #selector(tappedColor))
-//            baseView.addGestureRecognizer(colorGest)
         }
     }
     
@@ -62,6 +80,11 @@ class CircleCell: BaseCell {
         baseView.layer.borderColor = color.modified(withAdditionalHue: 0, additionalSaturation: 0.50, additionalBrightness: -0.25).cgColor
     }
     func resetColor() {
-        baseView.layer.borderColor = UIColor.clear.cgColor
+        if color == .white {
+            baseView.layer.borderWidth = 2
+            baseView.layer.borderColor = UIColor.gray.cgColor
+        } else {
+            baseView.layer.borderColor = UIColor.clear.cgColor
+        }
     }
 }

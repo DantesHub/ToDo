@@ -12,6 +12,9 @@ import MobileCoreServices
 class ListObject: Object {
     @objc dynamic var name = ""
     @objc dynamic var position = 0
+    @objc dynamic var textColor = "white"
+    @objc dynamic var backgroundColor = "blue"
+    @objc dynamic var backgroundImage = "mountain"
     var groupPositions = List<GroupPosition>()
 }
 

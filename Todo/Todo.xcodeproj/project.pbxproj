@@ -137,13 +137,6 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
-		FE4B42C9256DE3D7007CFE37 /* New Group */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "New Group";
-			sourceTree = "<group>";
-		};
 		FE4B42CA256DE401007CFE37 /* TaskController */ = {
 			isa = PBXGroup;
 			children = (
@@ -192,7 +185,6 @@
 				FE7AE2D52515457400D889DD /* fonts */,
 				FE7AE2D025152E7E00D889DD /* Misc */,
 				FE7AE2CF25152C7D00D889DD /* Controllers */,
-				FE4B42C9256DE3D7007CFE37 /* New Group */,
 				FE7AE2CE25152C6C00D889DD /* Views */,
 				FE7AE2CD25152C6600D889DD /* Models */,
 				FE7AE2B625152A0300D889DD /* AppDelegate.swift */,
