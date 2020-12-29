@@ -35,6 +35,7 @@ extension ListController: UITextFieldDelegate {
                 
                 alertController.addAction(okayAction)
                 self.present(alertController, animated: true, completion: nil)
+                createTappedDone()
             }
         }
         
@@ -50,6 +51,7 @@ extension ListController: UITextFieldDelegate {
                 createdNewList = true                
             }
             addTaskField.isHidden = false
+            configureNavBar()
             reloadDelegate?.reloadTableView()
         }
     }

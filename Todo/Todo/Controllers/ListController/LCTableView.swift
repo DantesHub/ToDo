@@ -32,26 +32,17 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             })
         }
     }
-    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        print("shibal")
-    }
     
     func reloadTable() {
         getRealmData()
         tableView.reloadData()
     }
     
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
-    }
+
     func numberOfSections(in tableView: UITableView) -> Int {
-            return 2
+        return 2
     }
  
-     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
             return tasksList.count
@@ -79,7 +70,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             label.leadingAnchor.constraint(equalTo: completedView!.leadingAnchor, constant: 5).isActive = true
             label.backgroundColor = UIColor.black.withAlphaComponent(0.6)
             label.width(tableView.frame.width * 0.35)
-            label.height(30)
+            label.height(25)
             label.layer.cornerRadius = 10
             label.addTarget(self, action: #selector(tappedCompleted), for: .touchUpInside)
         }
@@ -139,15 +130,13 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         cell.parentList = task.parentList
         cell.configureBottomView()
         cell.selectionStyle = .none
-        cell.backgroundColor = .white
+        cell.clipsToBounds = true
         cell.navigationController = (self.navigationController)!
         cell.layer.cornerRadius = 10
-        cell.layer.borderWidth = CGFloat(4)
-            cell.layer.borderColor = tableView.backgroundColor?.cgColor
-        cell.contentView.layoutMargins.bottom = 25
         cell.isUserInteractionEnabled = true
         return cell
     }
+
     
     private func tableView(tableView: UITableView,
                  willDisplayCell cell: UITableViewCell,
@@ -159,15 +148,10 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 80; //Choose your custom row height
+        return 90; //Choose your custom row height
     }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.section == 0 {
-            print(tasksList[indexPath.row].name)
-        } else {
-            print(completedTasks[indexPath.row].name)
-        }
-    }
+    
+
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         if sourceIndexPath == destinationIndexPath { return }
@@ -235,8 +219,8 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                         uiRealm.delete(task)
                     }
                 }
-        
             }
+            
             if delIdx != -1 {
                 for task in tasks {
                     if task.parentList == listTitle && task.position > delIdx {
@@ -269,9 +253,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         }
     }
     
-    func tableView(_ tableView: UITableView, canHandle session: UIDropSession) -> Bool {
-        return tasksList.canHandle(session)
-    }
 
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
             pickUpSection = indexPath.section

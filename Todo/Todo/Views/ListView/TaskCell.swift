@@ -38,6 +38,18 @@ class TaskCell: UITableViewCell {
     var completed =  false
     var position = 0
     var id = ""
+    override var frame: CGRect {
+            get {
+                return super.frame
+            }
+            set (newFrame) {
+                var frame =  newFrame
+                frame.origin.y += 4
+                frame.size.height -= 2 * 8
+                super.frame = frame
+            }
+        }
+
     var navigationController = UINavigationController()
     var parentList = ""
     var tasks = uiRealm.objects(TaskObject.self)
@@ -48,18 +60,25 @@ class TaskCell: UITableViewCell {
         iv.isUserInteractionEnabled = true
         return iv
     }()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureUI()
     }
-    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        //set the values for top,left,bottom,right margins
+        let margins = UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
+        contentView.frame = contentView.frame.inset(by: margins)
+    }
     func configureUI() {
         self.contentView.addSubview(circle)
         circle.width(28)
         circle.height(28)
         circle.leading(to: self, offset: 15)
-        circle.top(to: self, offset: 15)
+        circle.top(to: self, offset: 10)
         let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
+        cellTapped.cancelsTouchesInView = false
         self.contentView.addGestureRecognizer(cellTapped)
         let circleGest = UITapGestureRecognizer(target: self, action: #selector(tappedCircle))
         circle.addGestureRecognizer(circleGest)
@@ -67,7 +86,7 @@ class TaskCell: UITableViewCell {
         self.addSubview(title)
         title.font = UIFont(name: "OpenSans-Regular", size: 18)
         title.leadingAnchor.constraint(equalTo: circle.trailingAnchor, constant: 10).isActive = true
-        title.top(to: self, offset: 15)
+        title.top(to: self, offset: 12)
         
         self.contentView.addSubview(star)
         star.width(30)
@@ -116,11 +135,12 @@ class TaskCell: UITableViewCell {
         }
         
         
-        bottomView.frame = CGRect(x: 0, y: 48, width: UIScreen.main.bounds.width - 20, height: 28)
+        bottomView.frame = CGRect(x: 0, y: 48, width: UIScreen.main.bounds.width - 20, height: 26)
         bottomView.layer.cornerRadius = 10
         bottomView.backgroundColor = medGray
         self.contentView.addSubview(bottomView)
         let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
+        cellTapped.cancelsTouchesInView = false
         bottomView.addGestureRecognizer(cellTapped)
         bottomView.addSubview(listLabel)
         listLabel.leading(to: bottomView, offset: 20)
@@ -168,13 +188,13 @@ class TaskCell: UITableViewCell {
             case 1:
                 color = .red
             case 2:
-                color = green
+                color = orange
             case 3:
-                color = gold
+                color = blue
             case 4:
                 color = .clear
             default:
-                print("boon")
+                break
             }
             if color == UIColor.clear {
                 priority.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 14, height: 16))
@@ -295,6 +315,7 @@ class TaskCell: UITableViewCell {
         let pri = K.getColor(prioritized)
         check.image = check.image?.withTintColor(pri == UIColor.clear ? .gray : pri)
         let checkGest = UITapGestureRecognizer(target: self, action: #selector(tappedCheck))
+        checkGest.cancelsTouchesInView = false
         check.addGestureRecognizer(checkGest)
         
         let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: title.text!)
@@ -454,12 +475,7 @@ class TaskCell: UITableViewCell {
     }
     
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        //set the values for top,left,bottom,right margins
-        let margins = UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
-        contentView.frame = contentView.frame.inset(by: margins)
-    }
+
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }

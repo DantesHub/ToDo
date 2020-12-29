@@ -188,18 +188,20 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         default:
             break
         }
+        if plannedDate == "" {
+            plannedDate = fullFormatter.string(from: Date())
+        }
         
         for task in tasks {
             if task.id == id {
                 try! uiRealm.write {
                     task.repeated = repeatTask
+                    task.planned = plannedDate
                 }
             }
         }
         
-        if plannedDate == "" {
-            plannedDate = fullFormatter.string(from: Date())
-        }
+    
         
         tappedOutside2()
         tableView.reloadData()

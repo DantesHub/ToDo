@@ -89,8 +89,19 @@ func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) ->
 func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     if tableView == listTableView {
         let cell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath) as! MainMenuCell
-        cell.cellImage.image = UIImage(named: "star")?.resize(targetSize: CGSize(width: 25, height: 25))
+        var cellImage = ""
+        var colorIn = false
+        if lists[indexPath.row].backgroundImage != "" {
+            cellImage = lists[indexPath.row].backgroundImage
+        } else if lists[indexPath.row].backgroundColor != "" {
+            cellImage = "circle"
+            colorIn = true
+        } else {
+            cellImage = "mountain"
+        }
+        cell.cellImage.image = UIImage(named: cellImage)?.resize(targetSize: CGSize(width: 35, height: 35))
         cell.cellTitle.text = lists[indexPath.row].name
+        if colorIn { cell.cellImage.image = cell.cellImage.image?.withTintColor(K.getListColor(lists[indexPath.row].backgroundColor))}
         cell.selectionStyle = .none
         return cell
     } else if tableView == groupTableView {
@@ -149,12 +160,6 @@ func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSessio
 }
 
 
-/**
- A drop proposal from a table view includes two items: a drop operation,
- typically .move or .copy; and an intent, which declares the action the
- table view will take upon receiving the items. (A drop proposal from a
- custom view does includes only a drop operation, not an intent.)
- */
 func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UITableViewDropProposal {
     // The .move operation is available only for dragging within a single app.
     if tableView.hasActiveDrag {

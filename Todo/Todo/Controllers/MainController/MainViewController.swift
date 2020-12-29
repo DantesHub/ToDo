@@ -325,8 +325,11 @@ class MainViewController: UIViewController, ReloadDelegate {
         tasksList = []
         completedTasks = []
         controller.navigationController?.isNavigationBarHidden = false
-        self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
-        self.navigationController?.pushViewController(controller, animated: false)
+        premadeListTapped = false
+        DispatchQueue.main.async {
+            self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
+            self.navigationController?.pushViewController(controller, animated: false)
+        }
     }
 
     

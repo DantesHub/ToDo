@@ -75,22 +75,25 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        print("romain")
-        let cell = collectionView.cellForItem(at: indexPath) as! CircleCell
-        if customizeSelection == "Photo" {
-            cell.tappedImage()
-            selectedListImage = photos[indexPath.row]
-            selectedListBackground = UIColor.clear
-        } else {
-            cell.tappedColor()
-            if customizeSelection == "Background Color" {
-                selectedListBackground = backgroundColors[indexPath.row]
-                selectedListImage = ""
+        if collectionView == customizeCollectionView {
+            let cell = collectionView.cellForItem(at: indexPath) as! CircleCell
+            if customizeSelection == "Photo" {
+                cell.tappedImage()
+                selectedListImage = photos[indexPath.row]
+                selectedListBackground = UIColor.clear
             } else {
-                selectedListTextColor = textColors[indexPath.row]
+                cell.tappedColor()
+                if customizeSelection == "Background Color" {
+                    selectedListBackground = backgroundColors[indexPath.row]
+                    selectedListImage = ""
+                } else {
+                    selectedListTextColor = textColors[indexPath.row]
+                }
             }
+            return true
+        } else {
+            return true
         }
-        return true
     }
 
     

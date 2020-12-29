@@ -46,6 +46,7 @@ class ListController: UIViewController, TaskViewDelegate {
     var tableHeader = UIView()
     var lastKnowContentOfsset: CGFloat = 0
     var scrolledUp = false
+    var listTextColor = UIColor.clear
     var tableViewTop : NSLayoutConstraint?
     var nameTaken = false
     var plusTaskView = UIImageView()
@@ -68,6 +69,12 @@ class ListController: UIViewController, TaskViewDelegate {
     }()
     var backgroundImage: UIImageView = {
         let img = UIImage(named: "mountainBackground")
+        let iv = UIImageView(image: img)
+        iv.isUserInteractionEnabled = true
+        return iv
+    }()
+    var darkFilter: UIImageView = {
+        let img = UIImage(named: "topDarkFilter")
         let iv = UIImageView(image: img)
         iv.isUserInteractionEnabled = true
         return iv
@@ -123,7 +130,13 @@ class ListController: UIViewController, TaskViewDelegate {
         backgroundImage.trailingToSuperview()
         backgroundImage.topToSuperview()
         backgroundImage.bottomToSuperview()
- 
+        
+        self.view.insertSubview(darkFilter, at: 1)
+        darkFilter.leadingToSuperview()
+        darkFilter.trailingToSuperview()
+        darkFilter.topToSuperview()
+        darkFilter.bottomToSuperview()
+        
         configureUI()
     }
     
@@ -137,9 +150,10 @@ class ListController: UIViewController, TaskViewDelegate {
         tableView.allowsSelection = true
         tableView.backgroundColor = .clear
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOutside))
-        tapRecognizer.cancelsTouchesInView = false
+//        tapRecognizer.cancelsTouchesInView = false
         self.tableView.addGestureRecognizer(tapRecognizer)
     }
+    
     override func viewWillDisappear(_ animated: Bool) {
         removeObservers()
         planned = false
@@ -166,7 +180,6 @@ class ListController: UIViewController, TaskViewDelegate {
     //MARK: - helper variables
     func configureUI() {
         configureNavBar()
-        createTableHeader()
         createTableView()
         createObservers()
         plusTaskView = UIImageView(frame: CGRect(x: self.view.frame.width - 100, y: self.view.frame.height - 200, width: 60, height: 60))
@@ -186,24 +199,19 @@ class ListController: UIViewController, TaskViewDelegate {
         plusTaskView.dropShadow()
 
         addTaskField.isHidden = false
-        addTaskField.frame = CGRect(x: 0, y: view.frame.height , width: view.frame.width, height: 65)
+        addTaskField.frame = CGRect(x: 0, y: view.frame.height , width: view.frame.width, height: 70)
         let leftBarButtons: [KeyboardToolbarButton] = premadeListTapped ? [.addToList, .priority, .dueDate, .reminder, .favorite] : [.priority, .dueDate, .reminder, .favorite]
         addTaskField.addKeyboardToolBar(leftButtons: leftBarButtons, rightButtons: [], toolBarDelegate: self)
         view.addSubview(addTaskField)
-        addTaskField.backgroundColor = .red
+        addTaskField.font = UIFont(name: "OpenSans-Regular", size: 22)
+        addTaskField.backgroundColor = .white
         addTaskField.delegate = self
         addTaskField.borderStyle = .none
         addTaskField.borderStyle = .roundedRect
         
         if creating {
             addTaskField.isHidden = true
-            let done = UIButton(type: .system)
-            done.setTitle("Done", for: .normal)
-            done.setTitleColor(.blue, for: .normal)
-            done.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 18)
-            done.setImage(UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25)), for: .normal)
-            done.addTarget(self, action: #selector(tappedCreateDone), for: .touchUpInside)
-            navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
+            createTappedDone()
         }
         toolbar.textField = addTaskField
         toolbar.toolBarDelegate = self
@@ -214,8 +222,18 @@ class ListController: UIViewController, TaskViewDelegate {
         addTaskField.inputAccessoryView = scrollView
         slideUpView.dataSource = self
         slideUpView.delegate = self
+        view.backgroundColor = .white
         createTableHeader()
-        
+    }
+    func createTappedDone() {
+        let done = UIButton(type: .system)
+        done.setTitle("Done", for: .normal)
+        done.setTitleColor(.white, for: .normal)
+        done.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 18)
+        done.setImage(UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25)), for: .normal)
+        done.tintColor = .white
+        done.addTarget(self, action: #selector(tappedCreateDone), for: .touchUpInside)
+        navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
     }
     func createObservers() {
         let center: NotificationCenter = NotificationCenter.default
@@ -353,8 +371,9 @@ class ListController: UIViewController, TaskViewDelegate {
         completedTasks = completedTasks.sorted {
             return $0.completedDate > $1.completedDate
         }
-       
+        changeTheme()
     }
+    
     func getAccessBool() {
         let center = UNUserNotificationCenter.current()
         let semasphore = DispatchSemaphore(value: 0)
@@ -381,14 +400,16 @@ class ListController: UIViewController, TaskViewDelegate {
         semasphore.wait()
         return
     }
+    
     @objc func tappedAddTask() {
         addTaskField.becomeFirstResponder()
         let done = UIButton(type: .system)
         done.setTitle("Done", for: .normal)
-        done.setTitleColor(.blue, for: .normal)
+        done.setTitleColor(.white, for: .normal)
         done.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 18)
         done.setImage(UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25)), for: .normal)
         done.addTarget(self, action: #selector(tappedDone), for: .touchUpInside)
+        done.tintColor = .white
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
     }
     
@@ -421,8 +442,21 @@ class ListController: UIViewController, TaskViewDelegate {
                     list.backgroundColor = K.getStringColor(selectedListBackground)
                     list.textColor = K.getStringColor(selectedListTextColor)
                     list.backgroundImage = selectedListImage
+                    changeTheme()
                 }
             }
+        }
+    }
+    
+    func changeTheme() {
+        if K.getStringColor(selectedListBackground) != "" {
+            backgroundImage.image = nil
+            backgroundImage.backgroundColor = selectedListBackground
+        } else if selectedListImage != "" {
+            let selectedImage = selectedListImage + "Background"
+            backgroundImage.image = UIImage(named: selectedImage)
+        } else if K.getStringColor(selectedListTextColor) != "" {
+            listTextColor = selectedListTextColor
         }
     }
     
@@ -467,7 +501,7 @@ class ListController: UIViewController, TaskViewDelegate {
                 switch selectedPriority {
                 case .red:
                     pri = 1
-                case gold:
+                case orange:
                     pri = 2
                 case .blue:
                     pri = 3
@@ -482,6 +516,7 @@ class ListController: UIViewController, TaskViewDelegate {
         } else {
             print("empty")
         }
+        selectedPriority = UIColor.white
         laterTapped = false
         planned = false
         reminder = false
@@ -524,7 +559,7 @@ class ListController: UIViewController, TaskViewDelegate {
         bigTextField.centerY(to: headerView)
         bigTextField.height(100)
         bigTextField.placeholder = listTitle
-        bigTextField.textColor = .black
+        bigTextField.textColor = .white
         bigTextField.text = listTitle
         if !creating {
             bigTextField.isUserInteractionEnabled = false
@@ -537,6 +572,7 @@ class ListController: UIViewController, TaskViewDelegate {
     //MARK: - custom list view
     private func createCustomListView() {
         view.addSubview(customizeListView)
+        print("call")
         customizeListView.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: 150)
         customizeListView.layer.cornerRadius = 15
         customizeListView.backgroundColor = .white
@@ -660,8 +696,10 @@ class ListController: UIViewController, TaskViewDelegate {
         if !creating {
             let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
             if stabilize {
-                self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - 65
+                print("stirfry", lastKeyboardHeight)
+                    self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - 65
             }
+            addedStep = true
             stabilize = false
         } else {
             if keyboard == true || keyboard2 {
@@ -682,15 +720,15 @@ class ListController: UIViewController, TaskViewDelegate {
             if addedStep || createdNewList {
                 lastKeyboardHeight = keyboardSize.height + 185
             } else {
+                print("joiner")
                 lastKeyboardHeight = keyboardSize.height
-                keyboard = true
             }
         }
            
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
-        self.addTaskField.frame.origin.y = self.view.frame.height + 10
+        self.addTaskField.frame.origin.y = self.view.frame.height
         self.customizeListView.frame.origin.y = self.view.frame.height
     }
     
@@ -733,16 +771,19 @@ class ListController: UIViewController, TaskViewDelegate {
     
     func configureNavBar() {
         titleLabel.font = UIFont(name: "OpenSans-Regular", size: 18)
-        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.blue]
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         let elipsis = UIBarButtonItem(title: "Play", style: .plain, target: self, action: #selector(ellipsisTapped))
         elipsis.image = UIImage(named: "ellipsis")?.resize(targetSize: CGSize(width: 25, height: 20))
         elipsis.imageInsets = UIEdgeInsets(top: 2, left: 0, bottom: 0, right: 10)
+        elipsis.tintColor = .white
         let search = UIBarButtonItem(title: "Play", style: .plain, target: self, action: #selector(searchTapped))
         search.imageInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: -10)
         search.image = UIImage(named: "search")?.resize(targetSize: CGSize(width: 25, height: 25))
+        search.tintColor = .white
         let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(tappedBack))
         backButton.image = UIImage(named: "arrow")?.rotate(radians: -.pi/2)?.resize(targetSize: CGSize(width: 25, height: 25))
         backButton.title = "Back"
+        backButton.tintColor = .white
         self.navigationItem.leftBarButtonItem = backButton
         navigationItem.rightBarButtonItems = [elipsis, search]
         navigationController?.navigationBar.barTintColor = .clear
