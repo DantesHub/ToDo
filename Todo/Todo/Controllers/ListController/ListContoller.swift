@@ -171,6 +171,8 @@ class ListController: UIViewController, TaskViewDelegate {
         dueDateTapped = false
         added50ToReminder = false
         added50ToDueDate = false
+        navigationController?.navigationBar.isTranslucent = false
+        navigationController?.navigationBar.barTintColor = .white
     }
     
     deinit {

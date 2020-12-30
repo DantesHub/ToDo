@@ -23,7 +23,7 @@ class GroupCell: UITableViewCell {
         cellImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: self.frame.width * 0.16).isActive = true
         cellImage.centerY(to: self)
         
-        cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: 5).isActive = true
+        cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: 10).isActive = true
         cellTitle.centerY(to: self)
         cellTitle.font = UIFont(name: "OpenSans-Regular", size: 13)
         cellTitle.textColor = UIColor.black

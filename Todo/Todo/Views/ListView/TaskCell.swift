@@ -71,6 +71,7 @@ class TaskCell: UITableViewCell {
         let margins = UIEdgeInsets(top: 0, left: 0, bottom: 10, right: 0)
         contentView.frame = contentView.frame.inset(by: margins)
     }
+    
     func configureUI() {
         self.contentView.addSubview(circle)
         circle.width(28)
@@ -197,14 +198,14 @@ class TaskCell: UITableViewCell {
                 break
             }
             if color == UIColor.clear {
-                priority.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 14, height: 16))
+                priority.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 12, height: 14))
             } else {
-                priority.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 14, height: 16)).withTintColor(color!)
+                priority.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 12, height: 14)).withTintColor(color!)
             }
         }
         
         bottomView.addSubview(priority)
-        priority.top(to: bottomView, offset: 5)
+        priority.top(to: bottomView, offset: 7)
         if steps.text != "" {
             priority.leadingAnchor.constraint(equalTo: dot2.trailingAnchor, constant: 5).isActive = true
         } else if listLabel.text != "" {

@@ -151,7 +151,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         return 90; //Choose your custom row height
     }
     
-
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         if sourceIndexPath == destinationIndexPath { return }
@@ -191,12 +190,12 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
          }
     }
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        let cell = tableView.cellForRow(at: indexPath) as! TaskCell
         if editingStyle == .delete {
             let tasks = uiRealm.objects(TaskObject.self)
             var delIdx = 0
             var completedd = false
             for task in  tasks {
-                let cell = tableView.cellForRow(at: indexPath) as! TaskCell
                 if task.id == cell.id {
                     UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [task.id])
                     for step in task.steps {
@@ -250,7 +249,14 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                 }
                 tableView.deleteRows(at: [indexPath], with: .fade)
             }
+           
         }
+    }
+    func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
+        print("bean")
+        let cell = tableView.cellForRow(at: indexPath!) as! TaskCell
+        cell.clipsToBounds = true
+        cell.layer.cornerRadius = 10
     }
     
 

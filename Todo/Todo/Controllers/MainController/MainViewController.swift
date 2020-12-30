@@ -26,7 +26,6 @@ class MainViewController: UIViewController, ReloadDelegate {
     var groupTableView = SelfSizedTableView()
     var pickUp = UITableView()
     var pickUpSection = 0
-    var testArray = ["Fdafasd", "fdafas", "fdasf"]
     var isGroupsExpanded = true
     var isListsExpanded = true
     var topList = [MainMenuTop(imgName: "star", title: "Important"), MainMenuTop(imgName: "calendarOne", title: "Planned"), MainMenuTop(imgName: "infinity", title: "All Tasks")]
@@ -213,6 +212,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         self.navigationItem.leftBarButtonItem = UIBarButtonItem.init(customView: label)
         label.textColor = .blue
         navigationController?.navigationBar.barTintColor = .white
+        navigationController?.navigationBar.isTranslucent = false
         let elipsis = UIBarButtonItem(title: "Play", style: .plain, target: self, action: #selector(ellipsisTapped))
         elipsis.image = UIImage(named: "ellipsis")?.resize(targetSize: CGSize(width: 25, height: 20))
         elipsis.imageInsets = UIEdgeInsets(top: 2, left: 0, bottom: 0, right: 10)
@@ -256,7 +256,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         groupTableView.dropDelegate = self
         groupTableView.backgroundColor = .white
         groupTableView.rowHeight = 40
-        groupTableView.allowsSelection = false
+        groupTableView.allowsSelection = true
         groupTableView.separatorStyle = .none
     }
     

@@ -131,6 +131,8 @@ class TaskController: UIViewController, ReloadSlider {
         selectedTaskDate = ""
         selectedRepeat = ""
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        navigationController?.navigationBar.isTranslucent = true
+        navigationController?.navigationBar.barTintColor = .clear
     }
     
     //MARK: - Helper functions

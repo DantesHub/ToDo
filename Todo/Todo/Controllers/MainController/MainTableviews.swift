@@ -99,6 +99,14 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
         } else {
             cellImage = "mountain"
         }
+        var count = 0
+        let results = uiRealm.objects(TaskObject.self)
+        for result in results {
+            if result.parentList == lists[indexPath.row].name {
+                count += 1
+            }
+        }
+        cell.count.text = String(count)
         cell.cellImage.image = UIImage(named: cellImage)?.resize(targetSize: CGSize(width: 35, height: 35))
         cell.cellTitle.text = lists[indexPath.row].name
         if colorIn { cell.cellImage.image = cell.cellImage.image?.withTintColor(K.getListColor(lists[indexPath.row].backgroundColor))}
@@ -107,17 +115,58 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
     } else if tableView == groupTableView {
         let cell = tableView.dequeueReusableCell(withIdentifier: "groupCell", for: indexPath) as! GroupCell
         cell.cellTitle.text = groups[indexPath.section].lists[indexPath.row].name
-        cell.cellImage.image = UIImage(named: "star")?.resize(targetSize: CGSize(width: 22, height: 22))
+        var cellImage = ""
+        var colorIn = false
+        let bg = groups[indexPath.section].lists[indexPath.row].backgroundImage
+        let bc = groups[indexPath.section].lists[indexPath.row].backgroundColor
+        if bg != "" {
+            cellImage = bg
+        } else if bc != "" {
+            cellImage = "circle"
+            colorIn = true
+        } else {
+            cellImage = "mountain"
+        }
+        var count = 0
+        let results = uiRealm.objects(TaskObject.self)
+        for result in results {
+            if result.parentList == groups[indexPath.section].lists[indexPath.row].name {
+                count += 1
+            }
+        }
+        cell.count.text = String(count)
+        cell.cellImage.image = UIImage(named: cellImage)?.resize(targetSize: CGSize(width: 22, height: 22))
+        if colorIn { cell.cellImage.image = cell.cellImage.image?.withTintColor(K.getListColor(bc))}
         cell.selectionStyle = .none
         return cell
-    } else {//topTableView
+    } else { //topTableView
         let cell = tableView.dequeueReusableCell(withIdentifier: "topCell", for: indexPath) as! MainMenuCell
+        let results = uiRealm.objects(TaskObject.self)
         if indexPath.row == 0 {
             cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 25, height: 25))
+            var count = 0
+            for result in results {
+                if result.favorited  {
+                    count += 1
+                }
+            }
+            cell.count.text  = String(count)
         } else if indexPath.row == 1 {
             cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 23, height: 23))
+            var count = 0
+            for result in results {
+                if result.planned != ""  {
+                    count += 1
+                }
+            }
+            cell.count.text  = String(count)
         } else {
             cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 30, height: 30))
+            var count = 0
+            for result in results {
+                count += 1
+            }
+            cell.count.text  = String(count)
         }
         cell.cellTitle.text = topList[indexPath.row].title
         cell.selectionStyle = .none
@@ -140,7 +189,16 @@ func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         controller.reloadDelegate = self
         controller.creating = false;
         premadeListTapped = false
-       listTitle = lists[indexPath.row].name
+        listTitle = lists[indexPath.row].name
+        controller.navigationController?.isNavigationBarHidden = false
+        self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
+        self.navigationController?.pushViewController(controller, animated: false)
+    } else if tableView == groupTableView {
+        let controller = ListController()
+        controller.reloadDelegate = self
+        controller.creating = false;
+        premadeListTapped = false
+        listTitle = groups[indexPath.section].lists[indexPath.row].name
         controller.navigationController?.isNavigationBarHidden = false
         self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
         self.navigationController?.pushViewController(controller, animated: false)
