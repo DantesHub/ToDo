@@ -17,16 +17,22 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             }, completion: { [self] finished in
                 self.tableView.reloadData()
             })
-  
         } else {
-            let task = tasksList.remove(at: at.row)
-            completedTasks.insert(task, at: 0)
+            let cell = tableView.cellForRow(at: at) as! TaskCell
+            var removedTask = TaskObject()
+            for (idx,task) in tasksList.enumerated() {
+                if cell.id == task.id {
+                    removedTask = tasksList.remove(at: idx)
+                }
+            }
+            completedTasks.insert(removedTask, at: 0)
             self.tableView.performBatchUpdates({
                 self.tableView.moveRow(at: at, to: IndexPath(item: 0, section: 1))
             }, completion: {  finished in
                 self.tableView.reloadData { [self] in
                     if repeats != "" {
                        reloadTaskTableView(at: IndexPath(row: 0, section: 1), checked: true)
+//                        self.tableView.reloadData()
                     }
                 }
             })
@@ -253,7 +259,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         }
     }
     func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
-        print("bean")
         let cell = tableView.cellForRow(at: indexPath!) as! TaskCell
         cell.clipsToBounds = true
         cell.layer.cornerRadius = 10
@@ -270,7 +275,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             if session.items.count > 1 {
                 return UITableViewDropProposal(operation: .cancel)
             } else {
-                if pickUpSection == 1 || listTitle == "Planned" || listTitle == "All Tasks" || listTitle == "Important" {
+                if pickUpSection == 1 || listTitle == "Planned" || listTitle == "All Tasks" || listTitle == "Important" || destinationIndexPath?.section == 1{
                     return UITableViewDropProposal(operation: .cancel)
                 }
                 return UITableViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)

@@ -447,6 +447,7 @@ class TaskCell: UITableViewCell {
                 try! uiRealm.write {
                     task.completed = false
                     task.position = totalTasks
+                    task.completedDate = Date(timeIntervalSince1970: 0)
                 }
             }
         }
