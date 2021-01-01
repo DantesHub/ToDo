@@ -2,8 +2,12 @@ import UIKit
 
 extension ListController: KeyboardToolbarDelegate, ReloadSlider {
     func reloadSlider() {
-        slideUpViewTapped()
-        addTaskField.becomeFirstResponder()
+        if tappedIcon == "List Options" {
+            slideUpViewTapped()
+        } else {
+            slideUpViewTapped()
+            addTaskField.becomeFirstResponder()
+        }
     }
     
     func keyboardToolbar(button: UIButton, type: KeyboardToolbarButton, isInputAccessoryViewOf textField: UITextField) {

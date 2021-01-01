@@ -23,6 +23,7 @@ class SliderSectionHeader: UICollectionReusableView{
     var hr = UIView()
     var backArrow = UIImageView()
     var done = UIButton()
+    var listOption = true
      override init(frame: CGRect) {
         super.init(frame: frame)
          addSubview(label)
@@ -59,7 +60,9 @@ class SliderSectionHeader: UICollectionReusableView{
     }
     
     @objc func tappedBackArrow() {
-        reloadDelegate?.reloadSlider()
+        if listOption {
+            reloadDelegate?.reloadSlider()
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {

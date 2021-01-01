@@ -114,6 +114,7 @@ class ListController: UIViewController, TaskViewDelegate {
     var completedExpanded = true
     let lists = uiRealm.objects(ListObject.self)
     var accessBool = false
+    var listOptions: [String] = ["Rename List", "Select Tasks", "Sort", "Change Theme & Color", "Print List", "Delete List"]
 
     //MARK: - init
     override func viewDidLoad() {
@@ -254,13 +255,14 @@ class ListController: UIViewController, TaskViewDelegate {
         addTaskField.resignFirstResponder()
     }
     
-    func createSlider(createSlider: Bool = true, picker: Bool = false) {
+    func createSlider(createSlider: Bool = true, picker: Bool = false, listOptions: Bool = false) {
         containerView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
         containerView.frame = self.view.frame
         window?.addSubview(containerView)
         containerView.alpha = 0
         if createSlider {
-            slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight)
+            let extraHeight: CGFloat = listOptions ? 100 : 0
+            slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight + (extraHeight))
             slideUpView.register(TaskSlideCell.self, forCellWithReuseIdentifier: K.taskSlideCell)
             slideUpView.register(SliderSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
             slideUpView.layer.cornerRadius = 15
@@ -272,7 +274,7 @@ class ListController: UIViewController, TaskViewDelegate {
                            initialSpringVelocity: 1.0,
                            options: .curveEaseOut, animations: { [self] in
                             self.containerView.alpha = 0.8
-                            self.slideUpView.frame = CGRect(x: 0, y: self.screenSize.height - slideUpViewHeight, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height)
+                            self.slideUpView.frame = CGRect(x: 0, y: self.screenSize.height - slideUpViewHeight - extraHeight, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height + extraHeight)
                            }, completion: nil)
         } else {
             if picker == true {
@@ -544,10 +546,10 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func tappedOutside() {
-        print("tapped Outside")
         if !creating {
             self.view.endEditing(true)
         }
+        configureNavBar()
     }
     
     func createTableHeader() {
@@ -698,7 +700,6 @@ class ListController: UIViewController, TaskViewDelegate {
         if !creating {
             let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
             if stabilize {
-                print("stirfry", lastKeyboardHeight)
                     self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - 65
             }
             addedStep = true
@@ -799,7 +800,8 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func ellipsisTapped() {
-        print("bingo")
+        tappedIcon = "List Options"
+        createSlider(listOptions: true)
     }
     
 }

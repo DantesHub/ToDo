@@ -22,6 +22,8 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         } else {
             if tappedIcon == "Add to a List" {
                 return lists.count
+            } else if tappedIcon == "List Options" {
+                return 6
             } else {
                 return 4
             }
@@ -34,6 +36,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         self.customizeCollectionView.reloadData()
     }
     
+ 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as! SliderSectionHeader
         if collectionView == customizeCollectionView {
@@ -149,6 +152,14 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             case "Due":
                 cell.nameLabel.text = dates[indexPath.row]
                 cell.icon.image = UIImage(named: dates[indexPath.row])?.resize(targetSize: CGSize(width: 30, height: 30))
+            case "List Options":
+                cell.nameLabel.text = listOptions[indexPath.row]
+                if listOptions[indexPath.row] == "Delete List" {
+                    cell.nameLabel.textColor = .red
+                    cell.icon.image = UIImage(named: listOptions[indexPath.row])?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(.red)
+                } else {
+                    cell.icon.image = UIImage(named: listOptions[indexPath.row])?.resize(targetSize: CGSize(width: 35, height: 35))
+                }
             default:
                 print("default")
             }
@@ -165,7 +176,6 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
 }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("calling")
         if collectionView == customizeCollectionView {
             let cell = collectionView.cellForItem(at: indexPath) as! CircleCell
             cell.isHighlighted = true
@@ -245,7 +255,8 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                         addTaskField.becomeFirstResponder()
                     }
                 }
-            
+            case "List Options":
+                selectedListOption(row: indexPath.row)
             case "Due":
                 selectedDueDate = dates[indexPath.row]
                 dueDateTapped = true
@@ -287,6 +298,25 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             default:
                 print("default")
             }
+        }
+    }
+    
+    func selectedListOption(row: Int) {
+        switch listOptions[row] {
+        case "Rename List":
+            print("jink")
+        case "Select Tasks":
+            print("select")
+        case "Sort":
+            print("sort")
+        case "Change Theme & Color":
+            print("theme")
+        case "Print List":
+            print("row")
+        case  "Delete List":
+            print("shibal")
+        default:
+            break
         }
     }
 

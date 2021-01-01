@@ -23,7 +23,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
             cell.icon.image = UIImage(named: "plus")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
             cell.nameLabel.text = "Add List"
         } else if indexPath.row == 1 {
-            cell.icon.image = UIImage(named: "rename")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
+            cell.icon.image = UIImage(named: "Rename List")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
             cell.nameLabel.text = "Edit Group Name"
         } else {
             cell.icon.image = UIImage(named: "close")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
