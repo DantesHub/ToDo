@@ -78,6 +78,7 @@ class TaskCell: UITableViewCell {
         circle.height(28)
         circle.leading(to: self, offset: 15)
         circle.top(to: self, offset: 10)
+        circle.isUserInteractionEnabled = true
         let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
         cellTapped.cancelsTouchesInView = false
         self.contentView.addGestureRecognizer(cellTapped)
@@ -89,35 +90,43 @@ class TaskCell: UITableViewCell {
         title.leadingAnchor.constraint(equalTo: circle.trailingAnchor, constant: 10).isActive = true
         title.top(to: self, offset: 12)
         
-        self.contentView.addSubview(star)
-        star.width(30)
-        star.height(30)
-        star.trailing(to: self, offset: -15)
-        star.top(to: self, offset: 10)
-        let starGest = UITapGestureRecognizer(target: self, action: #selector(tappedStar))
-        star.isUserInteractionEnabled = true
-        star.addGestureRecognizer(starGest)
+        if !editingCell {
+            self.contentView.addSubview(star)
+            star.width(30)
+            star.height(30)
+            star.trailing(to: self, offset: -15)
+            star.top(to: self, offset: 10)
+            let starGest = UITapGestureRecognizer(target: self, action: #selector(tappedStar))
+            star.isUserInteractionEnabled = true
+            star.addGestureRecognizer(starGest)
+        }
+        
         reminderDate.text = ""
         steps.text = ""
         plannedDate.text = ""
     }
     
     @objc func tappedCell() {
-        let controller = TaskController()
-        controller.plannedDate = taskPlannedDate
-        controller.reminderDate = reminderDate.text ?? ""
-        controller.taskTitle = title.text ?? ""
-        controller.favorited = favorited
-        controller.id = id
-        controller.priority = prioritized
-        controller.completed = completed
-        controller.path = path
-        controller.repeatTask = repeatTask
-        controller.parentList = parentList
-        controller.delegate = taskCellDelegate
-        taskCellDelegate?.resignResponder()
-        navigationController.view.layer.add(CATransition().popFromRight(), forKey: nil)
-        navigationController.pushViewController(controller, animated: false)
+        if !editingCell {
+            let controller = TaskController()
+            controller.plannedDate = taskPlannedDate
+            controller.reminderDate = reminderDate.text ?? ""
+            controller.taskTitle = title.text ?? ""
+            controller.favorited = favorited
+            controller.id = id
+            controller.priority = prioritized
+            controller.completed = completed
+            controller.path = path
+            controller.repeatTask = repeatTask
+            controller.parentList = parentList
+            controller.delegate = taskCellDelegate
+            taskCellDelegate?.resignResponder()
+            navigationController.view.layer.add(CATransition().popFromRight(), forKey: nil)
+            navigationController.pushViewController(controller, animated: false)
+        } else {
+            print("janke")
+        }
+
     }
     
     func configureBottomView() {
@@ -136,7 +145,7 @@ class TaskCell: UITableViewCell {
         }
         
         
-        bottomView.frame = CGRect(x: 0, y: 48, width: UIScreen.main.bounds.width - 20, height: 26)
+        bottomView.frame = CGRect(x: 0, y: 48, width: UIScreen.main.bounds.width - 20 , height: 26)
         bottomView.layer.cornerRadius = 10
         bottomView.backgroundColor = medGray
         self.contentView.addSubview(bottomView)
@@ -325,6 +334,7 @@ class TaskCell: UITableViewCell {
     }
     
     @objc func tappedCircle() {
+        print("tapped Circle")
         configureCircle()
         var delTaskPosition = 0
         var repeats = ""

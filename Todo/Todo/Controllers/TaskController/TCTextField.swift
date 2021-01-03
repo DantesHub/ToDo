@@ -40,7 +40,6 @@ extension TaskController:  UITextFieldDelegate {
     
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         if keyboard == false {
-            print("set to true")
             addedStep = true
         }
         return true

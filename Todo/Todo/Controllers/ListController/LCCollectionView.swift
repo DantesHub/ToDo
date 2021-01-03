@@ -300,13 +300,33 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             }
         }
     }
+    func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
+        return false
+    }
     
+    //MARK: - List Options
     func selectedListOption(row: Int) {
         switch listOptions[row] {
         case "Rename List":
-            print("jink")
+            slideUpViewTapped()
+            bigTextField.isUserInteractionEnabled = true
+            addTaskField.isHidden = true
+            bigTextField.becomeFirstResponder()
+            createTappedDone(tag: 1)
         case "Select Tasks":
-            print("select")
+            editingCell = true
+            tableView.reloadData()
+            slideUpViewTapped()
+            tableView.tableHeaderView?.fadeOut()
+            tableViewTop?.constant = -80
+            tableView.setContentOffset(.init(x: -45, y: -80), animated: true)
+            plusTaskView.isHidden = true
+            tableView.isEditing = true
+            addBottomView()
+            createTappedDone(editingList: true)
+                        navigationItem.title = listTitle
+            self.view.removeGestureRecognizer(swipeUp)
+            self.view.removeGestureRecognizer(swipeDown)
         case "Sort":
             print("sort")
         case "Change Theme & Color":

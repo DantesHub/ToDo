@@ -17,7 +17,8 @@ extension ListController: UITextFieldDelegate {
         }
         return true
     }
-    func createNewList() {
+    func createNewList(tag: Int = 0) {
+        let oldTitle = listTitle
         listTitle = bigTextField.text ?? "Untitled List"
         let list = ListObject()
         list.name = listTitle
@@ -42,9 +43,29 @@ extension ListController: UITextFieldDelegate {
         if !nameTaken {
             bigTextField.resignFirstResponder()
             bigTextField.isUserInteractionEnabled = false
-            try! uiRealm.write {
-                uiRealm.add(list)
+            if tag == 0 {
+                try! uiRealm.write {
+                    uiRealm.add(list)
+                }
+            } else {
+                let lists = uiRealm.objects(ListObject.self)
+                let tasks = uiRealm.objects(TaskObject.self)
+                for list in lists {
+                    if list.name == oldTitle {
+                        try! uiRealm.write {
+                            list.name = listTitle
+                        }
+                    }
+                }
+                for task in tasks {
+                    if task.parentList == oldTitle {
+                        try! uiRealm.write {
+                            task.parentList = listTitle
+                        }
+                    }
+                }
             }
+            
             creating = false
     
             if keyboard == false {

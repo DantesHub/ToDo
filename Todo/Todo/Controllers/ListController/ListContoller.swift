@@ -27,6 +27,7 @@ var selectedList = ""
 var listTitle = "Untitled List"
 var addedStep = false
 var createdNewList = false
+var editingCell = false
 class ListController: UIViewController, TaskViewDelegate {
     //MARK: - instance variables
     let formatter: DateFormatter = {
@@ -115,7 +116,9 @@ class ListController: UIViewController, TaskViewDelegate {
     let lists = uiRealm.objects(ListObject.self)
     var accessBool = false
     var listOptions: [String] = ["Rename List", "Select Tasks", "Sort", "Change Theme & Color", "Print List", "Delete List"]
-
+    let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
+    let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
+    
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -148,10 +151,11 @@ class ListController: UIViewController, TaskViewDelegate {
         tableView.dragInteractionEnabled = true
         tableView.dragDelegate = self
         tableView.dropDelegate = self
+        tableView.allowsSelectionDuringEditing = true
         tableView.allowsSelection = true
         tableView.backgroundColor = .clear
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOutside))
-//        tapRecognizer.cancelsTouchesInView = false
+        tapRecognizer.cancelsTouchesInView = false
         self.tableView.addGestureRecognizer(tapRecognizer)
     }
     
@@ -179,7 +183,7 @@ class ListController: UIViewController, TaskViewDelegate {
     deinit {
         removeObservers()
     }
-    
+
     //MARK: - helper variables
     func configureUI() {
         configureNavBar()
@@ -216,6 +220,7 @@ class ListController: UIViewController, TaskViewDelegate {
             addTaskField.isHidden = true
             createTappedDone()
         }
+        
         toolbar.textField = addTaskField
         toolbar.toolBarDelegate = self
         scrollView.addSubview(toolbar)
@@ -228,16 +233,31 @@ class ListController: UIViewController, TaskViewDelegate {
         view.backgroundColor = .white
         createTableHeader()
     }
-    func createTappedDone() {
+    func createTappedDone(tag: Int = 0, editingList: Bool = false) {
         let done = UIButton(type: .system)
         done.setTitle("Done", for: .normal)
         done.setTitleColor(.white, for: .normal)
         done.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 18)
         done.setImage(UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25)), for: .normal)
         done.tintColor = .white
-        done.addTarget(self, action: #selector(tappedCreateDone), for: .touchUpInside)
+        done.tag = tag
+        if editingList {
+            done.addTarget(self, action: #selector(tappedDoneEditing), for: .touchUpInside)
+        } else {
+            done.addTarget(self, action: #selector(tappedCreateDone), for: .touchUpInside)
+        }
+        
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
     }
+    
+    @objc func tappedDoneEditing() {
+        self.tableView.isEditing = false
+        editingCell = false
+        configureNavBar()
+        self.view.addGestureRecognizer(swipeUp)
+        self.view.addGestureRecognizer(swipeDown)
+    }
+    
     func createObservers() {
         let center: NotificationCenter = NotificationCenter.default
         center.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -328,6 +348,61 @@ class ListController: UIViewController, TaskViewDelegate {
                         self.slideUpView.frame = CGRect(x: 0, y: (self.window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
                         )
             }, completion: nil)
+    }
+    
+    func addBottomView() {
+        let footer = UIView()
+        view.insertSubview(footer, at: 1000)
+        footer.leadingToSuperview()
+        footer.trailingToSuperview()
+        footer.bottomToSuperview()
+        footer.height(100)
+        footer.backgroundColor = lightGray
+        
+        let selectAll = BoxOption()
+        footer.addSubview(selectAll)
+        selectAll.image = "list"
+        selectAll.createImage()
+        selectAll.label.text = "Select All"
+        selectAll.leading(to: footer, offset: 15)
+        selectAll.bottom(to: footer, offset: -10)
+        selectAll.height(125)
+        selectAll.width(100)
+        let selectRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedSelectAll))
+        selectAll.addGestureRecognizer(selectRecognizer)
+        
+        let addToList = BoxOption()
+        footer.addSubview(addToList)
+        addToList.image = "list"
+        addToList.createImage()
+        addToList.label.text = "Add To List"
+        addToList.centerX(to: footer)
+        addToList.bottom(to: footer, offset: -10)
+        addToList.height(125)
+        addToList.width(100)
+        let addToListRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddToList))
+        addToList.addGestureRecognizer(addToListRecognizer)
+        
+        let deleteTask = BoxOption()
+        footer.addSubview(deleteTask)
+        deleteTask.image = "Delete List"
+        deleteTask.createImage()
+        deleteTask.label.text = "Delete Task"
+        deleteTask.trailing(to: footer, offset: -15)
+        deleteTask.bottom(to: footer, offset: -10)
+        deleteTask.height(125)
+        deleteTask.width(100)
+        let deleteRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedDeleteTask))
+        deleteTask.addGestureRecognizer(deleteRecognizer)
+    }
+    @objc func tappedDeleteTask() {
+        print("delete")
+    }
+    @objc func tappedAddToList() {
+        print("yoke")
+    }
+    @objc func tappedSelectAll() {
+        print("ji")
     }
    
     
@@ -438,17 +513,21 @@ class ListController: UIViewController, TaskViewDelegate {
            if error != nil { }
         }
     }
-    @objc func tappedCreateDone() {
-        createNewList()
-        try! uiRealm.write {
-            for list in lists  {
-                if list.name == listTitle {
-                    list.backgroundColor = K.getStringColor(selectedListBackground)
-                    list.textColor = K.getStringColor(selectedListTextColor)
-                    list.backgroundImage = selectedListImage
-                    changeTheme()
+    @objc func tappedCreateDone(sender: UIButton) {
+        createNewList(tag: sender.tag)
+        addTaskField.isHidden = false
+        if sender.tag == 0 {
+            try! uiRealm.write {
+                for list in lists  {
+                    if list.name == listTitle {
+                        list.backgroundColor = K.getStringColor(selectedListBackground)
+                        list.textColor = K.getStringColor(selectedListTextColor)
+                        list.backgroundImage = selectedListImage
+                        changeTheme()
+                    }
                 }
             }
+
         }
     }
     
@@ -546,6 +625,7 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func tappedOutside() {
+        print("fd")
         if !creating {
             self.view.endEditing(true)
         }
@@ -678,17 +758,14 @@ class ListController: UIViewController, TaskViewDelegate {
         tableView.bottomToSuperview()
         tableViewTop = tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: top)
         tableViewTop?.isActive = true
-        tableView.backgroundColor = .white
         tableView.tableHeaderView = tableHeader
         tableView.showsVerticalScrollIndicator = false
-        let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
         swipeDown.direction = .down
         swipeDown.cancelsTouchesInView = false
-        self.tableView.addGestureRecognizer(swipeDown)
-        let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
+        self.view.addGestureRecognizer(swipeDown)
         swipeUp.direction = .up
         swipeUp.cancelsTouchesInView = false
-        self.tableView.addGestureRecognizer(swipeUp)
+        self.view.addGestureRecognizer(swipeUp)
         tableView.isUserInteractionEnabled = true
         swipeUp.delegate = self
         swipeDown.delegate = self
@@ -723,7 +800,6 @@ class ListController: UIViewController, TaskViewDelegate {
             if addedStep || createdNewList {
                 lastKeyboardHeight = keyboardSize.height + 185
             } else {
-                print("joiner")
                 lastKeyboardHeight = keyboardSize.height
             }
         }
@@ -745,12 +821,13 @@ class ListController: UIViewController, TaskViewDelegate {
             case .down:
                 self.tableView.tableHeaderView?.fadeIn()
                 self.tableViewTop?.constant = -10
-                if tasksList.count + completedTasks.count <= 6  {
-                    UIView.animate(withDuration: 0.4) {
-                        self.tableView.layoutIfNeeded()
+                    if tasksList.count + completedTasks.count <= 6  {
+                        UIView.animate(withDuration: 0.4) {
+                            self.tableView.layoutIfNeeded()
+                        }
                     }
-                }
-                self.navigationItem.title = ""
+                    navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+                    self.navigationItem.title = ""
             case .up:
                 self.tableView.tableHeaderView?.fadeOut()
                 self.tableViewTop?.constant = -80
@@ -758,6 +835,8 @@ class ListController: UIViewController, TaskViewDelegate {
                     UIView.animate(withDuration: 0.4) {
                         self.tableView.layoutIfNeeded()
                     }
+                } else {
+                    navigationController?.navigationBar.setBackgroundImage(darkFilter.image, for: UIBarMetrics.default)
                 }
                 self.navigationItem.title = listTitle
             default:

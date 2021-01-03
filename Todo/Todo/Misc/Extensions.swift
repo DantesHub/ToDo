@@ -22,7 +22,18 @@ extension UIViewController {
     }
 }
 
+extension UITableView {
+    var scrolledToTop: Bool {
+        let topEdge = 100 - contentInset.top
+        return contentOffset.y <= topEdge
+    }
 
+    var scrolledToBottom: Bool {
+        let bottomEdge = contentSize.height + contentInset.bottom - bounds.height
+        return contentOffset.y >= bottomEdge
+    }
+
+}
 
 extension UIImageView {
     func dropShadow() {
