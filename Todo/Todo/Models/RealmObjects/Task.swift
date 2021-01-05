@@ -21,6 +21,7 @@ class TaskObject: Object {
     @objc dynamic var completed = false
     @objc dynamic var createdAt = ""
     @objc dynamic var repeated = ""
+    @objc dynamic var selectedCell = false
     @objc dynamic var completedDate = Date()
     @objc dynamic var id = UUID().uuidString
     @objc dynamic var note = ""

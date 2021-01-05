@@ -134,6 +134,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: K.taskSlideCell, for: indexPath) as! TaskSlideCell
+            cell.nameLabel.textColor = .black
             switch tappedIcon {
             //only present in favorite, scheduled and all tasks
             case "Add to a List":

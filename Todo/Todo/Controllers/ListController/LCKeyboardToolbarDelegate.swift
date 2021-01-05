@@ -1,6 +1,45 @@
 import UIKit
 
 extension ListController: KeyboardToolbarDelegate, ReloadSlider {
+    @objc func keyboardWillShow(notification: NSNotification) {
+        let info:NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
+        if !creating {
+            let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
+            if stabilize {
+                    self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - 65
+            }
+            addedStep = true
+            stabilize = false
+        } else {
+            if keyboard == true || keyboard2 {
+                lastKeyboardHeight = keyboardSize.height + 93
+            } else {
+                lastKeyboardHeight = keyboardSize.height
+                keyboard2 = true
+            }
+            self.customizeListView.frame.origin.y = self.customizeListView.frame.origin.y - lastKeyboardHeight - 140
+            createdNewList = true
+        }
+    }
+    
+    @objc func keyboardWillChangeFrame(notification: NSNotification) {
+        let info:NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
+        if !creating {
+            if addedStep || createdNewList {
+                lastKeyboardHeight = keyboardSize.height + 185
+            } else {
+                lastKeyboardHeight = keyboardSize.height
+            }
+        }
+           
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        self.addTaskField.frame.origin.y = self.view.frame.height
+        self.customizeListView.frame.origin.y = self.view.frame.height
+    }
     func reloadSlider() {
         if tappedIcon == "List Options" {
             slideUpViewTapped()

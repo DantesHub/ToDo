@@ -128,6 +128,11 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         } else {
             task = completedTasks[indexPath.row]
         }
+        if editingCell {
+            if let selectedCell = selectedDict[task.id] {
+                cell.selectedCell = selectedCell
+            }
+        }
         cell.allSteps = task.steps.map { $0 }
         cell.title.text = task.name
         cell.prioritized = task.priority
@@ -194,16 +199,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             one.position < two.position
         }
         tableView.reloadData()
-//         for (idx,_) in tasksList.enumerated() {
-//            let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 0)) as! TaskCell
-//            for task in tasksList {
-//                if cell.title.text == task.name && cell.id == task.id {
-//                    cell.path = IndexPath(item: task.position, section: 0)
-//                    cell.position = task.position
-//                    cell.completed = false
-//                }
-//            }
-//         }
     }
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath) as! TaskCell

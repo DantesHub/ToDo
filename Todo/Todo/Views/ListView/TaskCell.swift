@@ -20,6 +20,7 @@ class TaskCell: UITableViewCell {
     var title = UILabel()
     var star = UIImageView()
     var circle = RoundView()
+    var bullet = RoundView()
     var steps = UILabel()
     var allSteps = [Step]()
     var priority = UIImageView()
@@ -37,6 +38,7 @@ class TaskCell: UITableViewCell {
     var favorited = false
     var completed =  false
     var position = 0
+    var selectedCell = false
     var id = ""
     override var frame: CGRect {
             get {
@@ -314,6 +316,10 @@ class TaskCell: UITableViewCell {
                 repeatImage.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor, constant: 15).isActive = true
             }
         }
+        
+        if selectedCell {
+            createSelectedCell()
+        }
     }
     
     func configureCircle() {
@@ -331,40 +337,63 @@ class TaskCell: UITableViewCell {
         let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: title.text!)
         attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
         title.attributedText = attributeString
+        
+    }
+    
+     func createSelectedCell() {
+        self.contentView.alpha = 0.6
+        self.circle.addSubview(bullet)
+        self.title.alpha = 0.6
+        self.selectedCell = true
+        bullet.width(25)
+        bullet.height(25)
+        bullet.layer.borderWidth = 4
+        bullet.layer.borderColor = UIColor.white.cgColor
+        bullet.backgroundColor = .darkGray
+        bullet.center(in: circle)
     }
     
     @objc func tappedCircle() {
-        print("tapped Circle")
-        configureCircle()
-        var delTaskPosition = 0
-        var repeats = ""
-        let totalTasks = tasksList.count
-        //delete any pending notifications
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
-        for task in tasks {
-            if task.id == id {
-                try! uiRealm.write {
-                    task.completed = true
-                    delTaskPosition = task.position
-                    task.position = -1
-                    if task.repeated != "" {
-                        repeats = taskRepeats(task: task, totalTasks: totalTasks)
-                    } else {
-                        task.completedDate = Date()
+        if editingCell || selectedCell {
+            for task in tasksList + completedTasks{
+                if task.id == id {
+                    selectedDict[task.id] = true
+                }
+            }
+            createSelectedCell()
+        } else {
+            configureCircle()
+            var delTaskPosition = 0
+            var repeats = ""
+            let totalTasks = tasksList.count
+            //delete any pending notifications
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
+            for task in tasks {
+                if task.id == id {
+                    try! uiRealm.write {
+                        task.completed = true
+                        delTaskPosition = task.position
+                        task.position = -1
+                        if task.repeated != "" {
+                            repeats = taskRepeats(task: task, totalTasks: totalTasks)
+                        } else {
+                            task.completedDate = Date()
+                        }
                     }
                 }
             }
-        }
-        
-        for task in tasks {
-            if task.parentList == parentList && task.completed == false && task.position > delTaskPosition {
-                try! uiRealm.write {
-                    task.position -= 1
+            
+            for task in tasks {
+                if task.parentList == parentList && task.completed == false && task.position > delTaskPosition {
+                    try! uiRealm.write {
+                        task.position -= 1
+                    }
                 }
             }
+            
+            taskCellDelegate?.reloadTaskTableView(at: path, checked: false, repeats: repeats)
         }
-        
-        taskCellDelegate?.reloadTaskTableView(at: path, checked: false, repeats: repeats)
+       
     }
     
      func taskRepeats(task: TaskObject, totalTasks: Int) -> String {
@@ -445,27 +474,29 @@ class TaskCell: UITableViewCell {
     }
     
     @objc func tappedCheck() {
-        check.removeFromSuperview()
-        var totalTasks = 0
-        for task in tasks {
-            if task.completed == false && task.parentList == parentList {
-                totalTasks += 1
-            }
-        }
-        for task in tasks {
-            if  task.id == id {
-                try! uiRealm.write {
-                    task.completed = false
-                    task.position = totalTasks
-                    task.completedDate = Date(timeIntervalSince1970: 0)
+        if !editingCell {
+            check.removeFromSuperview()
+            var totalTasks = 0
+            for task in tasks {
+                if task.completed == false && task.parentList == parentList {
+                    totalTasks += 1
                 }
             }
+            for task in tasks {
+                if  task.id == id {
+                    try! uiRealm.write {
+                        task.completed = false
+                        task.position = totalTasks
+                        task.completedDate = Date(timeIntervalSince1970: 0)
+                    }
+                }
+            }
+            
+            let titleText = title.text
+            title.attributedText = .none
+            title.text = titleText
+            taskCellDelegate?.reloadTaskTableView(at: path, checked: true, repeats: "")
         }
-        
-        let titleText = title.text
-        title.attributedText = .none
-        title.text = titleText
-        taskCellDelegate?.reloadTaskTableView(at: path, checked: true, repeats: "")
     }
     
     

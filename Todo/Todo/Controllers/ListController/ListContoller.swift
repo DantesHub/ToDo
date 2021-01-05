@@ -28,6 +28,7 @@ var listTitle = "Untitled List"
 var addedStep = false
 var createdNewList = false
 var editingCell = false
+var selectedDict: [String: Bool] = [String:Bool]()
 class ListController: UIViewController, TaskViewDelegate {
     //MARK: - instance variables
     let formatter: DateFormatter = {
@@ -250,13 +251,7 @@ class ListController: UIViewController, TaskViewDelegate {
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
     }
     
-    @objc func tappedDoneEditing() {
-        self.tableView.isEditing = false
-        editingCell = false
-        configureNavBar()
-        self.view.addGestureRecognizer(swipeUp)
-        self.view.addGestureRecognizer(swipeDown)
-    }
+
     
     func createObservers() {
         let center: NotificationCenter = NotificationCenter.default
@@ -337,6 +332,7 @@ class ListController: UIViewController, TaskViewDelegate {
         set.removeFromSuperview()
         backArrow.removeFromSuperview()
         slideUpViewTapped()
+        configureNavBar()
     }
     
     @objc func slideUpViewTapped() {
@@ -481,6 +477,7 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func tappedAddTask() {
+        slideUpView.reloadData()
         addTaskField.becomeFirstResponder()
         let done = UIButton(type: .system)
         done.setTitle("Done", for: .normal)
@@ -513,6 +510,20 @@ class ListController: UIViewController, TaskViewDelegate {
            if error != nil { }
         }
     }
+
+    
+    func changeTheme() {
+        if K.getStringColor(selectedListBackground) != "" {
+            backgroundImage.image = nil
+            backgroundImage.backgroundColor = selectedListBackground
+        } else if selectedListImage != "" {
+            let selectedImage = selectedListImage + "Background"
+            backgroundImage.image = UIImage(named: selectedImage)
+        } else if K.getStringColor(selectedListTextColor) != "" {
+            listTextColor = selectedListTextColor
+        }
+    }
+    //MARK: - Tapped Done
     @objc func tappedCreateDone(sender: UIButton) {
         createNewList(tag: sender.tag)
         addTaskField.isHidden = false
@@ -530,17 +541,14 @@ class ListController: UIViewController, TaskViewDelegate {
 
         }
     }
-    
-    func changeTheme() {
-        if K.getStringColor(selectedListBackground) != "" {
-            backgroundImage.image = nil
-            backgroundImage.backgroundColor = selectedListBackground
-        } else if selectedListImage != "" {
-            let selectedImage = selectedListImage + "Background"
-            backgroundImage.image = UIImage(named: selectedImage)
-        } else if K.getStringColor(selectedListTextColor) != "" {
-            listTextColor = selectedListTextColor
-        }
+    @objc func tappedDoneEditing() {
+        self.tableView.isEditing = false
+        editingCell = false
+        configureNavBar()
+        self.view.addGestureRecognizer(swipeUp)
+        self.view.addGestureRecognizer(swipeDown)
+        selectedDict = [String:Bool]()
+        tableView.reloadData()
     }
     
     @objc func tappedDone() {
@@ -625,7 +633,6 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func tappedOutside() {
-        print("fd")
         if !creating {
             self.view.endEditing(true)
         }
@@ -771,45 +778,6 @@ class ListController: UIViewController, TaskViewDelegate {
         swipeDown.delegate = self
     }
     
-    @objc func keyboardWillShow(notification: NSNotification) {
-        let info:NSDictionary = notification.userInfo! as NSDictionary
-        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-        if !creating {
-            let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
-            if stabilize {
-                    self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - 65
-            }
-            addedStep = true
-            stabilize = false
-        } else {
-            if keyboard == true || keyboard2 {
-                lastKeyboardHeight = keyboardSize.height + 93
-            } else {
-                lastKeyboardHeight = keyboardSize.height
-                keyboard2 = true
-            }
-            self.customizeListView.frame.origin.y = self.customizeListView.frame.origin.y - lastKeyboardHeight - 140
-            createdNewList = true
-        }
-    }
-    
-    @objc func keyboardWillChangeFrame(notification: NSNotification) {
-        let info:NSDictionary = notification.userInfo! as NSDictionary
-        let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-        if !creating {
-            if addedStep || createdNewList {
-                lastKeyboardHeight = keyboardSize.height + 185
-            } else {
-                lastKeyboardHeight = keyboardSize.height
-            }
-        }
-           
-    }
-    
-    @objc func keyboardWillHide(notification: NSNotification) {
-        self.addTaskField.frame.origin.y = self.view.frame.height
-        self.customizeListView.frame.origin.y = self.view.frame.height
-    }
     
     @objc func respondToSwipeGesture(gesture: UIGestureRecognizer) {
         if let swipeGesture = gesture as? UISwipeGestureRecognizer {
@@ -880,6 +848,7 @@ class ListController: UIViewController, TaskViewDelegate {
     
     @objc func ellipsisTapped() {
         tappedIcon = "List Options"
+        slideUpView.reloadData()
         createSlider(listOptions: true)
     }
     
