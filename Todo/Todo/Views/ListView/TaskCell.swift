@@ -142,7 +142,7 @@ class TaskCell: UITableViewCell {
         circle.layer.borderWidth = 2
         circle.layer.borderColor = priColor.cgColor
         
-        if completed == true {
+        if completed == true && !editingCell {
             configureCircle()
         }
         
@@ -323,21 +323,24 @@ class TaskCell: UITableViewCell {
     }
     
     func configureCircle() {
-        circle.addSubview(check)
-        check.width(28)
-        check.height(28)
-        check.top(to: circle)
-        check.leadingAnchor.constraint(equalTo: circle.leadingAnchor).isActive = true
-        let pri = K.getColor(prioritized)
-        check.image = check.image?.withTintColor(pri == UIColor.clear ? .gray : pri)
-        let checkGest = UITapGestureRecognizer(target: self, action: #selector(tappedCheck))
-        checkGest.cancelsTouchesInView = false
-        check.addGestureRecognizer(checkGest)
-        
-        let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: title.text!)
-        attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
-        title.attributedText = attributeString
-        
+        if editingCell {
+            
+        } else {
+            circle.addSubview(check)
+            check.width(28)
+            check.height(28)
+            check.top(to: circle)
+            check.leadingAnchor.constraint(equalTo: circle.leadingAnchor).isActive = true
+            let pri = K.getColor(prioritized)
+            check.image = check.image?.withTintColor(pri == UIColor.clear ? .gray : pri)
+            let checkGest = UITapGestureRecognizer(target: self, action: #selector(tappedCheck))
+            checkGest.cancelsTouchesInView = false
+            check.addGestureRecognizer(checkGest)
+            
+            let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: title.text!)
+            attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
+            title.attributedText = attributeString
+        }
     }
     
      func createSelectedCell() {
@@ -345,6 +348,8 @@ class TaskCell: UITableViewCell {
         self.circle.addSubview(bullet)
         self.title.alpha = 0.6
         self.selectedCell = true
+        let bulletRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedBullet))
+        bullet.addGestureRecognizer(bulletRecognizer)
         bullet.width(25)
         bullet.height(25)
         bullet.layer.borderWidth = 4
@@ -353,13 +358,17 @@ class TaskCell: UITableViewCell {
         bullet.center(in: circle)
     }
     
+    @objc func tappedBullet() {
+        self.contentView.alpha = 1
+        self.title.alpha = 1
+        self.selectedCell = false
+        bullet.removeFromSuperview()
+        selectedDict[id] = false
+    }
+    
     @objc func tappedCircle() {
+        selectedDict[id] = true
         if editingCell || selectedCell {
-            for task in tasksList + completedTasks{
-                if task.id == id {
-                    selectedDict[task.id] = true
-                }
-            }
             createSelectedCell()
         } else {
             configureCircle()

@@ -140,6 +140,22 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             case "Add to a List":
                 let lists = uiRealm.objects(ListObject.self)
                 cell.nameLabel.text = lists[indexPath.row].name
+                var cellImage = ""
+                var colorIn = false
+                let bg = lists[indexPath.row].backgroundImage
+                let bc = lists[indexPath.row].backgroundColor
+                if bg != "" {
+                    cellImage = "circle"
+                } else if bc != "" {
+                    cellImage = "circle"
+                    colorIn = true
+                } else {
+                    cellImage = "mountain"
+                }
+                
+                cell.icon.image = UIImage(named: cellImage)?.resize(targetSize: CGSize(width: 30, height: 30))
+                if colorIn { cell.icon.image = cell.icon.image?.withTintColor(K.getListColor(bc))}
+               
             case "Priority":
                 if indexPath.row == 3 {
                     cell.icon.image = UIImage(named: "flag2")?.resize(targetSize: CGSize(width: 30, height: 30))
@@ -185,16 +201,57 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             switch tappedIcon {
             //only present in favorite, scheduled and all tasks
             case "Add to a List":
-                selectedList = lists[indexPath.row].name
-                addTaskField.addButton(leftButton: .addedToList, toolBarDelegate: self)
-                if !firstAppend {
-                    scrollView.contentSize.width = scrollView.contentSize.width + 200
+                if !editingCell {
+                    selectedList = lists[indexPath.row].name
+                    addTaskField.addButton(leftButton: .addedToList, toolBarDelegate: self)
+                    if !firstAppend {
+                        scrollView.contentSize.width = scrollView.contentSize.width + 200
+                    } else {
+                        scrollView.contentSize.width = scrollView.contentSize.width + 50
+                        firstAppend = false
+                    }
+                    slideUpViewTapped()
+                    addTaskField.becomeFirstResponder()
                 } else {
-                    scrollView.contentSize.width = scrollView.contentSize.width + 50
-                    firstAppend = false
+                    selectedList = lists[indexPath.row].name
+                    if selectedList == listTitle {
+                        tappedDoneEditing()
+                        slideUpViewTapped()
+                    }
+                    let tasks = uiRealm.objects(TaskObject.self)
+                    var count = 0
+                    for task in tasks {
+                        if task.parentList == selectedList {
+                            count += 1
+                        }
+                    }
+                    for task in tasksList{
+                        //if task is selected we want to delete it from our lists
+                        // and move it to new list
+                        if (selectedDict[task.id] == true) {
+                                try! uiRealm.write {
+                                    task.parentList = selectedList
+                                    task.position = count
+                                    count += 1
+                                }
+                            tasksList.removeAll { (t) -> Bool in
+                                return t.id == task.id
+                            }
+                        }
+                    }
+                    for (idx, task) in completedTasks.enumerated() {
+                        if selectedDict[task.id] == true {
+                                try! uiRealm.write {
+                                    task.parentList = selectedList
+                                }
+                                completedTasks.remove(at: idx)
+                            }
+                    }
+                    tappedDoneEditing()
+                    slideUpViewTapped()
+                    reloadDelegate?.reloadTableView()
                 }
-                slideUpViewTapped()
-                addTaskField.becomeFirstResponder()
+                
             case "Priority":
                 selectedPriority = priorities[indexPath.row]
                 addTaskField.addButton(leftButton: .prioritized, toolBarDelegate: self)
@@ -328,6 +385,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                         navigationItem.title = listTitle
             self.view.removeGestureRecognizer(swipeUp)
             self.view.removeGestureRecognizer(swipeDown)
+            for task in tasksList + completedTasks {
+                selectedDict[task.id] = false
+            }
         case "Sort":
             print("sort")
         case "Change Theme & Color":

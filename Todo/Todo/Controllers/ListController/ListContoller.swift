@@ -36,6 +36,7 @@ class ListController: UIViewController, TaskViewDelegate {
         formatter.dateFormat = "MMM dd,yyyy"
         return formatter
     }()
+    let footer = UIView()
     var calendar = FSCalendar()
     var timePicker: UIDatePicker?
     let backArrow = UIButton(frame: CGRect(x: 10, y: 15, width: 25, height: 25))
@@ -117,8 +118,12 @@ class ListController: UIViewController, TaskViewDelegate {
     let lists = uiRealm.objects(ListObject.self)
     var accessBool = false
     var listOptions: [String] = ["Rename List", "Select Tasks", "Sort", "Change Theme & Color", "Print List", "Delete List"]
-    let swipeDown = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
-    let swipeUp = UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
+    lazy var swipeDown: UISwipeGestureRecognizer = {
+       return UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
+    }()
+    lazy var swipeUp: UISwipeGestureRecognizer = {
+        return UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
+    }()
     
     //MARK: - init
     override func viewDidLoad() {
@@ -177,6 +182,7 @@ class ListController: UIViewController, TaskViewDelegate {
         dueDateTapped = false
         added50ToReminder = false
         added50ToDueDate = false
+        tappedDoneEditing()
         navigationController?.navigationBar.isTranslucent = false
         navigationController?.navigationBar.barTintColor = .white
     }
@@ -347,7 +353,6 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     func addBottomView() {
-        let footer = UIView()
         view.insertSubview(footer, at: 1000)
         footer.leadingToSuperview()
         footer.trailingToSuperview()
@@ -395,10 +400,28 @@ class ListController: UIViewController, TaskViewDelegate {
         print("delete")
     }
     @objc func tappedAddToList() {
-        print("yoke")
+        var allFalse = true
+        for value in selectedDict.values {
+            if value { allFalse = false }
+        }
+        if allFalse {
+            let alertController = UIAlertController(title: "Please Select A Task", message: "", preferredStyle: UIAlertController.Style.alert)
+            let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
+                (action : UIAlertAction!) -> Void in })
+            
+            alertController.addAction(okayAction)
+            self.present(alertController, animated: true, completion: nil)
+        } else {
+            tappedIcon = "Add to a List"
+            slideUpView.reloadData()
+            createSlider()
+        }
     }
     @objc func tappedSelectAll() {
-        print("ji")
+        for id in selectedDict.keys {
+            selectedDict[id] = true
+        }
+        tableView.reloadData()
     }
    
     
@@ -548,7 +571,9 @@ class ListController: UIViewController, TaskViewDelegate {
         self.view.addGestureRecognizer(swipeUp)
         self.view.addGestureRecognizer(swipeDown)
         selectedDict = [String:Bool]()
+        footer.removeFromSuperview()
         tableView.reloadData()
+        plusTaskView.isHidden = false
     }
     
     @objc func tappedDone() {
@@ -636,7 +661,9 @@ class ListController: UIViewController, TaskViewDelegate {
         if !creating {
             self.view.endEditing(true)
         }
-        configureNavBar()
+        if !editingCell {
+            configureNavBar()
+        }
     }
     
     func createTableHeader() {
@@ -660,6 +687,7 @@ class ListController: UIViewController, TaskViewDelegate {
 
         self.tableView.tableHeaderView = headerView
     }
+    
     //MARK: - custom list view
     private func createCustomListView() {
         view.addSubview(customizeListView)

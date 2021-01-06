@@ -71,7 +71,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let completedView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "completedHeader")
         completedView!.backgroundColor = .clear
-        if section == 1 && completedTasks.count != 0 {
+        if section == 1 && completedTasks.count != 0  {
             let label = UIButton()
             label.titleLabel?.font = UIFont(name: "OpenSans-Regular", size: 18)
             label.titleLabel?.textColor = .white
@@ -86,31 +86,32 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             label.height(25)
             label.layer.cornerRadius = 10
             label.addTarget(self, action: #selector(tappedCompleted), for: .touchUpInside)
-        }
+        } 
         
         return completedView
     }
     
     
     @objc func tappedCompleted(button: UIButton) {
-        if completedExpanded {
-            button.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 18, height: 20)), for: .normal)
-        } else {
-            button.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 18, height: 20)).rotate(radians: .pi), for: .normal)
+        if !editingCell {
+            if completedExpanded {
+                button.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 18, height: 20)), for: .normal)
+            } else {
+                button.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 18, height: 20)).rotate(radians: .pi), for: .normal)
+            }
+            var indexPaths = [IndexPath]()
+            for row in completedTasks.indices {
+                indexPaths.append(IndexPath(row: row, section: 1))
+            }
+            completedExpanded = !completedExpanded
+            if completedExpanded {
+                tableView.insertRows(at: indexPaths, with: .fade)
+                tableView.invalidateIntrinsicContentSize()
+            } else {
+                tableView.deleteRows(at: indexPaths, with: .fade)
+                tableView.invalidateIntrinsicContentSize()
+            }
         }
-        var indexPaths = [IndexPath]()
-        for row in completedTasks.indices {
-            indexPaths.append(IndexPath(row: row, section: 1))
-        }
-        completedExpanded = !completedExpanded
-        if completedExpanded {
-            tableView.insertRows(at: indexPaths, with: .fade)
-            tableView.invalidateIntrinsicContentSize()
-        } else {
-            tableView.deleteRows(at: indexPaths, with: .fade)
-            tableView.invalidateIntrinsicContentSize()
-        }
-        
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if section == 1 && completedTasks.count != 0  {

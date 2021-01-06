@@ -16,9 +16,7 @@ var lists = [ListObject]()
 var groups = [ListGroup]()
 
 var defaultColor = UIColor.blue
-protocol MainViewDelegate {
-    func reloadTableView()
-}
+
 class MainViewController: UIViewController, ReloadDelegate {
     //MARK: - instace variables
     var topTableView = SelfSizedTableView()
