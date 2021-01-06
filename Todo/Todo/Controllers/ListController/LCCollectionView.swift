@@ -247,6 +247,11 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                                 completedTasks.remove(at: idx)
                             }
                     }
+                    for (idx,task) in tasksList.enumerated() {
+                        try! uiRealm.write {
+                            task.position = idx
+                        }
+                    }
                     tappedDoneEditing()
                     slideUpViewTapped()
                     reloadDelegate?.reloadTableView()

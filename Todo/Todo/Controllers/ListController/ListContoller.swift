@@ -396,10 +396,7 @@ class ListController: UIViewController, TaskViewDelegate {
         let deleteRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedDeleteTask))
         deleteTask.addGestureRecognizer(deleteRecognizer)
     }
-    @objc func tappedDeleteTask() {
-        print("delete")
-    }
-    @objc func tappedAddToList() {
+    func checkIfAllFalse() -> Bool {
         var allFalse = true
         for value in selectedDict.values {
             if value { allFalse = false }
@@ -411,7 +408,41 @@ class ListController: UIViewController, TaskViewDelegate {
             
             alertController.addAction(okayAction)
             self.present(alertController, animated: true, completion: nil)
+            return true
         } else {
+            return false
+        }
+    }
+    @objc func tappedDeleteTask() {
+        if !checkIfAllFalse() {
+            for task in tasksList {
+                if selectedDict[task.id] == true {
+                    try! uiRealm.write {
+                        uiRealm.delete(task)
+                    }
+                }
+            }
+                
+            for task in completedTasks {
+                for task in completedTasks {
+                    if selectedDict[task.id] == true {
+                        try! uiRealm.write {
+                            uiRealm.delete(task)
+                        }
+                    }
+                }
+            }
+        }
+        getRealmData()
+        for (idx,task) in tasksList.enumerated() {
+            try! uiRealm.write {
+                task.position = idx
+            }
+        }
+        tableView.reloadData()
+    }
+    @objc func tappedAddToList() {
+        if !checkIfAllFalse() {
             tappedIcon = "Add to a List"
             slideUpView.reloadData()
             createSlider()
