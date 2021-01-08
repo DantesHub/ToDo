@@ -134,14 +134,18 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         case "Add to a List":
             var totalTasks = 0
             for task in tasks {
-                if task.parentList == parentLists[indexPath.row].name {
+                if task.parentList == parentLists[indexPath.row].name && !task.completed {
                     totalTasks += 1
                 }
             }
             for task in tasks {
                 if task.id == id {
                     try! uiRealm.write {
-                        task.position = totalTasks
+                        if task.completed {
+                            task.position = -1
+                        } else {
+                            task.position = totalTasks
+                        }
                         task.parentList = parentLists[indexPath.row].name
                         parentList = parentLists[indexPath.row].name
                     }

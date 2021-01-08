@@ -60,6 +60,7 @@ class SliderSectionHeader: UICollectionReusableView{
     }
     
     @objc func tappedBackArrow() {
+        print("bink")
         if listOption {
             reloadDelegate?.reloadSlider()
         }

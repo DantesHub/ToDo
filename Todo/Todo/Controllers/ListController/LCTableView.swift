@@ -265,12 +265,14 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         }
     }
     func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
-        let cell = tableView.cellForRow(at: indexPath!) as! TaskCell
-        cell.clipsToBounds = true
-        cell.layer.cornerRadius = 10
+        reloadDelegate?.reloadTableView()
     }
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-        return UITableViewCell.EditingStyle.none
+        if editingCell {
+            return UITableViewCell.EditingStyle.none
+        } else {
+            return UITableViewCell.EditingStyle.delete
+        }
     }
     
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
@@ -291,6 +293,10 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         } else {
             return UITableViewDropProposal(operation: .copy, intent: .insertAtDestinationIndexPath)
         }
+    }
+    func tableView(tableView: UITableView!, canEditRowAtIndexPath indexPath: NSIndexPath!) -> Bool
+    {
+        return true
     }
     
     func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {

@@ -24,14 +24,15 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 return lists.count
             } else if tappedIcon == "List Options" {
                 return 6
+            } else if tappedIcon == "Sort Options" {
+                return 5
             } else {
                 return 4
             }
         }
 
     }
-    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
-    }
+ 
     func reloadCollection() {
         self.customizeCollectionView.reloadData()
     }
@@ -177,6 +178,24 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 } else {
                     cell.icon.image = UIImage(named: listOptions[indexPath.row])?.resize(targetSize: CGSize(width: 35, height: 35))
                 }
+            case "Sort Options":
+                cell.nameLabel.text = sortOptions[indexPath.row]
+                var imgName = ""
+                switch sortOptions[indexPath.row] {
+                case "Important":
+                    imgName = "star"
+                case "Priority":
+                    imgName = "flag2"
+                case "Alphabetically":
+                    imgName = "Alphabetically"
+                case "Creation Date":
+                    imgName = "calendarPlus"
+                case "Due Date":
+                    imgName = "calendarOne2"
+                default:
+                    break
+                }
+                cell.icon.image = UIImage(named: imgName)?.resize(targetSize: CGSize(width: 35, height: 35))
             default:
                 print("default")
             }
@@ -221,7 +240,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     let tasks = uiRealm.objects(TaskObject.self)
                     var count = 0
                     for task in tasks {
-                        if task.parentList == selectedList {
+                        if task.parentList == selectedList && task.completed == false{
                             count += 1
                         }
                     }
@@ -231,7 +250,11 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                         if (selectedDict[task.id] == true) {
                                 try! uiRealm.write {
                                     task.parentList = selectedList
-                                    task.position = count
+                                    if task.completed {
+                                        task.position = -1
+                                    } else {
+                                        task.position = count
+                                    }
                                     count += 1
                                 }
                             tasksList.removeAll { (t) -> Bool in
@@ -320,6 +343,8 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 }
             case "List Options":
                 selectedListOption(row: indexPath.row)
+            case "Sort Options":
+                selectedSortOption(row: indexPath.row)
             case "Due":
                 selectedDueDate = dates[indexPath.row]
                 dueDateTapped = true
@@ -366,7 +391,29 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
         return false
     }
-    
+    //MARK: - Sort Options
+    func selectedSortOption(row: Int) {
+        //update positions in realm
+        switch sortOptions[row] {
+        case "Important":
+            tasksList.sort { $0.favorited && !$1.favorited }
+        case "Alphabetically":
+            print("alpha")
+        case "Priority":
+            tasksList.sort { $0.priority > $1.priority }
+            print("priority")
+        case "Due Date":
+            print("due date")
+        case "Creation Date":
+            print("Creation")
+        default:
+            break
+        }
+        let range = NSMakeRange(0, self.tableView.numberOfSections)
+        let sections = NSIndexSet(indexesIn: range)
+        self.tableView.reloadSections(sections as IndexSet, with: .automatic)
+        slideUpViewTapped()
+    }
     //MARK: - List Options
     func selectedListOption(row: Int) {
         switch listOptions[row] {
@@ -394,7 +441,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 selectedDict[task.id] = false
             }
         case "Sort":
-            print("sort")
+            tappedIcon = "Sort Options"
+            slideUpView.reloadData()
+            createSlider(sortOptions: true)
         case "Change Theme & Color":
             print("theme")
         case "Print List":

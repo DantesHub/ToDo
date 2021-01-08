@@ -117,6 +117,7 @@ class ListController: UIViewController, TaskViewDelegate {
     var completedExpanded = true
     let lists = uiRealm.objects(ListObject.self)
     var accessBool = false
+    var sortOptions: [String] = ["Important", "Alphabetically", "Priority", "Due Date", "Creation Date"]
     var listOptions: [String] = ["Rename List", "Select Tasks", "Sort", "Change Theme & Color", "Print List", "Delete List"]
     lazy var swipeDown: UISwipeGestureRecognizer = {
        return UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
@@ -276,13 +277,13 @@ class ListController: UIViewController, TaskViewDelegate {
         addTaskField.resignFirstResponder()
     }
     
-    func createSlider(createSlider: Bool = true, picker: Bool = false, listOptions: Bool = false) {
+    func createSlider(createSlider: Bool = true, picker: Bool = false, listOptions: Bool = false, sortOptions: Bool = false) {
         containerView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
         containerView.frame = self.view.frame
         window?.addSubview(containerView)
         containerView.alpha = 0
         if createSlider {
-            let extraHeight: CGFloat = listOptions ? 100 : 0
+            let extraHeight: CGFloat = sortOptions ? 50 : listOptions ? 100 : 0
             slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight + (extraHeight))
             slideUpView.register(TaskSlideCell.self, forCellWithReuseIdentifier: K.taskSlideCell)
             slideUpView.register(SliderSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
@@ -433,12 +434,14 @@ class ListController: UIViewController, TaskViewDelegate {
                 }
             }
         }
+        
         getRealmData()
         for (idx,task) in tasksList.enumerated() {
             try! uiRealm.write {
                 task.position = idx
             }
         }
+        reloadDelegate?.reloadTableView()
         tableView.reloadData()
     }
     @objc func tappedAddToList() {
@@ -722,7 +725,6 @@ class ListController: UIViewController, TaskViewDelegate {
     //MARK: - custom list view
     private func createCustomListView() {
         view.addSubview(customizeListView)
-        print("call")
         customizeListView.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: 150)
         customizeListView.layer.cornerRadius = 15
         customizeListView.backgroundColor = .white

@@ -43,6 +43,8 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
     func reloadSlider() {
         if tappedIcon == "List Options" {
             slideUpViewTapped()
+        } else if tappedIcon == "Sort Options" {
+            slideUpViewTapped()
         } else {
             slideUpViewTapped()
             addTaskField.becomeFirstResponder()
