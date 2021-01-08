@@ -394,20 +394,28 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
     //MARK: - Sort Options
     func selectedSortOption(row: Int) {
         //update positions in realm
+        let  formatter = DateFormatter()
+        formatter.dateFormat = "MMM dd,yyyy-h:mm a"
+        let farDate  = formatter.date(from: "Jan 01, 2100-4:50 PM")!
+
         switch sortOptions[row] {
         case "Important":
             tasksList.sort { $0.favorited && !$1.favorited }
         case "Alphabetically":
-            print("alpha")
+            tasksList.sort { $0.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) < $1.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
         case "Priority":
             tasksList.sort { $0.priority > $1.priority }
-            print("priority")
         case "Due Date":
-            print("due date")
+                tasksList.sort { formatter.date(from: $0.planned) ?? farDate < formatter.date(from: $1.planned) ?? farDate }
         case "Creation Date":
-            print("Creation")
+            tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate > formatter.date(from: $1.createdAt) ?? farDate }
         default:
             break
+        }
+        for (idx, task) in tasksList.enumerated() {
+            try! uiRealm.write {
+                task.position = idx
+            }
         }
         let range = NSMakeRange(0, self.tableView.numberOfSections)
         let sections = NSIndexSet(indexesIn: range)

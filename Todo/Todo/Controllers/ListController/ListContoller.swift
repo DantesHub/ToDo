@@ -120,7 +120,7 @@ class ListController: UIViewController, TaskViewDelegate {
     var sortOptions: [String] = ["Important", "Alphabetically", "Priority", "Due Date", "Creation Date"]
     var listOptions: [String] = ["Rename List", "Select Tasks", "Sort", "Change Theme & Color", "Print List", "Delete List"]
     lazy var swipeDown: UISwipeGestureRecognizer = {
-       return UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
+        return UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
     }()
     lazy var swipeUp: UISwipeGestureRecognizer = {
         return UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
@@ -191,7 +191,7 @@ class ListController: UIViewController, TaskViewDelegate {
     deinit {
         removeObservers()
     }
-
+    
     //MARK: - helper variables
     func configureUI() {
         configureNavBar()
@@ -212,7 +212,7 @@ class ListController: UIViewController, TaskViewDelegate {
         plusTaskView.addGestureRecognizer(addTaskRecognizer)
         plusTaskView.isUserInteractionEnabled = true
         plusTaskView.dropShadow()
-
+        
         addTaskField.isHidden = false
         addTaskField.frame = CGRect(x: 0, y: view.frame.height , width: view.frame.width, height: 70)
         let leftBarButtons: [KeyboardToolbarButton] = premadeListTapped ? [.addToList, .priority, .dueDate, .reminder, .favorite] : [.priority, .dueDate, .reminder, .favorite]
@@ -258,7 +258,7 @@ class ListController: UIViewController, TaskViewDelegate {
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
     }
     
-
+    
     
     func createObservers() {
         let center: NotificationCenter = NotificationCenter.default
@@ -315,13 +315,13 @@ class ListController: UIViewController, TaskViewDelegate {
                 animateSlider(height: slideUpViewHeight + 25, containerView: containerView, pickerView: pickerView)
             }
         }
-
+        
         let tapGesture = UITapGestureRecognizer(target: self,
                                                 action: #selector(tappedOutside2))
         tapGesture.cancelsTouchesInView = false
         containerView.addGestureRecognizer(tapGesture)
     }
-
+    
     @objc func tappedOutside2() {
         if window!.subviews.contains(pickerView) {
             UIView.animate(withDuration: 0.4,
@@ -331,7 +331,7 @@ class ListController: UIViewController, TaskViewDelegate {
                             self.containerView.alpha = 0
                             pickerView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: pickerView.frame.width, height: pickerView.frame.height
                             )
-                }, completion: nil)
+                           }, completion: nil)
         }
         timePicker?.removeFromSuperview()
         calendar.removeFromSuperview()
@@ -350,7 +350,7 @@ class ListController: UIViewController, TaskViewDelegate {
                         self.containerView.alpha = 0
                         self.slideUpView.frame = CGRect(x: 0, y: (self.window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
                         )
-            }, completion: nil)
+                       }, completion: nil)
     }
     
     func addBottomView() {
@@ -405,7 +405,7 @@ class ListController: UIViewController, TaskViewDelegate {
         if allFalse {
             let alertController = UIAlertController(title: "Please Select A Task", message: "", preferredStyle: UIAlertController.Style.alert)
             let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
-                (action : UIAlertAction!) -> Void in })
+                                            (action : UIAlertAction!) -> Void in })
             
             alertController.addAction(okayAction)
             self.present(alertController, animated: true, completion: nil)
@@ -416,33 +416,42 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     @objc func tappedDeleteTask() {
         if !checkIfAllFalse() {
-            for task in tasksList {
-                if selectedDict[task.id] == true {
-                    try! uiRealm.write {
-                        uiRealm.delete(task)
-                    }
-                }
-            }
-                
-            for task in completedTasks {
-                for task in completedTasks {
+            let alertController = UIAlertController(title: "Are you sure you want to these tasks?", message: "", preferredStyle: UIAlertController.Style.alert)
+            let okayAction = UIAlertAction(title: "Yes", style: UIAlertAction.Style.default) { (action) in
+                for task in tasksList {
                     if selectedDict[task.id] == true {
                         try! uiRealm.write {
                             uiRealm.delete(task)
                         }
                     }
                 }
+                
+                for task in completedTasks {
+                    for task in completedTasks {
+                        if selectedDict[task.id] == true {
+                            try! uiRealm.write {
+                                uiRealm.delete(task)
+                            }
+                        }
+                    }
+                }
+                self.getRealmData()
+                for (idx,task) in tasksList.enumerated() {
+                    try! uiRealm.write {
+                        task.position = idx
+                    }
+                }
+                self.reloadDelegate?.reloadTableView()
+                self.tableView.reloadData()
+                
             }
+            let noAction = UIAlertAction(title: "No", style: UIAlertAction.Style.default, handler: {
+                                            (action : UIAlertAction!) -> Void in })
+            alertController.addAction(okayAction)
+            alertController.addAction(noAction)
+            
+            self.present(alertController, animated: true, completion: nil)
         }
-        
-        getRealmData()
-        for (idx,task) in tasksList.enumerated() {
-            try! uiRealm.write {
-                task.position = idx
-            }
-        }
-        reloadDelegate?.reloadTableView()
-        tableView.reloadData()
     }
     @objc func tappedAddToList() {
         if !checkIfAllFalse() {
@@ -457,7 +466,7 @@ class ListController: UIViewController, TaskViewDelegate {
         }
         tableView.reloadData()
     }
-   
+    
     
     func getRealmData() {
         var results = uiRealm.objects(TaskObject.self)
@@ -552,22 +561,22 @@ class ListController: UIViewController, TaskViewDelegate {
         content.body = "Let's Get To It!"
         let formatter3 = DateFormatter()
         formatter3.dateFormat = "MMM dd,yyyy h:mm a"
-
+        
         let dat = formatter3.date(from: dateReminderSelected + " " + timeReminderSelected)
         let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dat!)
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
         
         // Create the request
         let request = UNNotificationRequest(identifier: id,
-                    content: content, trigger: trigger)
-
+                                            content: content, trigger: trigger)
+        
         // Schedule the request with the system.
         let notificationCenter = UNUserNotificationCenter.current()
         notificationCenter.add(request) { (error) in
-           if error != nil { }
+            if error != nil { }
         }
     }
-
+    
     
     func changeTheme() {
         if K.getStringColor(selectedListBackground) != "" {
@@ -595,7 +604,7 @@ class ListController: UIViewController, TaskViewDelegate {
                     }
                 }
             }
-
+            
         }
     }
     @objc func tappedDoneEditing() {
@@ -625,6 +634,9 @@ class ListController: UIViewController, TaskViewDelegate {
                 } else {
                     task.favorited = favorited
                 }
+                let formatter4 = DateFormatter()
+                formatter4.dateFormat = "MMM dd,yyyy-h:mm a"
+                task.createdAt = formatter4.string(from: Date())
                 let formatter2 = DateFormatter()
                 formatter2.dateFormat = "h:mm a"
                 if planned {
@@ -718,7 +730,7 @@ class ListController: UIViewController, TaskViewDelegate {
         } else {
             createCustomListView()
         }
-
+        
         self.tableView.tableHeaderView = headerView
     }
     
@@ -850,13 +862,13 @@ class ListController: UIViewController, TaskViewDelegate {
             case .down:
                 self.tableView.tableHeaderView?.fadeIn()
                 self.tableViewTop?.constant = -10
-                    if tasksList.count + completedTasks.count <= 6  {
-                        UIView.animate(withDuration: 0.4) {
-                            self.tableView.layoutIfNeeded()
-                        }
+                if tasksList.count + completedTasks.count <= 6  {
+                    UIView.animate(withDuration: 0.4) {
+                        self.tableView.layoutIfNeeded()
                     }
-                    navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
-                    self.navigationItem.title = ""
+                }
+                navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+                self.navigationItem.title = ""
             case .up:
                 self.tableView.tableHeaderView?.fadeOut()
                 self.tableViewTop?.constant = -80
@@ -901,7 +913,7 @@ class ListController: UIViewController, TaskViewDelegate {
         navigationController?.navigationBar.isTranslucent = true
     }
     
-   
+    
     
     @objc func searchTapped() {
         print("search Tapped")

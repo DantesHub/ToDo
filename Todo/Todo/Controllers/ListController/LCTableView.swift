@@ -264,9 +264,14 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
            
         }
     }
+
     func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
-        reloadDelegate?.reloadTableView()
-    }
+         reloadDelegate?.reloadTableView()
+          let cell = tableView.cellForRow(at: indexPath!) as! TaskCell
+          cell.clipsToBounds = true
+          cell.layer.cornerRadius = 10
+      }
+    
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         if editingCell {
             return UITableViewCell.EditingStyle.none
