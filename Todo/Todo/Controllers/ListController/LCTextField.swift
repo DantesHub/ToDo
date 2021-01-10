@@ -11,7 +11,11 @@ extension ListController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         switch textField {
         case bigTextField:
-          createNewList()
+            if bigTextField.isEditing {
+                createNewList(tag: 1)
+            } else {
+                createNewList()
+            }
         default:
             break
         }
@@ -29,14 +33,16 @@ extension ListController: UITextFieldDelegate {
         for result in results {
             if result.name == list.name {
                 //we need to tell user that name is taken
-                nameTaken = true
-                let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
-                let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
-                    (action : UIAlertAction!) -> Void in })
-                
-                alertController.addAction(okayAction)
-                self.present(alertController, animated: true, completion: nil)
-                createTappedDone()
+                if list.name != oldTitle {
+                    nameTaken = true
+                    let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
+                    let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
+                                                    (action : UIAlertAction!) -> Void in })
+                    
+                    alertController.addAction(okayAction)
+                    self.present(alertController, animated: true, completion: nil)
+                    createTappedDone()
+                }
             }
         }
         

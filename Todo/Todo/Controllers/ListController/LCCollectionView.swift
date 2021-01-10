@@ -458,7 +458,10 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             slideUpView.reloadData()
             createSlider(sortOptions: true)
         case "Change Theme & Color":
-            print("theme")
+            creating = true
+            createTappedDone()
+            slideUpViewTapped()
+            createCustomListView(change: true)
         case "Print List":
             print("row")
         case  "Delete List":

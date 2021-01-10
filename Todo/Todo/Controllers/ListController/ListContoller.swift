@@ -257,7 +257,6 @@ class ListController: UIViewController, TaskViewDelegate {
         } else {
             done.addTarget(self, action: #selector(tappedCreateDone), for: .touchUpInside)
         }
-        
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
     }
     
@@ -430,14 +429,13 @@ class ListController: UIViewController, TaskViewDelegate {
                 }
                 
                 for task in completedTasks {
-                    for task in completedTasks {
-                        if selectedDict[task.id] == true {
-                            try! uiRealm.write {
-                                uiRealm.delete(task)
-                            }
+                    if selectedDict[task.id] == true {
+                        try! uiRealm.write {
+                            uiRealm.delete(task)
                         }
                     }
                 }
+                
                 self.getRealmData()
                 for (idx,task) in tasksList.enumerated() {
                     try! uiRealm.write {
@@ -613,6 +611,7 @@ class ListController: UIViewController, TaskViewDelegate {
             
         }
     }
+    
     @objc func tappedDoneEditing() {
         self.tableView.isEditing = false
         editingCell = false
@@ -742,9 +741,56 @@ class ListController: UIViewController, TaskViewDelegate {
 
     
     //MARK: - custom list view
-    private func createCustomListView() {
-        view.addSubview(customizeListView)
-        customizeListView.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: 150)
+    func createCustomListView(change: Bool = false) {
+        if change {
+            containerView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
+            containerView.frame = self.view.frame
+            window?.addSubview(containerView)
+            containerView.alpha = 0
+            window?.addSubview(customizeListView)
+            let tapGesture = UITapGestureRecognizer(target: self,
+                                                    action: #selector(tappedOutsideCustom))
+            tapGesture.cancelsTouchesInView = false
+            containerView.addGestureRecognizer(tapGesture)
+        } else {
+            view.addSubview(customizeListView)
+        }
+        if !change {
+            customizeListView.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: 150)
+        } else {
+            customizeListView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: view.frame.width, height: 250)
+            if change {
+                UIView.animate(withDuration: 0.5,
+                               delay: 0, usingSpringWithDamping: 1.0,
+                               initialSpringVelocity: 1.0,
+                               options: .curveEaseOut, animations: { [self] in
+                                self.containerView.alpha = 0.8
+                                self.customizeListView.frame = CGRect(x: 0, y: self.screenSize.height - 250, width: self.customizeListView.frame.width, height: self.customizeListView.frame.height)
+                               }, completion: nil)
+            }
+        }
+        if change {
+            let title = UILabel()
+            title.font = UIFont(name: "OpenSans-Bold", size: 25)
+            title.text = "Change Theme"
+            customizeListView.addSubview(title)
+            title.top(to: customizeListView, offset: 20)
+            title.centerX(to: customizeListView)
+            let backArrow = UIButton()
+            backArrow.setBackgroundImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 25, height: 25)).rotate(radians: -.pi/2)?.withTintColor(.black), for: .normal)
+            backArrow.addTarget(self, action: #selector(tappedCustomBack), for: .touchUpInside)
+            customizeListView.addSubview(backArrow)
+            backArrow.top(to: customizeListView, offset: 20)
+            backArrow.leading(to: customizeListView, offset: 10)
+            let hr = UIView()
+            hr.backgroundColor = .darkGray
+            customizeListView.addSubview(hr)
+            hr.topToBottom(of: title, offset: 10)
+            hr.leading(to: customizeListView)
+            hr.trailing(to: customizeListView)
+            hr.height(0.5)
+        }
+
         customizeListView.layer.cornerRadius = 15
         customizeListView.backgroundColor = .white
         
@@ -752,7 +798,7 @@ class ListController: UIViewController, TaskViewDelegate {
         photoButton.height(35)
         photoButton.width(customizeListView.frame.width/5)
         photoButton.leading(to: customizeListView, offset: 20)
-        photoButton.top(to: customizeListView, offset: 15)
+        photoButton.top(to: customizeListView, offset: change ? customizeListView.frame.height * 0.35 : 15)
         photoButton.setTitle("Photo", for: .normal)
         photoButton.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 18)
         photoButton.layer.cornerRadius = 20
@@ -765,7 +811,7 @@ class ListController: UIViewController, TaskViewDelegate {
         backgroundButton.height(35)
         backgroundButton.width(customizeListView.frame.width/2.5)
         backgroundButton.leadingAnchor.constraint(equalTo: photoButton.trailingAnchor, constant: 10).isActive = true
-        backgroundButton.top(to: customizeListView, offset: 15)
+        backgroundButton.top(to: customizeListView, offset: change ? customizeListView.frame.height * 0.35 : 15)
         backgroundButton.setTitle("Background Color", for: .normal)
         backgroundButton.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 16)
         backgroundButton.layer.cornerRadius = 20
@@ -779,7 +825,8 @@ class ListController: UIViewController, TaskViewDelegate {
         textButton.height(35)
         textButton.width(customizeListView.frame.width/4)
         textButton.leadingAnchor.constraint(equalTo: backgroundButton.trailingAnchor, constant: 10).isActive = true
-        textButton.top(to: customizeListView, offset: 15)
+    
+        textButton.top(to: customizeListView, offset: change ? customizeListView.frame.height * 0.35 : 15)
         textButton.setTitle("Text Color", for: .normal)
         textButton.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 16)
         textButton.layer.cornerRadius = 20
@@ -798,10 +845,30 @@ class ListController: UIViewController, TaskViewDelegate {
         customizeListView.addSubview(customizeCollectionView)
         customizeCollectionView.leading(to: customizeListView)
         customizeCollectionView.trailing(to: customizeListView)
+        
         customizeCollectionView.bottom(to: customizeListView)
         customizeCollectionView.backgroundColor = .white
         customizeCollectionView.allowsSelection = true
-        customizeCollectionView.height(customizeListView.frame.height * 0.65)
+        customizeCollectionView.width(view.frame.width)
+        customizeCollectionView.height(customizeListView.frame.height * (change ? 0.50 : 0.65))
+ 
+    }
+    @objc func tappedOutsideCustom() {
+        UIView.animate(withDuration: 0.4,
+                       delay: 0, usingSpringWithDamping: 1.0,
+                       initialSpringVelocity: 1.0,
+                       options: .curveEaseInOut, animations: {
+                        self.containerView.alpha = 0
+                        self.customizeListView.frame = CGRect(x: 0, y: (self.window?.frame.height)!, width: self.customizeListView.frame.width, height: self.customizeListView.frame.height
+                        )
+                       }, completion: nil)
+        configureNavBar()
+    }
+    
+    @objc func tappedCustomBack() {
+        tappedOutsideCustom()
+        customizeCollectionView.removeFromSuperview()
+        createSlider(listOptions: true)
     }
     @objc func tappedText() {
         customizeSelection = "Text Color"
@@ -836,7 +903,6 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     func createTableView(top: CGFloat = 120) {
-        
         tableView.register(TaskCell.self, forCellReuseIdentifier: "list")
         tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "completedHeader")
         tableView.separatorStyle = .singleLine
