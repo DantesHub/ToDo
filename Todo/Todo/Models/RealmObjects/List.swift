@@ -15,6 +15,8 @@ class ListObject: Object {
     @objc dynamic var textColor = "white"
     @objc dynamic var backgroundColor = "blue"
     @objc dynamic var backgroundImage = "mountain"
+    @objc  dynamic var sortType = ""
+    @objc dynamic var reversed = false
     var groupPositions = List<GroupPosition>()
 }
 

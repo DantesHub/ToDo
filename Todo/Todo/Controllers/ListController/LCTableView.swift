@@ -69,8 +69,9 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let completedView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "completedHeader")
-        completedView!.backgroundColor = .clear
+        let completedView = UITableViewHeaderFooterView(reuseIdentifier: "completedHeader")
+                
+        completedView.backgroundColor = .clear
         if section == 1 && completedTasks.count != 0  {
             let label = UIButton()
             label.titleLabel?.font = UIFont(name: "OpenSans-Regular", size: 18)
@@ -78,19 +79,119 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             label.setTitle("Completed", for: .normal)
             label.setImage(UIImage(named: "arrow")?.rotate(radians: .pi)!.withTintColor(.white).resize(targetSize: CGSize(width: 18, height: 20)), for: .normal)
             label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
-            completedView!.addSubview(label)
-            label.top(to: completedView!, offset: 10)
-            label.leadingAnchor.constraint(equalTo: completedView!.leadingAnchor, constant: 5).isActive = true
+            completedView.addSubview(label)
+            label.top(to: completedView, offset: 10)
+            label.leadingAnchor.constraint(equalTo: completedView.leadingAnchor, constant: 5).isActive = true
             label.backgroundColor = UIColor.black.withAlphaComponent(0.6)
             label.width(tableView.frame.width * 0.35)
             label.height(25)
             label.layer.cornerRadius = 10
             label.addTarget(self, action: #selector(tappedCompleted), for: .touchUpInside)
-        } 
+        } else if section == 0 && sortType != "" {
+            let label = UIButton()
+            label.width(min: sortType != "Priority" ? 140 : 120, max: 400, priority: .defaultHigh, isActive: true)
+            label.titleLabel?.font = UIFont(name: "OpenSans-Regular", size: 20)
+            label.titleLabel?.textColor = .white
+            label.titleLabel?.adjustsFontSizeToFitWidth = true
+            label.setTitle(sortType, for: .normal)
+            if !reversed {
+                label.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 22)), for: .normal)
+            } else {
+                label.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 22)).rotate(radians: .pi), for: .normal)
+            }
+            label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: sortType != "Priority" ? 10 : 0, right: 0)
+            completedView.addSubview(label)
+            label.top(to: completedView, offset: 5)
+            label.leadingAnchor.constraint(equalTo: completedView.leadingAnchor, constant: 5).isActive = true
+            label.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+            //            label.width(tableView.frame.width * 0.35)
+            label.height(28
+            )
+            label.layer.cornerRadius = 10
+            label.addTarget(self, action: #selector(tappedReverse), for: .touchUpInside)
+            
+            let xButton = UIButton()
+            completedView.addSubview(xButton)
+            xButton.width(28)
+            xButton.height(28)
+            xButton.top(to: completedView, offset: 5)
+            xButton.leadingAnchor.constraint(equalTo: label.trailingAnchor, constant: 5).isActive = true
+            xButton.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+            xButton.setImage(UIImage(named: "x")?.withTintColor(.white).resize(targetSize: CGSize(width: 30, height: 30)), for: .normal)
+            xButton.addTarget(self, action: #selector(tappedX), for: .touchUpInside)
+            xButton.layer.cornerRadius = 10
+        }
         
         return completedView
     }
-    
+    @objc func tappedX(button: UIButton) {
+        try! uiRealm.write {
+            listObject.sortType = ""
+            sortType = ""
+        }
+        formatter.dateFormat = "MMM dd,yyyy-h:mm a"
+        let farDate  = formatter.date(from: "Jan 01, 2100-4:50 PM")!
+        tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate < formatter.date(from: $1.createdAt) ?? farDate }
+        for (idx, task) in tasksList.enumerated() {
+            try! uiRealm.write {
+                task.position = idx
+            }
+        }
+        tableViewTop?.constant = 80
+        let range = NSMakeRange(0, self.tableView.numberOfSections)
+        let sections = NSIndexSet(indexesIn: range)
+        self.tableView.reloadSections(sections as IndexSet, with: .automatic)
+    }
+    @objc func tappedReverse(button: UIButton) {
+        //depending on tag we need to reverse or not
+        reversed = !reversed
+        let  formatter = DateFormatter()
+        formatter.dateFormat = "MMM dd,yyyy-h:mm a"
+        let farDate  = formatter.date(from: "Jan 01, 2100-4:50 PM")!
+        if reversed {
+            switch sortType {
+            case "Important":
+                tasksList.sort { !$0.favorited && $1.favorited }
+            case "Alphabetically":
+                tasksList.sort { $0.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) > $1.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
+            case "Priority":
+                tasksList.sort { $0.priority < $1.priority }
+            case "Due Date":
+                tasksList.sort { formatter.date(from: $0.planned) ?? farDate > formatter.date(from: $1.planned) ?? farDate }
+            case "Creation Date":
+                tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate > formatter.date(from: $1.createdAt) ?? farDate }
+            default:
+                break
+            }
+        } else {
+            switch sortType {
+            case "Important":
+                tasksList.sort { $0.favorited && !$1.favorited }
+            case "Alphabetically":
+                tasksList.sort { $0.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) < $1.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
+            case "Priority":
+                tasksList.sort { $0.priority > $1.priority }
+            case "Due Date":
+                    tasksList.sort { formatter.date(from: $0.planned) ?? farDate < formatter.date(from: $1.planned) ?? farDate }
+            case "Creation Date":
+                tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate < formatter.date(from: $1.createdAt) ?? farDate }
+            default:
+                break
+            }        }
+      
+        for (idx, task) in tasksList.enumerated() {
+            try! uiRealm.write {
+                task.position = idx
+            }
+        }
+        try! uiRealm.write {
+            listObject.reversed = reversed
+        }
+        let range = NSMakeRange(0, self.tableView.numberOfSections)
+        let sections = NSIndexSet(indexesIn: range)
+        self.tableView.reloadSections(sections as IndexSet, with: .automatic)
+
+    }
     
     @objc func tappedCompleted(button: UIButton) {
         if !editingCell {
@@ -114,11 +215,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         }
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if section == 1 && completedTasks.count != 0  {
             return 40
-        } else {
-            return 0
-        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

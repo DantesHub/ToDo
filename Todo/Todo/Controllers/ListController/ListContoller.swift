@@ -46,7 +46,6 @@ class ListController: UIViewController, TaskViewDelegate {
     let bigTextField = UITextField()
     let titleLabel = UILabel()
     let tableView = UITableView(frame: .zero, style: .grouped)
-    var tableHeader = UIView()
     var lastKnowContentOfsset: CGFloat = 0
     var scrolledUp = false
     var listTextColor = UIColor.clear
@@ -58,6 +57,7 @@ class ListController: UIViewController, TaskViewDelegate {
     var tappedIcon = ""
     var favorited = false
     var planned = false
+    var sortType = ""
     var reminder = false
     var added50ToReminder = false
     var added50ToDueDate = false
@@ -96,6 +96,7 @@ class ListController: UIViewController, TaskViewDelegate {
     var firstAppend = true
     var customizeListView = UIView()
     var customizeSelection = "Photo"
+    var headerView = UIView()
     var customizeCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -115,8 +116,10 @@ class ListController: UIViewController, TaskViewDelegate {
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
     var completedExpanded = true
+    var reversed = false 
     let lists = uiRealm.objects(ListObject.self)
     var accessBool = false
+    var listObject: ListObject = ListObject()
     var sortOptions: [String] = ["Important", "Alphabetically", "Priority", "Due Date", "Creation Date"]
     var listOptions: [String] = ["Rename List", "Select Tasks", "Sort", "Change Theme & Color", "Print List", "Delete List"]
     lazy var swipeDown: UISwipeGestureRecognizer = {
@@ -473,6 +476,9 @@ class ListController: UIViewController, TaskViewDelegate {
         results = results.sorted(byKeyPath: "position", ascending: true)
         for list in lists {
             if list.name == listTitle {
+                listObject = list
+                sortType = list.sortType
+                reversed = list.reversed
                 selectedListBackground = K.getListColor(list.backgroundColor)
                 selectedListTextColor = K.getListColor(list.textColor)
                 selectedListImage = list.backgroundImage
@@ -713,7 +719,7 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     func createTableHeader() {
-        let headerView: UIView = UIView.init(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 100))
+        headerView = UIView.init(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 100))
         view.addSubview(headerView)
         headerView.addSubview(bigTextField)
         bigTextField.becomeFirstResponder()
@@ -730,9 +736,10 @@ class ListController: UIViewController, TaskViewDelegate {
         } else {
             createCustomListView()
         }
-        
-        self.tableView.tableHeaderView = headerView
+        headerView.top(to: view, offset: 120)
+        headerView.leading(to: view, offset: 5)
     }
+
     
     //MARK: - custom list view
     private func createCustomListView() {
@@ -828,7 +835,8 @@ class ListController: UIViewController, TaskViewDelegate {
         customizeCollectionView.reloadData()
     }
     
-    func createTableView(top: CGFloat = -10) {
+    func createTableView(top: CGFloat = 120) {
+        
         tableView.register(TaskCell.self, forCellReuseIdentifier: "list")
         tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "completedHeader")
         tableView.separatorStyle = .singleLine
@@ -836,9 +844,8 @@ class ListController: UIViewController, TaskViewDelegate {
         tableView.leadingToSuperview(offset: 10)
         tableView.trailingToSuperview(offset: 10)
         tableView.bottomToSuperview()
-        tableViewTop = tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: top)
+        tableViewTop = tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: sortType != "" ? top : 80)
         tableViewTop?.isActive = true
-        tableView.tableHeaderView = tableHeader
         tableView.showsVerticalScrollIndicator = false
         swipeDown.direction = .down
         swipeDown.cancelsTouchesInView = false
@@ -860,8 +867,12 @@ class ListController: UIViewController, TaskViewDelegate {
             navigationController?.navigationBar.layer.add(fadeTextAnimation, forKey: "fadeText")
             switch swipeGesture.direction {
             case .down:
-                self.tableView.tableHeaderView?.fadeIn()
-                self.tableViewTop?.constant = -10
+                self.headerView.isHidden = false
+                if sortType != "" {
+                    self.tableViewTop?.constant = 120
+                } else {
+                    self.tableViewTop?.constant = 80
+                }
                 if tasksList.count + completedTasks.count <= 6  {
                     UIView.animate(withDuration: 0.4) {
                         self.tableView.layoutIfNeeded()
@@ -870,8 +881,8 @@ class ListController: UIViewController, TaskViewDelegate {
                 navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
                 self.navigationItem.title = ""
             case .up:
-                self.tableView.tableHeaderView?.fadeOut()
-                self.tableViewTop?.constant = -80
+                self.headerView.isHidden = true
+                self.tableViewTop?.constant = sortType != "" ? -20 : -60
                 if tasksList.count + completedTasks.count <= 6 {
                     UIView.animate(withDuration: 0.4) {
                         self.tableView.layoutIfNeeded()

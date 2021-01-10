@@ -417,6 +417,11 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 task.position = idx
             }
         }
+        try! uiRealm.write {
+            sortType = sortOptions[row]
+            listObject.sortType = sortOptions[row]
+        }
+        self.tableViewTop?.constant = 120
         let range = NSMakeRange(0, self.tableView.numberOfSections)
         let sections = NSIndexSet(indexesIn: range)
         self.tableView.reloadSections(sections as IndexSet, with: .automatic)
@@ -433,21 +438,21 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             createTappedDone(tag: 1)
         case "Select Tasks":
             editingCell = true
-            tableView.reloadData()
             slideUpViewTapped()
-            tableView.tableHeaderView?.fadeOut()
-            tableViewTop?.constant = -80
+            self.headerView.isHidden = true
+            tableViewTop?.constant = -60
             tableView.setContentOffset(.init(x: -45, y: -80), animated: true)
             plusTaskView.isHidden = true
             tableView.isEditing = true
             addBottomView()
             createTappedDone(editingList: true)
-                        navigationItem.title = listTitle
+            navigationItem.title = listTitle
             self.view.removeGestureRecognizer(swipeUp)
             self.view.removeGestureRecognizer(swipeDown)
             for task in tasksList + completedTasks {
                 selectedDict[task.id] = false
             }
+            tableView.reloadData()
         case "Sort":
             tappedIcon = "Sort Options"
             slideUpView.reloadData()
