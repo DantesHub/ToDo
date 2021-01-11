@@ -23,7 +23,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             if tappedIcon == "Add to a List" {
                 return lists.count
             } else if tappedIcon == "List Options" {
-                return 6
+                return 5
             } else if tappedIcon == "Sort Options" {
                 return 5
             } else {
@@ -197,7 +197,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 }
                 cell.icon.image = UIImage(named: imgName)?.resize(targetSize: CGSize(width: 35, height: 35))
             default:
-                print("default")
+                break
             }
             cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.25)
             return cell
@@ -384,7 +384,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 }
                 
             default:
-                print("default")
+                break
             }
         }
     }
@@ -459,13 +459,20 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             createSlider(sortOptions: true)
         case "Change Theme & Color":
             creating = true
-            createTappedDone()
             slideUpViewTapped()
             createCustomListView(change: true)
         case "Print List":
             print("row")
         case  "Delete List":
-            print("shibal")
+            let alertController = UIAlertController(title: "Are you sure you want to delete \(listTitle)?", message: "", preferredStyle: UIAlertController.Style.alert)
+            let okayAction = UIAlertAction(title: "Yes", style: UIAlertAction.Style.default) { [self] (action) in
+                self.slideUpViewTapped(deleting: true)
+            }
+            
+            let no = UIAlertAction(title: "No", style: UIAlertAction.Style.default)
+            alertController.addAction(okayAction)
+            alertController.addAction(no)
+            self.present(alertController, animated: true, completion: nil)
         default:
             break
         }

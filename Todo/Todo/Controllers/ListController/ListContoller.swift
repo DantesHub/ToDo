@@ -116,12 +116,12 @@ class ListController: UIViewController, TaskViewDelegate {
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
     var completedExpanded = true
-    var reversed = false 
+    var reversed = false
     let lists = uiRealm.objects(ListObject.self)
     var accessBool = false
     var listObject: ListObject = ListObject()
     var sortOptions: [String] = ["Important", "Alphabetically", "Priority", "Due Date", "Creation Date"]
-    var listOptions: [String] = ["Rename List", "Select Tasks", "Sort", "Change Theme & Color", "Print List", "Delete List"]
+    var listOptions: [String] = ["Rename List", "Select Tasks", "Sort", "Change Theme & Color", "Delete List"]
     lazy var swipeDown: UISwipeGestureRecognizer = {
         return UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
     }()
@@ -285,7 +285,7 @@ class ListController: UIViewController, TaskViewDelegate {
         window?.addSubview(containerView)
         containerView.alpha = 0
         if createSlider {
-            let extraHeight: CGFloat = sortOptions ? 50 : listOptions ? 100 : 0
+            let extraHeight: CGFloat = sortOptions ? 50 : listOptions ? 50 : 0
             slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight + (extraHeight))
             slideUpView.register(TaskSlideCell.self, forCellWithReuseIdentifier: K.taskSlideCell)
             slideUpView.register(SliderSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
@@ -309,7 +309,6 @@ class ListController: UIViewController, TaskViewDelegate {
                 pickerView.layer.cornerRadius = 15
                 window?.addSubview(pickerView)
                 animateSlider(height: slideUpViewHeight - 40, containerView: containerView, pickerView: pickerView)
-                
             } else {
                 pickerView.layer.cornerRadius = 15
                 pickerView.frame = CGRect(x: 0, y: ((window?.frame.height)! - 50), width: screenSize.width, height: slideUpViewHeight + 50)
@@ -344,7 +343,7 @@ class ListController: UIViewController, TaskViewDelegate {
         configureNavBar()
     }
     
-    @objc func slideUpViewTapped() {
+    @objc func slideUpViewTapped(deleting: Bool = false) {
         UIView.animate(withDuration: 0.4,
                        delay: 0, usingSpringWithDamping: 1.0,
                        initialSpringVelocity: 1.0,
@@ -352,7 +351,22 @@ class ListController: UIViewController, TaskViewDelegate {
                         self.containerView.alpha = 0
                         self.slideUpView.frame = CGRect(x: 0, y: (self.window?.frame.height)!, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height
                         )
-                       }, completion: nil)
+                       }) { (lo) in
+            
+            if deleting {
+                try! uiRealm.write {
+                    if tasksList.count + completedTasks.count > 0 {
+                        for task in tasksList + completedTasks {
+                            uiRealm.delete(task)
+                        }
+                    }
+                    self.tableView.removeFromSuperview()
+                    uiRealm.delete(self.listObject)
+                    self.reloadDelegate?.reloadTableView()
+                    self.navigationController?.popViewController(animated: true)
+                }
+            }
+        }
     }
     
     func addBottomView() {
@@ -408,7 +422,6 @@ class ListController: UIViewController, TaskViewDelegate {
             let alertController = UIAlertController(title: "Please Select A Task", message: "", preferredStyle: UIAlertController.Style.alert)
             let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
                                             (action : UIAlertAction!) -> Void in })
-            
             alertController.addAction(okayAction)
             self.present(alertController, animated: true, completion: nil)
             return true
@@ -598,18 +611,13 @@ class ListController: UIViewController, TaskViewDelegate {
         createNewList(tag: sender.tag)
         addTaskField.isHidden = false
         if sender.tag == 0 {
-            try! uiRealm.write {
-                for list in lists  {
-                    if list.name == listTitle {
-                        list.backgroundColor = K.getStringColor(selectedListBackground)
-                        list.textColor = K.getStringColor(selectedListTextColor)
-                        list.backgroundImage = selectedListImage
-                        changeTheme()
-                    }
-                }
-            }
-            
+            updateTheme()
         }
+        photoButton.removeFromSuperview()
+        backgroundButton.removeFromSuperview()
+        textButton.removeFromSuperview()
+        customizeCollectionView.removeFromSuperview()
+        customizeListView.removeFromSuperview()
     }
     
     @objc func tappedDoneEditing() {
@@ -706,6 +714,7 @@ class ListController: UIViewController, TaskViewDelegate {
         addTaskField.text = ""
         getRealmData()
         tableView.reloadData()
+        reloadDelegate?.reloadTableView()
     }
     
     @objc func tappedOutside() {
@@ -789,6 +798,15 @@ class ListController: UIViewController, TaskViewDelegate {
             hr.leading(to: customizeListView)
             hr.trailing(to: customizeListView)
             hr.height(0.5)
+            
+            let done = UIButton()
+            done.setTitle("Done", for: .normal)
+            done.setTitleColor(.blue, for: .normal)
+            done.titleLabel?.font = UIFont(name: "OpenSans", size: 20)
+            customizeListView.addSubview(done)
+            done.trailing(to: customizeListView, offset: -20)
+            done.top(to: customizeListView, offset: 20)
+            done.addTarget(self, action: #selector(tappedDoneCustom), for: .touchUpInside)
         }
 
         customizeListView.layer.cornerRadius = 15
@@ -846,12 +864,36 @@ class ListController: UIViewController, TaskViewDelegate {
         customizeCollectionView.leading(to: customizeListView)
         customizeCollectionView.trailing(to: customizeListView)
         
-        customizeCollectionView.bottom(to: customizeListView)
+        customizeCollectionView.topToBottom(of: photoButton, offset: 5)
         customizeCollectionView.backgroundColor = .white
         customizeCollectionView.allowsSelection = true
         customizeCollectionView.width(view.frame.width)
         customizeCollectionView.height(customizeListView.frame.height * (change ? 0.50 : 0.65))
  
+    }
+    @objc func tappedDoneCustom() {
+        tappedOutsideCustom()
+        updateTheme()
+    }
+    private func updateTheme() {
+        try! uiRealm.write {
+            for list in lists  {
+                if list.name == listTitle {
+                    list.backgroundColor = K.getStringColor(selectedListBackground)
+                    if selectedListTextColor != UIColor.clear {
+                        list.textColor = K.getStringColor(selectedListTextColor)
+                    } else {
+                        list.textColor = "white"
+                    }
+                    if selectedListBackground == UIColor.clear && selectedListImage == "" {
+                        list.backgroundImage = "mountain"
+                    } else {
+                        list.backgroundImage = selectedListImage
+                    }
+                    changeTheme()
+                }
+            }
+        }
     }
     @objc func tappedOutsideCustom() {
         UIView.animate(withDuration: 0.4,
@@ -862,7 +904,6 @@ class ListController: UIViewController, TaskViewDelegate {
                         self.customizeListView.frame = CGRect(x: 0, y: (self.window?.frame.height)!, width: self.customizeListView.frame.width, height: self.customizeListView.frame.height
                         )
                        }, completion: nil)
-        configureNavBar()
     }
     
     @objc func tappedCustomBack() {

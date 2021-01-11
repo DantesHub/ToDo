@@ -51,18 +51,15 @@ extension ListController: UITextFieldDelegate {
             bigTextField.isUserInteractionEnabled = false
             if tag == 0 {
                 try! uiRealm.write {
+                    listObject = list
                     uiRealm.add(list)
                 }
             } else {
-                let lists = uiRealm.objects(ListObject.self)
                 let tasks = uiRealm.objects(TaskObject.self)
-                for list in lists {
-                    if list.name == oldTitle {
-                        try! uiRealm.write {
-                            list.name = listTitle
-                        }
-                    }
+                try! uiRealm.write {
+                    listObject.name = listTitle
                 }
+        
                 for task in tasks {
                     if task.parentList == oldTitle {
                         try! uiRealm.write {
