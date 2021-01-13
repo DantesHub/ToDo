@@ -17,6 +17,7 @@
 		FE4B42D9256EE7F3007CFE37 /* TCTableviews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42D8256EE7F3007CFE37 /* TCTableviews.swift */; };
 		FE4B42DC256EE877007CFE37 /* TCTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42DB256EE877007CFE37 /* TCTextField.swift */; };
 		FE4B42EF257C3C05007CFE37 /* CircleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42EE257C3C05007CFE37 /* CircleCell.swift */; };
+		FE687DFD25AFAF1C00014EDB /* LCPhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE687DFC25AFAF1B00014EDB /* LCPhoto.swift */; };
 		FE7010A525A2646D008AD73D /* BoxOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7010A425A2646D008AD73D /* BoxOption.swift */; };
 		FE76790E253E3B9500012A59 /* GroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE76790D253E3B9500012A59 /* GroupCell.swift */; };
 		FE76791025435E8200012A59 /* MainTableviews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE76790F25435E8200012A59 /* MainTableviews.swift */; };
@@ -69,6 +70,7 @@
 		FE4B42D8256EE7F3007CFE37 /* TCTableviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCTableviews.swift; sourceTree = "<group>"; };
 		FE4B42DB256EE877007CFE37 /* TCTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCTextField.swift; sourceTree = "<group>"; };
 		FE4B42EE257C3C05007CFE37 /* CircleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleCell.swift; sourceTree = "<group>"; };
+		FE687DFC25AFAF1B00014EDB /* LCPhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LCPhoto.swift; sourceTree = "<group>"; };
 		FE7010A425A2646D008AD73D /* BoxOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoxOption.swift; sourceTree = "<group>"; };
 		FE76790D253E3B9500012A59 /* GroupCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCell.swift; sourceTree = "<group>"; };
 		FE76790F25435E8200012A59 /* MainTableviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTableviews.swift; sourceTree = "<group>"; };
@@ -159,6 +161,7 @@
 				FEF485FD254A080D000CCDF7 /* LCTextField.swift */,
 				FEF485FF254A0833000CCDF7 /* LCTableView.swift */,
 				FE0520D025538D230052F8DA /* LCKeyboardToolbarDelegate.swift */,
+				FE687DFC25AFAF1B00014EDB /* LCPhoto.swift */,
 			);
 			path = ListController;
 			sourceTree = "<group>";
@@ -452,6 +455,7 @@
 				FEF7F06D2569B5ED00E92BC9 /* StepCell.swift in Sources */,
 				FE76791025435E8200012A59 /* MainTableviews.swift in Sources */,
 				FE7719402537973B00131A5D /* AddListToGroupCell.swift in Sources */,
+				FE687DFD25AFAF1C00014EDB /* LCPhoto.swift in Sources */,
 				FE7AE2B725152A0300D889DD /* AppDelegate.swift in Sources */,
 				FEF7F0662568516600E92BC9 /* TaskOptionCell.swift in Sources */,
 				FE4B42D0256DE645007CFE37 /* TaskSliderCell.swift in Sources */,

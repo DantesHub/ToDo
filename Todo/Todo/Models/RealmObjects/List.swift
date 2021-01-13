@@ -17,6 +17,7 @@ class ListObject: Object {
     @objc dynamic var backgroundImage = "mountain"
     @objc  dynamic var sortType = ""
     @objc dynamic var reversed = false
+    @objc dynamic var customImage: String? = nil
     var groupPositions = List<GroupPosition>()
 }
 

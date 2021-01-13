@@ -243,6 +243,10 @@ extension UIImage {
         }
         
     }
+//    var data : Data? {
+//        return cgImage?.dataProvider?.data as Data?
+//    }
+    
     func imageWithInsets(insets: UIEdgeInsets) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(
             CGSize(width: self.size.width + insets.left + insets.right,

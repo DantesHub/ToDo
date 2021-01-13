@@ -9,6 +9,10 @@
 import UIKit
 import RealmSwift
 import FSCalendar
+import Photos
+class MyImageBlob {
+    var data: NSData?
+}
 extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, FSCalendarDataSource, FSCalendarDelegate, ReloadCollection {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == customizeCollectionView {
@@ -210,12 +214,21 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             }
     }
 }
-    
+
+
+    //MARK: -
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == customizeCollectionView {
             let cell = collectionView.cellForItem(at: indexPath) as! CircleCell
-            cell.isHighlighted = true
-            collectionView.reloadData()
+            if customizeSelection == "Photo" {
+                //upload custom photo
+                if indexPath.row == 0 {
+                    uploadPhoto()
+                }
+                cell.isHighlighted = true
+                collectionView.reloadData()
+            }
+  
         } else {
             switch tappedIcon {
             //only present in favorite, scheduled and all tasks

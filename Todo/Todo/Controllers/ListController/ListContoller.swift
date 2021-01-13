@@ -95,6 +95,7 @@ class ListController: UIViewController, TaskViewDelegate {
     var dates = ["Later Today", "Tomorrow", "Next Week", "Pick a Date & Time"]
     var firstAppend = true
     var customizeListView = UIView()
+    var selectedImage = UIImage()
     var customizeSelection = "Photo"
     var headerView = UIView()
     var customizeCollectionView: UICollectionView = {
@@ -106,6 +107,7 @@ class ListController: UIViewController, TaskViewDelegate {
         cv.backgroundColor = .white
         return cv
     }()
+    var imagePicker = UIImagePickerController()
     let window = UIApplication.shared.keyWindow
     var photos: [String] = ["addPicture", "campfire", "mountain", "nature", "forest", "rain", "seaside", "seaside2", "space"]
     var backgroundColors:[UIColor] = [blue, purple, darkRed, darkOrange, darkGreen, turq, gray]
@@ -493,6 +495,9 @@ class ListController: UIViewController, TaskViewDelegate {
                 selectedListBackground = K.getListColor(list.backgroundColor)
                 selectedListTextColor = K.getListColor(list.textColor)
                 selectedListImage = list.backgroundImage
+                if selectedListImage == "addPicture" {
+                    selectedImage = getSavedImage(named: list.name) ?? UIImage()
+                }
             }
         }
         completedTasks = []
@@ -600,8 +605,13 @@ class ListController: UIViewController, TaskViewDelegate {
             backgroundImage.image = nil
             backgroundImage.backgroundColor = selectedListBackground
         } else if selectedListImage != "" {
-            let selectedImage = selectedListImage + "Background"
-            backgroundImage.image = UIImage(named: selectedImage)
+            if selectedListImage == "addPicture" {
+                backgroundImage.image = selectedImage
+            } else {
+                let selectedImage = selectedListImage + "Background"
+                backgroundImage.image = UIImage(named: selectedImage)
+            }
+          
         } else if K.getStringColor(selectedListTextColor) != "" {
             listTextColor = selectedListTextColor
         }
