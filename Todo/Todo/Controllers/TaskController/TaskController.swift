@@ -54,7 +54,7 @@ class TaskController: UIViewController, ReloadSlider {
     var footer = UIView()
     let results = uiRealm.objects(TaskObject.self)
     var stepsFooterView = UIView()
-    let plus = UIImageView(image: UIImage(named: "plus")?.resize(targetSize: CGSize(width: 45, height: 45)).withTintColor(.blue))
+    let plus = UIImageView(image: UIImage(named: "plus")?.resize(targetSize: CGSize(width: 45, height: 45)))
     let addStepLabel = UILabel()
     var slideUpView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()

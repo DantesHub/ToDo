@@ -59,7 +59,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             circle.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.70, additionalBrightness: 0.25)
 
             if priColor == UIColor.clear {
-                circle.layer.borderColor = UIColor.gray.cgColor
+                circle.layer.borderColor = listTextColor == .white ? UIColor.darkGray.cgColor : listTextColor.cgColor
             } else {
                 circle.layer.borderColor = priColor.cgColor
             }
@@ -95,7 +95,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             let checkGest = UITapGestureRecognizer(target: self, action: #selector(tappedCheck))
             check.addGestureRecognizer(checkGest)
             if color == UIColor.clear {
-                check.image = check.image?.withTintColor(.gray)
+                check.image = check.image?.withTintColor(listTextColor == .white ? .gray : listTextColor )
             } else {
                 check.image = check.image?.withTintColor(color)
             }
@@ -120,10 +120,12 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
     }
     
     private func configureDefaultFooter() {
+        let col = listTextColor == .white ? .blue : listTextColor
         plus.leading(to: stepsFooterView, offset: 20)
         plus.top(to: stepsFooterView, offset: -7)
+        plus.image = plus.image?.withTintColor(col)
         addStepLabel.font = UIFont(name: "OpenSans-Regular", size: 20)
-        addStepLabel.textColor = .blue
+        addStepLabel.textColor = col
         addStepLabel.text = "Add Step"
         stepsFooterView.addSubview(addStepLabel)
         addStepLabel.top(to: stepsFooterView)
@@ -138,8 +140,8 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         circleStep.height(25)
         circleStep.backgroundColor = .white
         circleStep.layer.borderWidth = 2
-        circleStep.layer.borderColor = UIColor.darkGray.cgColor
-        stepsFooterView.addSubview(circleStep)
+        circleStep.layer.borderColor = listTextColor == .white ? UIColor.darkGray.cgColor : listTextColor.cgColor
+            stepsFooterView.addSubview(circleStep)
         circleStep.leading(to: stepsFooterView, offset: 30)
         circleStep.top(to: stepsFooterView)
         
@@ -151,10 +153,13 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         addStepField.becomeFirstResponder()
         
         let done = UIButton(type: .system)
+        let col = listTextColor == .white ? .gray : listTextColor
         done.setTitle("Done", for: .normal)
-        done.setTitleColor(.blue, for: .normal)
+        done.setTitleColor(col, for: .normal)
+        let img =  UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(col)
         done.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 18)
-        done.setImage(UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25)), for: .normal)
+        done.setImage(img, for: .normal)
+        done.tintColor = col
         done.addTarget(self, action: #selector(tappedDone), for: .touchUpInside)
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
     }
@@ -179,6 +184,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             cell.cellTitle.text = steps[indexPath.row].stepName
             cell.id = steps[indexPath.row].id
             cell.delegate = self
+            cell.cellTitle.textColor = K.getColor(priority) == .clear ? listTextColor == .white ? .blue : listTextColor : K.getColor(priority)
             cell.taskDelegate = delegate
             cell.selectionStyle = .none
 //            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.35)
@@ -187,9 +193,11 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         } else  {
              let cell = tableView.dequeueReusableCell(withIdentifier: "taskOptionCell") as! TaskOptionCell
             cell.cellTitle.text = defaultList[indexPath.row]
+            cell.cellTitle.textColor = .gray
             cell.type = defaultList[indexPath.row]
             cell.id = id
             cell.taskDelegate = delegate
+            let col = listTextColor == .white ? .blue : listTextColor
             switch defaultList[indexPath.row] {
             case "Add to a List":
                 var parented = false
@@ -200,8 +208,8 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
                         cell.createX()
                     }
                 }
-                cell.cellImage.image = UIImage(named: "list")?.resize(targetSize: CGSize(width: 22, height: 22)).withTintColor(!parented ? .gray : .blue)
-                cell.cellTitle.textColor = !parented ? .gray : .blue
+                cell.cellImage.image = UIImage(named: "list")?.resize(targetSize: CGSize(width: 22, height: 22)).withTintColor(!parented ? .gray : col)
+                cell.cellTitle.textColor = !parented ? .gray : col
             case "Priority":
                 if priority == 0 {
                     cell.cellImage.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 19, height: 22)).withTintColor(.gray)
@@ -222,14 +230,14 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
                         cell.cellTitle.text = "Priority 3"
                         cell.cellTitle.textColor = .blue
                     } else if priority == 4 {
-                        cell.cellImage.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 19, height: 22)).withTintColor(.blue)
+                        cell.cellImage.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 19, height: 22)).withTintColor(col)
                         cell.cellTitle.text = "Priority 4"
-                        cell.cellTitle.textColor = .blue
+                        cell.cellTitle.textColor = col
                     }
                 }
             case "Remind Me":
-                cell.cellImage.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(reminderDate == "" ? .gray : .blue)
-                cell.cellTitle.textColor = reminderDate == "" ? .gray : .blue
+                cell.cellImage.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(reminderDate == "" ? .gray : col)
+                cell.cellTitle.textColor = reminderDate == "" ? .gray : col
                 let newReminder = reminderDate.replacingOccurrences(of: "-", with: " ")
                 if reminderDate != "" {
                     cell.createX()
@@ -237,20 +245,20 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
                 }
             case "Add Due Date":
                 cell.cellImage.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(plannedDate == "" ? .gray : .blue)
-                cell.cellTitle.textColor = plannedDate == "" ? .gray : .blue
+                cell.cellTitle.textColor = plannedDate == "" ? .gray : col
                 let newPlanned = plannedDate.replacingOccurrences(of: "-", with: " ")
                 if plannedDate != "" {
                     cell.cellTitle.text = Date().getDifference(date: newPlanned)
                     cell.createX()
                 }
             case "Repeat":
-                cell.cellImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 23, height: 23)).withTintColor(repeatTask == "" ? .gray : .blue)
+                cell.cellImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 23, height: 23)).withTintColor(repeatTask == "" ? .gray : col)
                 cell.dueDate = plannedDate
                 cell.reminder = reminderDate
                 if repeatTask != "" {
                     cell.cellTitle.text = "Every " + repeatTask
                     cell.createX()
-                    cell.cellTitle.textColor = .blue
+                    cell.cellTitle.textColor = col
                 }
             case "Add File":
                 cell.cellImage.image = UIImage(named: "file")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(.gray)

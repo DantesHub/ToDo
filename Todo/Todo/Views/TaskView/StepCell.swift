@@ -57,7 +57,7 @@ class StepCell: UITableViewCell {
         circleView.addGestureRecognizer(circleTapped)
         circleView.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.70, additionalBrightness: 0.15)
         if priColor == UIColor.clear {
-            circleView.layer.borderColor = UIColor.gray.cgColor
+            circleView.layer.borderColor = listTextColor == .white ? UIColor.darkGray.cgColor : listTextColor.cgColor
         } else {
             circleView.layer.borderColor = priColor.cgColor
         }
@@ -91,7 +91,7 @@ class StepCell: UITableViewCell {
         if priColor != UIColor.clear {
             check.image = check.image?.withTintColor(color)
         } else {
-            check.image = check.image?.withTintColor(.gray)
+            check.image = check.image?.withTintColor(listTextColor == .white ? UIColor.darkGray : listTextColor)
         }
         let taskTitle = cellTitle.text
         let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: taskTitle!)

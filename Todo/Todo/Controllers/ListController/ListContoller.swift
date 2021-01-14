@@ -29,6 +29,8 @@ var addedStep = false
 var createdNewList = false
 var editingCell = false
 var selectedDict: [String: Bool] = [String:Bool]()
+var listTextColor = UIColor.white
+
 class ListController: UIViewController, TaskViewDelegate {
     //MARK: - instance variables
     let formatter: DateFormatter = {
@@ -48,7 +50,6 @@ class ListController: UIViewController, TaskViewDelegate {
     let tableView = UITableView(frame: .zero, style: .grouped)
     var lastKnowContentOfsset: CGFloat = 0
     var scrolledUp = false
-    var listTextColor = UIColor.clear
     var tableViewTop : NSLayoutConstraint?
     var nameTaken = false
     var plusTaskView = UIImageView()
@@ -61,6 +62,7 @@ class ListController: UIViewController, TaskViewDelegate {
     var reminder = false
     var added50ToReminder = false
     var added50ToDueDate = false
+    var selectedListTextColor = UIColor.white
     var laterTapped = false
     var slideUpView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -84,7 +86,6 @@ class ListController: UIViewController, TaskViewDelegate {
     }()
     var selectedListImage = ""
     var selectedListBackground = UIColor.clear
-    var selectedListTextColor = UIColor.clear
     var pickUpSection = 0
     var dueDateTapped = false
     var pickerTitle = UILabel()
@@ -612,8 +613,10 @@ class ListController: UIViewController, TaskViewDelegate {
                 backgroundImage.image = UIImage(named: selectedImage)
             }
           
-        } else if K.getStringColor(selectedListTextColor) != "" {
+        }
+        if K.getStringColor(selectedListTextColor) != "" {
             listTextColor = selectedListTextColor
+            bigTextField.textColor = listTextColor
         }
     }
     //MARK: - Tapped Done
@@ -747,7 +750,7 @@ class ListController: UIViewController, TaskViewDelegate {
         bigTextField.centerY(to: headerView)
         bigTextField.height(100)
         bigTextField.placeholder = listTitle
-        bigTextField.textColor = .white
+        bigTextField.textColor = listTextColor
         bigTextField.text = listTitle
         if !creating {
             bigTextField.isUserInteractionEnabled = false
@@ -883,6 +886,9 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     @objc func tappedDoneCustom() {
         tappedOutsideCustom()
+        customizeSelection = "Photo"
+        photoButton.setTitleColor(.white, for: .normal)
+        customizeCollectionView.reloadData()
         updateTheme()
     }
     private func updateTheme() {

@@ -111,6 +111,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             cell.type = customizeSelection
             cell.delegate = self
             cell.removeBase()
+            print("")
             if customizeSelection == "Photo" {
                 cell.image = photos[indexPath.row]
                 cell.color = UIColor.clear
@@ -225,9 +226,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 if indexPath.row == 0 {
                     uploadPhoto()
                 }
-                cell.isHighlighted = true
-                collectionView.reloadData()
             }
+            cell.isHighlighted = true
+            collectionView.reloadData()
   
         } else {
             switch tappedIcon {

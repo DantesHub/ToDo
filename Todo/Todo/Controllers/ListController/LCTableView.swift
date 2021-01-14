@@ -378,6 +378,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     }
     
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+            print("bronchidis")
             pickUpSection = indexPath.section
             return tasksList.dragItems(for: indexPath)
     }
@@ -398,6 +399,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     }
     private func tableView(tableView: UITableView!, canEditRowAtIndexPath indexPath: NSIndexPath!) -> Bool
     {
+        print("zig")
         return true
     }
     

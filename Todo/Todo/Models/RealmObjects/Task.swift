@@ -43,12 +43,12 @@ class Step: Object {
 }
 
 extension Array where Element == TaskObject {
+  
     func dragItems(for indexPath: IndexPath) -> [UIDragItem] {
         let placeName = indexPath.section == 0 ? tasksList[indexPath.row].name : completedTasks[indexPath.row].name
 
         let data = placeName.data(using: .utf8)
         let itemProvider = NSItemProvider()
-        
         itemProvider.registerDataRepresentation(forTypeIdentifier: kUTTypePlainText as String, visibility: .all) { completion in
             completion(data, nil)
             return nil
@@ -56,7 +56,10 @@ extension Array where Element == TaskObject {
         return [
             UIDragItem(itemProvider: itemProvider)
         ]
+        
     }
+
+    
     /// The method for adding a new item to the table view's data model.
     func addItem(_ place: TaskObject
                  , at index: Int) {
