@@ -24,6 +24,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.makeKeyAndVisible()
         IQKeyboardManager.shared.enableAutoToolbar = false
         print(Realm.Configuration.defaultConfiguration.fileURL!)
+        UserDefaults.standard.register(defaults: [
+               "notif": true,
+               ])
         return true
     }
 

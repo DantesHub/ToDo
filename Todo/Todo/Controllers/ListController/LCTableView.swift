@@ -11,9 +11,13 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     func reloadTaskTableView(at: IndexPath, checked: Bool, repeats: String = "") {
         if checked {
             let task = completedTasks.remove(at: at.row)
-            tasksList.append(task)
+            if UserDefaults.standard.bool(forKey: "toTop") {
+                tasksList.insert(task, at: 0)
+            } else {
+                tasksList.append(task)
+            }
             self.tableView.performBatchUpdates({
-                self.tableView.moveRow(at: at, to: IndexPath(item: tasksList.count - 1, section: 0))
+                self.tableView.moveRow(at: at, to: IndexPath(item: UserDefaults.standard.bool(forKey: "toTop") ? 0 : tasksList.count - 1, section: 0))
             }, completion: { [self] finished in
                 self.tableView.reloadData()
             })

@@ -532,9 +532,12 @@ class ListController: UIViewController, TaskViewDelegate {
                 }
             }
         }
+       
         completedTasks = completedTasks.sorted {
             return $0.completedDate > $1.completedDate
         }
+        
+        
         changeTheme()
     }
     
@@ -579,24 +582,26 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     func createReminderNotification(id: String) {
-        let content = UNMutableNotificationContent()
-        content.title = self.addTaskField.text!
-        content.body = "Let's Get To It!"
-        let formatter3 = DateFormatter()
-        formatter3.dateFormat = "MMM dd,yyyy h:mm a"
-        
-        let dat = formatter3.date(from: dateReminderSelected + " " + timeReminderSelected)
-        let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dat!)
-        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
-        
-        // Create the request
-        let request = UNNotificationRequest(identifier: id,
-                                            content: content, trigger: trigger)
-        
-        // Schedule the request with the system.
-        let notificationCenter = UNUserNotificationCenter.current()
-        notificationCenter.add(request) { (error) in
-            if error != nil { }
+        if UserDefaults.standard.bool(forKey: "notif") {
+            let content = UNMutableNotificationContent()
+            content.title = self.addTaskField.text!
+            content.body = "Let's Get To It!"
+            let formatter3 = DateFormatter()
+            formatter3.dateFormat = "MMM dd,yyyy h:mm a"
+            
+            let dat = formatter3.date(from: dateReminderSelected + " " + timeReminderSelected)
+            let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dat!)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
+            
+            // Create the request
+            let request = UNNotificationRequest(identifier: id,
+                                                content: content, trigger: trigger)
+            
+            // Schedule the request with the system.
+            let notificationCenter = UNUserNotificationCenter.current()
+            notificationCenter.add(request) { (error) in
+                if error != nil { }
+            }
         }
     }
     

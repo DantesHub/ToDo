@@ -51,7 +51,7 @@ class SettingsController: UIViewController {
     }
     
     @objc func tappedDone() {
-        print("tapped Done")
+        self.navigationController?.popViewController(animated: true)
     }
 }
  

@@ -151,7 +151,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 let bg = lists[indexPath.row].backgroundImage
                 let bc = lists[indexPath.row].backgroundColor
                 if bg != "" {
-                    cellImage = "circle"
+                    cellImage = bg == "addPicture" ? lists[indexPath.row].name : bg
                 } else if bc != "" {
                     cellImage = "circle"
                     colorIn = true
@@ -159,9 +159,13 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     cellImage = "mountain"
                 }
                 
-                cell.icon.image = UIImage(named: cellImage)?.resize(targetSize: CGSize(width: 30, height: 30))
+                if bg == "addPicture" {
+                    cell.icon.image = getSavedImage(named: cellImage)?.resize(targetSize: CGSize(width: 35, height: 35))
+                    cell.icon.roundedImage()
+                } else {
+                    cell.icon.image = UIImage(named: cellImage)?.resize(targetSize: CGSize(width: 35, height: 35))
+                }
                 if colorIn { cell.icon.image = cell.icon.image?.withTintColor(K.getListColor(bc))}
-               
             case "Priority":
                 if indexPath.row == 3 {
                     cell.icon.image = UIImage(named: "flag2")?.resize(targetSize: CGSize(width: 30, height: 30))
@@ -250,9 +254,11 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     if selectedList == listTitle {
                         tappedDoneEditing()
                         slideUpViewTapped()
+                        return
                     }
                     let tasks = uiRealm.objects(TaskObject.self)
                     var count = 0
+                    var count2 = 0
                     for task in tasks {
                         if task.parentList == selectedList && task.completed == false{
                             count += 1
@@ -267,8 +273,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                                     if task.completed {
                                         task.position = -1
                                     } else {
-                                        task.position = count
+                                        task.position = UserDefaults.standard.bool(forKey: "toTop") ? count2 : count
                                     }
+                                    count2 += 1
                                     count += 1
                                 }
                             tasksList.removeAll { (t) -> Bool in
@@ -276,6 +283,16 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                             }
                         }
                     }
+                    if UserDefaults.standard.bool(forKey: "toTop") {
+                        for task2 in  tasks {
+                            if task2.parentList == selectedList && selectedDict[task2.id] == nil {
+                                try! uiRealm.write {
+                                    task2.position = task2.position + count2
+                                }
+                            }
+                        }
+                    }
+                
                     for (idx, task) in completedTasks.enumerated() {
                         if selectedDict[task.id] == true {
                                 try! uiRealm.write {

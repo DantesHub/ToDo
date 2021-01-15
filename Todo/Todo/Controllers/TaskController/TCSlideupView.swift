@@ -330,27 +330,29 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
     }
     
     func createReminderNotification(date: String) {
-        let content = UNMutableNotificationContent()
-        content.title = taskTitle
-        content.body = "Let's Get To It!"
-        let newDate = date.replacingOccurrences(of: "-", with: " ")
-        var dateComponents = DateComponents()
-        dateComponents.calendar = Calendar.current
-        let dat = fullFormatter.date(from: newDate)
-   
-        let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dat!)
-        let trigger = UNCalendarNotificationTrigger(
-                 dateMatching: comps, repeats: true)
-        
-        // Create the request
-        let uuidString = UUID().uuidString
-        let request = UNNotificationRequest(identifier: uuidString,
-                    content: content, trigger: trigger)
+        if UserDefaults.standard.bool(forKey: "notif") {
+            let content = UNMutableNotificationContent()
+            content.title = taskTitle
+            content.body = "Let's Get To It!"
+            let newDate = date.replacingOccurrences(of: "-", with: " ")
+            var dateComponents = DateComponents()
+            dateComponents.calendar = Calendar.current
+            let dat = fullFormatter.date(from: newDate)
+       
+            let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dat!)
+            let trigger = UNCalendarNotificationTrigger(
+                     dateMatching: comps, repeats: true)
+            
+            // Create the request
+            let uuidString = UUID().uuidString
+            let request = UNNotificationRequest(identifier: uuidString,
+                        content: content, trigger: trigger)
 
-        // Schedule the request with the system.
-        let notificationCenter = UNUserNotificationCenter.current()
-        notificationCenter.add(request) { (error) in
-           if error != nil { }
+            // Schedule the request with the system.
+            let notificationCenter = UNUserNotificationCenter.current()
+            notificationCenter.add(request) { (error) in
+               if error != nil { }
+            }
         }
     }
     

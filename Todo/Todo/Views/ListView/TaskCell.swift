@@ -486,12 +486,23 @@ class TaskCell: UITableViewCell {
                     totalTasks += 1
                 }
             }
-            for task in tasks {
+            for task in completedTasks {
                 if  task.id == id {
                     try! uiRealm.write {
                         task.completed = false
-                        task.position = totalTasks
+                        task.position = UserDefaults.standard.bool(forKey: "toTop") ? 0 : totalTasks
                         task.completedDate = Date(timeIntervalSince1970: 0)
+                    }
+                }
+            }
+            
+            //update below tasks + 1 to there positions
+            if UserDefaults.standard.bool(forKey: "toTop") {
+                for task in tasksList {
+                    if task.id != id {
+                        try! uiRealm.write {
+                            task.position = task.position + 1
+                        }
                     }
                 }
             }

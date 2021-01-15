@@ -86,14 +86,20 @@ func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) ->
     }
     return groupHeader
 }
-
+    func getSavedImage(named: String) -> UIImage? {
+        if let dir = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false) {
+            return UIImage(contentsOfFile: URL(fileURLWithPath: dir.absoluteString).appendingPathComponent(named).path)
+        }
+        return nil
+    }
 func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     if tableView == listTableView {
         let cell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath) as! MainMenuCell
         var cellImage = ""
         var colorIn = false
-        if lists[indexPath.row].backgroundImage != "" {
-            cellImage = lists[indexPath.row].backgroundImage
+        let bg = lists[indexPath.row].backgroundImage
+        if bg != "" {
+            cellImage = bg == "addPicture" ? lists[indexPath.row].name : bg
         } else if lists[indexPath.row].backgroundColor != "" {
             cellImage = "circle"
             colorIn = true
@@ -107,11 +113,19 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
                 count += 1
             }
         }
-        cell.count.text = String(count)
-        cell.cellImage.image = UIImage(named: cellImage)?.resize(targetSize: CGSize(width: 35, height: 35))
-        cell.cellTitle.text = lists[indexPath.row].name
-        if colorIn { cell.cellImage.image = cell.cellImage.image?.withTintColor(K.getListColor(lists[indexPath.row].backgroundColor))}
         cell.selectionStyle = .none
+        cell.cellTitle.text = lists[indexPath.row].name
+        cell.count.text = String(count)
+        
+        if bg == "addPicture" {
+            let img = getSavedImage(named: cellImage)?.resize(targetSize: CGSize(width: 35, height: 35))
+            cell.cellImage.image = img
+            cell.rounded = true
+            cell.layoutSubviews()
+        } else {
+            cell.cellImage.image = UIImage(named: cellImage)?.resize(targetSize: CGSize(width: 35, height: 35))
+        }
+        if colorIn { cell.cellImage.image = cell.cellImage.image?.withTintColor(K.getListColor(lists[indexPath.row].backgroundColor))}
         return cell
     } else if tableView == groupTableView {
         let cell = tableView.dequeueReusableCell(withIdentifier: "groupCell", for: indexPath) as! GroupCell
@@ -121,7 +135,7 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
         let bg = groups[indexPath.section].lists[indexPath.row].backgroundImage
         let bc = groups[indexPath.section].lists[indexPath.row].backgroundColor
         if bg != "" {
-            cellImage = bg
+            cellImage = bg == "addPicture" ? groups[indexPath.section].lists[indexPath.row].name : bg
         } else if bc != "" {
             cellImage = "circle"
             colorIn = true
@@ -136,7 +150,12 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
             }
         }
         cell.count.text = String(count)
-        cell.cellImage.image = UIImage(named: cellImage)?.resize(targetSize: CGSize(width: 22, height: 22))
+        if bg == "addPicture" {
+            cell.cellImage.image = getSavedImage(named: cellImage)?.resize(targetSize: CGSize(width: 22, height: 22))
+        } else {
+            cell.cellImage.image = UIImage(named: cellImage)?.resize(targetSize: CGSize(width: 22, height: 22))
+        }
+
         if colorIn { cell.cellImage.image = cell.cellImage.image?.withTintColor(K.getListColor(bc))}
         cell.selectionStyle = .none
         return cell
@@ -164,7 +183,7 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
         } else {
             cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 30, height: 30))
             var count = 0
-            for result in results {
+            for _ in results {
                 count += 1
             }
             cell.count.text  = String(count)

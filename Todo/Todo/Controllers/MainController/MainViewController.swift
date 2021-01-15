@@ -374,7 +374,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         
     }
     @objc func ellipsisTapped() {
-        print("ellipsis Tapped")
+        self.navigationController?.pushViewController(SettingsController(), animated: true)
     }
     
 }

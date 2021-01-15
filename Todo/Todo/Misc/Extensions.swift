@@ -46,6 +46,24 @@ extension UIImageView {
         self.layer.shouldRasterize = true
         self.layer.rasterizationScale = UIScreen.main.scale
     }
+    public func maskCircle(anyImage: UIImage) {
+      self.contentMode = UIView.ContentMode.scaleAspectFill
+      self.layer.cornerRadius = self.frame.height / 2
+      self.layer.masksToBounds = false
+      self.clipsToBounds = true
+
+     // make square(* must to make circle),
+     // resize(reduce the kilobyte) and
+     // fix rotation.
+     self.image = anyImage
+    }
+    func roundedImage() {
+        print("capper")
+        self.layer.cornerRadius = (self.frame.size.width) / 2;
+        self.clipsToBounds = true
+        self.layer.borderWidth = 3.0
+        self.layer.borderColor = UIColor.white.cgColor
+    }
 }
 extension UIView {
         func clearConstraints() {

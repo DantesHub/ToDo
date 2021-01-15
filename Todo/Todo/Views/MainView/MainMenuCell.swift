@@ -13,16 +13,17 @@ class MainMenuCell: UITableViewCell {
     var cellImage = UIImageView()
     var cellTitle = UILabel()
     var count = UILabel()
-
+    var rounded = false
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.addSubview(cellImage)
         self.addSubview(cellTitle)
         self.addSubview(count)
         
-        cellImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
         cellImage.centerY(to: self)
-        
+
+        cellImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
+
         cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: 20).isActive = true
         cellTitle.centerY(to: self)
         cellTitle.font = UIFont(name: "OpenSans-Regular", size: 17)
@@ -34,6 +35,13 @@ class MainMenuCell: UITableViewCell {
         count.textColor = UIColor.gray
         count.centerY(to: self)
     }
+    
+    override func layoutSubviews() {
+        if rounded {
+            cellImage.roundedImage()
+        }
+    }
+    
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
