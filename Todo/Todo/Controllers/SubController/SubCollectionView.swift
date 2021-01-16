@@ -22,6 +22,7 @@ extension SubscriptionController: UICollectionViewDelegate, UICollectionViewData
         if collectionView == topCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "topCell", for: indexPath) as! TopCell
             cell.imgName = topImages[indexPath.row]
+            cell.title.text = topTitles[indexPath.row]
             cell.configureUI()
             
             return cell
@@ -32,10 +33,28 @@ extension SubscriptionController: UICollectionViewDelegate, UICollectionViewData
         }
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: topCollectionView.frame.width, height: topCollectionView.frame.height)
+        if collectionView == topCollectionView {
+            return CGSize(width: topCollectionView.frame.width, height: topCollectionView.frame.height)
+        } else {
+            return CGSize(width: bottomCollectionView.frame.width * 0.85, height: bottomCollectionView.frame.height * 0.80)
+        }
     }
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        if collectionView == bottomCollectionView {
+            let flowLayout = collectionViewLayout as! UICollectionViewFlowLayout
+            let numberOfItems = CGFloat(collectionView.numberOfItems(inSection: section))
+            let combinedItemWidth = (numberOfItems * flowLayout.itemSize.width) + ((numberOfItems - 1)  * flowLayout.minimumInteritemSpacing)
+            let padding = (collectionView.frame.width - combinedItemWidth) / 7
+            return UIEdgeInsets(top: 0, left: padding, bottom: 0, right: 0)
+        }
+        return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+    }
 
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        if collectionView == bottomCollectionView {
+            return bottomCollectionView.frame.width * 0.07
+        }
           return 0
       }
 

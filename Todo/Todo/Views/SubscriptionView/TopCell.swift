@@ -23,10 +23,23 @@ class TopCell: BaseCell {
     func configureUI() {
         self.backgroundColor = lightGray
         imageView.centerX(to: self)
-        imageView.top(to: self, offset: 20)
-        imageView.width(self.frame.width * 0.65)
+        imageView.top(to: self, offset: 0)
+        imageView.width(self.frame.width * 0.70)
         imageView.height(self.frame.height * 0.70)
         imageView.contentMode = .scaleAspectFit
         imageView.image = UIImage(named: imgName)
+        
+        title.topToBottom(of: imageView, offset: -30)
+        title.centerX(to: self)
+        title.font = UIFont(name: "OpenSans-Bold", size: 22)
+        
+        desc.topToBottom(of: title)
+        desc.leading(to: self,offset: 50)
+        desc.trailing(to: self, offset: -50)
+        desc.textAlignment = .center
+        desc.text = "Repeat  feature will be accessible to premium users only. Whenever a freemium user clicks on “Repeat”"
+        desc.numberOfLines = 2
+        desc.textColor = .darkGray
+        desc.font = UIFont(name: "OpenSans", size: 12)
     }
 }

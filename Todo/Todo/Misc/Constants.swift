@@ -17,7 +17,7 @@ var darkOrange = hexStringToUIColor(hex: "b3564e")
 var turq = hexStringToUIColor(hex: "427f7c")
 var darkGreen = hexStringToUIColor(hex: "458160")
 var gray = hexStringToUIColor(hex: "6a7580")
-
+let lightPurple = hexStringToUIColor(hex: "#4C69E9")
 let gold = hexStringToUIColor(hex: "#F8D003")
 let lightGray = hexStringToUIColor(hex: "#EAEAEA")
 let green = hexStringToUIColor(hex: "#096408")

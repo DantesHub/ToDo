@@ -8,6 +8,7 @@
 
 import UIKit
 import TinyConstraints
+import StoreKit
 
 class SubscriptionController: UIViewController {
     var topCollectionView: UICollectionView = {
@@ -22,6 +23,7 @@ class SubscriptionController: UIViewController {
     }()
     var topImages = ["group", "infinityGreen", "theme", "infinityGreen", "notif", "repeatBlue", "files"]
     var topTitles = ["Groups", "No Limits", "Premium Design", "Due Date", "Unlimited Reminder", "Repeat", "File & Notes"]
+    var stories = [""]
     var bottomCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -30,11 +32,14 @@ class SubscriptionController: UIViewController {
         let cv = UICollectionView(frame: .zero
                                   , collectionViewLayout: layout)
         
+        cv.isPagingEnabled = true
         cv.showsHorizontalScrollIndicator = false
         cv.backgroundColor = .white
         return cv
     }()
+    
     var continueButton = UIButton()
+    var continueDesc = UILabel()
     var header = UIView()
     let one = RoundView()
     let two = RoundView()
@@ -43,6 +48,7 @@ class SubscriptionController: UIViewController {
     let five = RoundView()
     let six = RoundView()
     let seven = RoundView()
+    let successStories = UILabel()
     //MARK: - init
     override func viewDidLoad() {
         configureUI()
@@ -56,7 +62,7 @@ class SubscriptionController: UIViewController {
         header.trailingToSuperview()
         header.topToSuperview()
         header.backgroundColor = .white
-        header.height(view.frame.height * 0.10)
+        header.height(view.frame.height * 0.08)
         let headerTitle = UILabel()
         headerTitle.font = UIFont(name: "OpenSans", size: 28)
         headerTitle.text = "Go Premium!"
@@ -97,19 +103,46 @@ class SubscriptionController: UIViewController {
         five.leadingToTrailing(of: four, offset: 12)
         six.leadingToTrailing(of: five, offset: 12)
         seven.leadingToTrailing(of: six, offset: 12)
-     
+        
+        
+        successStories.text = "Success Stories"
+        successStories.font = UIFont(name: "OpenSans-Bold", size: 22)
+        view.addSubview(successStories)
+        successStories.centerX(to: view)
+        successStories.topToBottom(of: four, offset: 50)
         
         bottomCollectionView.leadingToSuperview()
         bottomCollectionView.trailingToSuperview()
-        bottomCollectionView.topToBottom(of: topCollectionView, offset: 20)
-        bottomCollectionView.height(view.frame.height * 0.30)
-        bottomCollectionView.backgroundColor = .red
+        bottomCollectionView.topToBottom(of: topCollectionView, offset: 70)
+        bottomCollectionView.height(view.frame.height * 0.25)
+        bottomCollectionView.backgroundColor = .white
         bottomCollectionView.delegate = self
         bottomCollectionView.dataSource = self
-    }
+        
+        view.addSubview(continueDesc)
+        continueDesc.centerX(to: view)
+        continueDesc.topToBottom(of: bottomCollectionView, offset: 26)
+        continueDesc.font = UIFont(name: "OpenSans", size: 6)
+        continueDesc.text = "7 day free trial, then $3.99 a month"
+        continueDesc.textColor = .systemBlue
+        
+        view.addSubview(continueButton)
+        continueButton.leading(to: view, offset: 30)
+        continueButton.trailing(to: view, offset: -30)
+        continueButton.topToBottom(of: continueDesc, offset: 5)
+        continueButton.titleLabel?.font = UIFont(name: "OpenSans-Bold", size: 20)
+        continueButton.height(self.view.frame.height * 0.08)
+        continueButton.setTitle("CONTINUE", for: .normal)
+        continueButton.backgroundColor = lightPurple
+        continueButton.layer.cornerRadius = 15
+        continueButton.addTarget(self, action: #selector(tappedContinue), for: .touchUpInside)
 
+    }
+    @objc func tappedContinue() {
+        print("tapped Continue ")
+    }
     
     @objc func tappedBack() {
-        navigationController?.dismiss(animated: true, completion: nil)
+        presentingViewController?.dismiss(animated: true, completion: nil)
     }
 }
