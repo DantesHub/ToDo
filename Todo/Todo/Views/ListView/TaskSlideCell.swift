@@ -17,13 +17,12 @@ class TaskSlideCell: BaseCell {
     }()
     let hr = UIView()
     let dateLabel = UILabel()
-    
+    var rounded = false
     var icon = UIImageView()
     override func setUpViews() {
         super.setUpViews()
         self.addSubview(icon)
         icon.centerY(to: self)
-        icon.roundedImage()
         icon.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
 
         self.addSubview(nameLabel)
@@ -40,6 +39,11 @@ class TaskSlideCell: BaseCell {
         self.addSubview(hr)
         let hr = UIView(frame: CGRect(x: 0, y: self.frame.height, width: self.frame.width, height: 0.5))
         hr.backgroundColor = .gray
+    }
+    override func layoutSubviews() {
+        if rounded {
+            icon.roundedImage()
+        }
     }
 }
 

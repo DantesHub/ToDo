@@ -33,7 +33,7 @@ extension ListController: UITextFieldDelegate {
         for result in results {
             if result.name == list.name {
                 //we need to tell user that name is taken
-                if list.name != oldTitle {
+                if list.name != oldTitle || list.name == "Important" || list.name == "Planned" || list.name == "All Tasks" {
                     nameTaken = true
                     let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
                     let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {

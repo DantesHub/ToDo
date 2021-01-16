@@ -47,6 +47,8 @@ extension SettingsController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 2 && indexPath.row == 0 {
             SKStoreReviewController.requestReview()
+        } else if indexPath.section == 0 {
+            self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
         }
     }
     
@@ -64,6 +66,7 @@ extension SettingsController: UITableViewDataSource, UITableViewDelegate {
         cell.sectionNumber = indexPath.section
         cell.rowNum = indexPath.row
         cell.configureSide()
+        cell.selectionStyle = .none
         return cell
     }
     

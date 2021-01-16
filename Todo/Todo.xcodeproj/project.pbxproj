@@ -12,6 +12,10 @@
 		FE0520D125538D230052F8DA /* LCKeyboardToolbarDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0520D025538D230052F8DA /* LCKeyboardToolbarDelegate.swift */; };
 		FE0520D4255608370052F8DA /* TaskCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0520D3255608370052F8DA /* TaskCell.swift */; };
 		FE0520D7255747AD0052F8DA /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0520D6255747AD0052F8DA /* CircleView.swift */; };
+		FE07127725B23E0A0040F1D5 /* SubscriptionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE07127625B23E0A0040F1D5 /* SubscriptionController.swift */; };
+		FE07127A25B23F170040F1D5 /* SubCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE07127925B23F170040F1D5 /* SubCollectionView.swift */; };
+		FE07128025B241720040F1D5 /* TopCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE07127F25B241720040F1D5 /* TopCell.swift */; };
+		FE07128325B241F90040F1D5 /* BottomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE07128225B241F90040F1D5 /* BottomCell.swift */; };
 		FE4B42CC256DE418007CFE37 /* TCSlideupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42CB256DE418007CFE37 /* TCSlideupView.swift */; };
 		FE4B42D0256DE645007CFE37 /* TaskSliderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42CF256DE645007CFE37 /* TaskSliderCell.swift */; };
 		FE4B42D9256EE7F3007CFE37 /* TCTableviews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42D8256EE7F3007CFE37 /* TCTableviews.swift */; };
@@ -68,6 +72,10 @@
 		FE0520D025538D230052F8DA /* LCKeyboardToolbarDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LCKeyboardToolbarDelegate.swift; sourceTree = "<group>"; };
 		FE0520D3255608370052F8DA /* TaskCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCell.swift; sourceTree = "<group>"; };
 		FE0520D6255747AD0052F8DA /* CircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleView.swift; sourceTree = "<group>"; };
+		FE07127625B23E0A0040F1D5 /* SubscriptionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionController.swift; sourceTree = "<group>"; };
+		FE07127925B23F170040F1D5 /* SubCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubCollectionView.swift; sourceTree = "<group>"; };
+		FE07127F25B241720040F1D5 /* TopCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCell.swift; sourceTree = "<group>"; };
+		FE07128225B241F90040F1D5 /* BottomCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomCell.swift; sourceTree = "<group>"; };
 		FE4B42CB256DE418007CFE37 /* TCSlideupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCSlideupView.swift; sourceTree = "<group>"; };
 		FE4B42CF256DE645007CFE37 /* TaskSliderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSliderCell.swift; sourceTree = "<group>"; };
 		FE4B42D8256EE7F3007CFE37 /* TCTableviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCTableviews.swift; sourceTree = "<group>"; };
@@ -145,6 +153,24 @@
 				B66C9727C6DA1280C1985888 /* Pods-Todo.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		FE07127525B23DF00040F1D5 /* SubController */ = {
+			isa = PBXGroup;
+			children = (
+				FE07127625B23E0A0040F1D5 /* SubscriptionController.swift */,
+				FE07127925B23F170040F1D5 /* SubCollectionView.swift */,
+			);
+			path = SubController;
+			sourceTree = "<group>";
+		};
+		FE07127D25B241180040F1D5 /* SubscriptionView */ = {
+			isa = PBXGroup;
+			children = (
+				FE07127F25B241720040F1D5 /* TopCell.swift */,
+				FE07128225B241F90040F1D5 /* BottomCell.swift */,
+			);
+			path = SubscriptionView;
 			sourceTree = "<group>";
 		};
 		FE4B42CA256DE401007CFE37 /* TaskController */ = {
@@ -238,6 +264,7 @@
 		FE7AE2CE25152C6C00D889DD /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				FE07127D25B241180040F1D5 /* SubscriptionView */,
 				FE58B79325B0EBF3002F1C3B /* SettingsView */,
 				FEF48601254A0E60000CCDF7 /* SliderSectionHeader.swift */,
 				FE4B42CF256DE645007CFE37 /* TaskSliderCell.swift */,
@@ -257,6 +284,7 @@
 		FE7AE2CF25152C7D00D889DD /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				FE07127525B23DF00040F1D5 /* SubController */,
 				FE58B78C25B0E442002F1C3B /* SettingsController */,
 				FE4B42CA256DE401007CFE37 /* TaskController */,
 				FE7679122543814900012A59 /* ListController */,
@@ -471,6 +499,7 @@
 				FEBC2485253668970073EBB1 /* BaseCell.swift in Sources */,
 				FE58B78E25B0E451002F1C3B /* SettingsController.swift in Sources */,
 				FEAEAE5E2527B08F003FD07D /* HorizontalBorder.swift in Sources */,
+				FE07128325B241F90040F1D5 /* BottomCell.swift in Sources */,
 				FE7AE2DE2515595100D889DD /* List.swift in Sources */,
 				FE7679162543AC3800012A59 /* KeyboardToolbar.swift in Sources */,
 				FEAEAE602527C0D9003FD07D /* ListContoller.swift in Sources */,
@@ -484,6 +513,8 @@
 				FE76791025435E8200012A59 /* MainTableviews.swift in Sources */,
 				FE7719402537973B00131A5D /* AddListToGroupCell.swift in Sources */,
 				FE687DFD25AFAF1C00014EDB /* LCPhoto.swift in Sources */,
+				FE07128025B241720040F1D5 /* TopCell.swift in Sources */,
+				FE07127725B23E0A0040F1D5 /* SubscriptionController.swift in Sources */,
 				FE7AE2B725152A0300D889DD /* AppDelegate.swift in Sources */,
 				FEF7F0662568516600E92BC9 /* TaskOptionCell.swift in Sources */,
 				FE4B42D0256DE645007CFE37 /* TaskSliderCell.swift in Sources */,
@@ -494,6 +525,7 @@
 				FE76790E253E3B9500012A59 /* GroupCell.swift in Sources */,
 				FE77193E2537813D00131A5D /* AddListToGroupTableView.swift in Sources */,
 				FE0520D4255608370052F8DA /* TaskCell.swift in Sources */,
+				FE07127A25B23F170040F1D5 /* SubCollectionView.swift in Sources */,
 				FE7AE2DC2515586D00D889DD /* ListGroup.swift in Sources */,
 				FE7AE2B925152A0300D889DD /* SceneDelegate.swift in Sources */,
 				FE7AE2C125152A0300D889DD /* Todo.xcdatamodeld in Sources */,

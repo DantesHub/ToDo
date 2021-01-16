@@ -1047,7 +1047,15 @@ class ListController: UIViewController, TaskViewDelegate {
         backButton.title = "Back"
         backButton.tintColor = .white
         self.navigationItem.leftBarButtonItem = backButton
-        navigationItem.rightBarButtonItems = [elipsis, search]
+   
+
+        if listTitle == "Important" || listTitle == "Planned" || listTitle == "All Tasks" {
+            let spacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+            spacer.width = 20
+            navigationItem.rightBarButtonItems = [spacer, search]
+        } else {
+            navigationItem.rightBarButtonItems = [elipsis, search]
+        }
         navigationController?.navigationBar.barTintColor = .clear
         navigationController?.navigationBar.isTranslucent = true
     }

@@ -58,7 +58,6 @@ extension UIImageView {
      self.image = anyImage
     }
     func roundedImage() {
-        print("capper")
         self.layer.cornerRadius = (self.frame.size.width) / 2;
         self.clipsToBounds = true
         self.layer.borderWidth = 3.0

@@ -161,7 +161,8 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 
                 if bg == "addPicture" {
                     cell.icon.image = getSavedImage(named: cellImage)?.resize(targetSize: CGSize(width: 35, height: 35))
-                    cell.icon.roundedImage()
+                    cell.rounded = true
+                    cell.layoutSubviews()
                 } else {
                     cell.icon.image = UIImage(named: cellImage)?.resize(targetSize: CGSize(width: 35, height: 35))
                 }
