@@ -11,6 +11,7 @@ class ListToGroupCell: UITableViewCell {
     var title: String = ""
     var titleLabel = UILabel()
     var imgView = UIImageView()
+    var searching = false
      //MARK: - Init
     init(style: UITableViewCell.CellStyle, reuseIdentifier: String?, title: String) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

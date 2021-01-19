@@ -42,5 +42,6 @@ class BottomCell: BaseCell {
         review.font = UIFont(name: "OpenSans", size: 16)
         review.text = "\"I have always used them because I liked the way they looked. Last job change I used\""
     }
+    
 }
 

@@ -54,7 +54,6 @@ class SubscriptionController: UIViewController {
         configureUI()
         
     }
-    
     //MARK: - helper funcs
     private func configureUI() {
         view.addSubview(header)
@@ -136,8 +135,11 @@ class SubscriptionController: UIViewController {
         continueButton.backgroundColor = lightPurple
         continueButton.layer.cornerRadius = 15
         continueButton.addTarget(self, action: #selector(tappedContinue), for: .touchUpInside)
-
+  
+        
     }
+ 
+
     @objc func tappedContinue() {
         print("tapped Continue ")
     }
@@ -145,4 +147,5 @@ class SubscriptionController: UIViewController {
     @objc func tappedBack() {
         presentingViewController?.dismiss(animated: true, completion: nil)
     }
+    
 }

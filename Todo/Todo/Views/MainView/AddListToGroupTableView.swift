@@ -19,10 +19,16 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
     var reloadDelegate: ReloadDelegate?
     var filteredLists = [ListCell]()
     var checked = [Bool]()
-     let tableView = UITableView()
+    let tableView = UITableView.init(frame: .zero, style: .plain)
     var searchBar: UISearchBar! = UISearchBar()
     var isFiltering: Bool = false
-
+    var searching: Bool = false
+    var header = UIView()
+    let done = UIButton()
+    let container = UIView()
+    var parentView = MainViewController()
+    let title = UILabel()
+    let hr = UIView()
      //MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -36,36 +42,94 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
        // Here write down you logic to dismiss controller
-        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
-            self.tableView.transform = CGAffineTransform(translationX: 0, y: 1200)
-        }) { (_) in self.removeFromSuperview()}
+       dismissView()
     }
-    
+
     func setUpViews() {
+        self.addSubview(container)
+        container.edgesToSuperview(insets: TinyEdgeInsets(top: -150, left: 50, bottom: 550, right: 50))
+        container.backgroundColor = .white
+        container.layer.cornerRadius = 25
         self.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.5)
-        self.addSubview(tableView)
+        container.addSubview(tableView)
         tableView.dataSource = self
         tableView.delegate = self
+      
         tableView.register(ListToGroupCell.self, forCellReuseIdentifier: K.listGroupCell)
         tableView.layer.cornerRadius = 25
-        tableView.edgesToSuperview(insets: TinyEdgeInsets(top: -150, left: 50, bottom: 550
-            , right: 50))
+        tableView.edgesToSuperview(insets: TinyEdgeInsets(top: 75, left: 0, bottom: 0
+                                                          , right: 0))
 //        tableView.separatorStyle = UITableViewCell.SeparatorStyle.none
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
-            self.tableView.transform = CGAffineTransform(translationX: 0, y: 325)
+            self.container.transform = CGAffineTransform(translationX: 0, y: 325)
                 }) { (_) in }
         tableView.rowHeight = 50
         tableView.separatorStyle = .none
         tableView.showsVerticalScrollIndicator = false
+//        tableView.isScrollEnabled = false
         searchBar.placeholder = "Search For List"
-        searchBar.sizeToFit()
+//        searchBar.sizeToFit()
         searchBar.delegate = self
         let textFieldInsideUISearchBar = searchBar.value(forKey: "searchField") as? UITextField
         textFieldInsideUISearchBar?.font = UIFont(name: "OpenSans-Regular", size: 12)
         //SearchBar Placeholder
         let textFieldInsideUISearchBarLabel = textFieldInsideUISearchBar!.value(forKey: "placeholderLabel") as? UILabel
         textFieldInsideUISearchBarLabel?.font = UIFont(name: "OpenSans-Regular", size: 12)
-        tableView.tableHeaderView = searchBar
+        
+//        header.clipsToBounds = false
+//        header.layer.addBorder(edge: .bottom, color: .darkGray, thickness: 1)
+        if searching {
+            container.addSubview(searchBar)
+            searchBar.leading(to: self, offset: 50)
+            searchBar.trailing(to: self, offset: -50)
+            searchBar.clipsToBounds = true
+            searchBar.layer.cornerRadius = 25
+            searchBar.backgroundColor = .white
+            searchBar.topToSuperview(offset: 0)
+            searchBar.barTintColor = UIColor.clear
+            searchBar.backgroundColor = UIColor.clear
+            searchBar.isTranslucent = true
+            searchBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
+            searchBar.searchTextField.font = UIFont(name: "OpenSans", size: 20)
+            searchBar.tintColor = .white
+            //            header.width(tableView.frame.width)
+            searchBar.height(60)
+        } else {
+            header = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 50))
+            container.addSubview(header)
+            header.leading(to: self, offset: 50)
+            header.trailing(to: self, offset: -50)
+            header.backgroundColor = .white
+            header.topToSuperview(offset: 0)
+            //            header.width(tableView.frame.width)
+            header.layer.cornerRadius = 25
+            header.height(60)
+            header.addSubview(title)
+            header.addSubview(hr)
+            header.addSubview(done)
+            done.tintColor = .systemBlue
+            done.setTitle("Done", for: .normal)
+            done.addTarget(self, action: #selector(dismissView), for: .touchUpInside)
+            done.setTitleColor(.systemBlue, for: .normal)
+            done.trailing(to: header, offset: -15)
+            done.centerY(to: header)
+            hr.leadingToSuperview()
+            hr.trailingToSuperview()
+            hr.height(1)
+            hr.backgroundColor = .darkGray
+            hr.topToBottom(of: header)
+            title.text = "Add List"
+            title.font = UIFont(name: "OpenSans-Bold", size: 20)
+            
+            title.textColor = .black
+            title.center(in: header)
+        }
+    }
+    @objc func dismissView() {
+        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+            self.container.transform = CGAffineTransform(translationX: 0, y: 1200)
+            self.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.0)
+        }) { (_) in self.removeFromSuperview()}
     }
     func setUpListDictionary() {
         listDictionary = []
@@ -101,7 +165,6 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
         let groupPos = uiRealm.objects(GroupPosition.self)
         for result  in results {
                 do {
-                    
                     if result.name == list.name {
                         try uiRealm.write {
                             if list.selected == true {
@@ -181,6 +244,7 @@ extension AddListToGroupTableView: UITableViewDataSource, UITableViewDelegate{
         return listDictionary.count
     }
     
+    
      func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let listCell: ListCell
         if isFiltering {
@@ -190,11 +254,34 @@ extension AddListToGroupTableView: UITableViewDataSource, UITableViewDelegate{
         }
         let cell = ListToGroupCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: K.listGroupCell, title: listCell.name)
         cell.delegate = self
-        cell.imgView.image = listCell.selected ? UIImage(named: "star")?.resize(targetSize: CGSize(width: 25, height: 25)) : UIImage(named: "plus")?.resize(targetSize: CGSize(width: 25, height: 25))
+        if searching {
+            cell.imgView.image = UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 20, height: 20)).rotate(radians: .pi/2)
+        } else {
+            cell.imgView.image = listCell.selected ? UIImage(named: "star")?.resize(targetSize: CGSize(width: 25, height: 25)) : UIImage(named: "plus")?.resize(targetSize: CGSize(width: 25, height: 25))
+        }
+        
         return cell
     }
    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            updateRealm(list: listDictionary[indexPath.row])
+            if searching {
+                dismissView()
+                let controller = ListController()
+                controller.reloadDelegate = parentView
+                controller.creating = false;
+                premadeListTapped = false
+                let listCell: ListCell
+                if isFiltering {
+                    listCell = filteredLists[indexPath.row]
+                } else {
+                    listCell = listDictionary[indexPath.row]
+                }
+                listTitle = listCell.name
+                controller.navigationController?.isNavigationBarHidden = false
+                parentView.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
+                parentView.navigationController?.pushViewController(controller, animated: false)
+            } else {
+                updateRealm(list: listDictionary[indexPath.row])
+            }
    }
 
    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {

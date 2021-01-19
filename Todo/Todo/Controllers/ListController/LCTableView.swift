@@ -16,11 +16,14 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             } else {
                 tasksList.append(task)
             }
-            self.tableView.performBatchUpdates({
-                self.tableView.moveRow(at: at, to: IndexPath(item: UserDefaults.standard.bool(forKey: "toTop") ? 0 : tasksList.count - 1, section: 0))
-            }, completion: { [self] finished in
-                self.tableView.reloadData()
-            })
+            if !searching {
+                self.tableView.performBatchUpdates({
+                    self.tableView.moveRow(at: at, to: IndexPath(item: UserDefaults.standard.bool(forKey: "toTop") ? 0 : tasksList.count - 1, section: 0))
+                }, completion: { [self] finished in
+                    self.tableView.reloadData()
+                })
+            }
+       
         } else {
             let cell = tableView.cellForRow(at: at) as! TaskCell
             var removedTask = TaskObject()
@@ -30,16 +33,19 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                 }
             }
             completedTasks.insert(removedTask, at: 0)
-            self.tableView.performBatchUpdates({
-                self.tableView.moveRow(at: at, to: IndexPath(item: 0, section: 1))
-            }, completion: {  finished in
-                self.tableView.reloadData { [self] in
-                    if repeats != "" {
-                       reloadTaskTableView(at: IndexPath(row: 0, section: 1), checked: true)
-//                        self.tableView.reloadData()
+            if !searching {
+                self.tableView.performBatchUpdates({
+                    self.tableView.moveRow(at: at, to: IndexPath(item: 0, section: 1))
+                }, completion: {  finished in
+                    self.tableView.reloadData { [self] in
+                        if repeats != "" {
+                           reloadTaskTableView(at: IndexPath(row: 0, section: 1), checked: true)
+    //                        self.tableView.reloadData()
+                        }
                     }
-                }
-            })
+                })
+            }
+        
         }
     }
     
@@ -57,17 +63,24 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     
 
     func numberOfSections(in tableView: UITableView) -> Int {
+        if searching {
+            return 1
+        } 
         return 2
     }
  
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            return tasksList.count
+        if searching {
+            return filteredTasks.count
         } else {
-            if completedExpanded == true {
-                return completedTasks.count
+            if section == 0 {
+                return tasksList.count
             } else {
-                return 0
+                if completedExpanded == true {
+                    return completedTasks.count
+                } else {
+                    return 0
+                }
             }
         }
     }
@@ -76,7 +89,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         let completedView = UITableViewHeaderFooterView(reuseIdentifier: "completedHeader")
                 
         completedView.backgroundColor = .clear
-        if section == 1 && completedTasks.count != 0  {
+        if section == 1 && completedTasks.count != 0 && !searching {
             let label = UIButton()
             label.titleLabel?.font = UIFont(name: "OpenSans-Regular", size: 18)
             label.titleLabel?.textColor = .white
@@ -225,11 +238,16 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = TaskCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "list")
         var task = TaskObject()
-        if indexPath.section == 0 {
-            task = tasksList[indexPath.row]
+        if searching {
+                task = filteredTasks[indexPath.row]
         } else {
-            task = completedTasks[indexPath.row]
+            if indexPath.section == 0 {
+                task = tasksList[indexPath.row]
+            } else {
+                task = completedTasks[indexPath.row]
+            }
         }
+     
         if editingCell {
             if let selectedCell = selectedDict[task.id] {
                 cell.selectedCell = selectedCell

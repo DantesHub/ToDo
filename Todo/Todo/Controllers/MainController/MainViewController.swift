@@ -256,6 +256,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         groupTableView.rowHeight = 40
         groupTableView.allowsSelection = true
         groupTableView.separatorStyle = .none
+        groupTableView.isScrollEnabled = false
     }
     
 
@@ -263,6 +264,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         stackView.addArrangedSubview(listTableView)
         listTableView.register(MainMenuCell.self, forCellReuseIdentifier: "listCell")
         listTableView.dataSource = self
+        listTableView.isScrollEnabled = false
         listTableView.delegate = self
         listTableView.dragInteractionEnabled = true // Enable intra-app drags for iPhone.
         listTableView.dragDelegate = self
@@ -370,9 +372,14 @@ class MainViewController: UIViewController, ReloadDelegate {
     }
     
     @objc func searchTapped() {
-    
-        
+        let listGroupTableView = AddListToGroupTableView(frame: view.bounds)
+        listGroupTableView.reloadDelegate = self
+        listGroupTableView.parentView = self
+        listGroupTableView.searching = true
+        listGroupTableView.setUpViews()
+        view.addSubview(listGroupTableView)
     }
+    
     @objc func ellipsisTapped() {
         self.navigationController?.pushViewController(SettingsController(), animated: true)
     }

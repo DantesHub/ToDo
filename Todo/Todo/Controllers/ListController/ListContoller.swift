@@ -131,7 +131,16 @@ class ListController: UIViewController, TaskViewDelegate {
     lazy var swipeUp: UISwipeGestureRecognizer = {
         return UISwipeGestureRecognizer(target: self, action: #selector(respondToSwipeGesture))
     }()
-    
+    lazy var searchBar = UISearchBar()
+    var isFiltering = false
+    var isSearchBarEmpty: Bool {
+      return searchBar.text?.isEmpty ?? true
+    }
+    var taskDictionary = [TaskObject]()
+    var completedTaskDictionary = [TaskObject]()
+    var filteredTasks = [TaskObject]()
+    var filteredCompletedTasks = [TaskObject]()
+    var searching = false
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -1063,7 +1072,25 @@ class ListController: UIViewController, TaskViewDelegate {
     
     
     @objc func searchTapped() {
-        print("search Tapped")
+        navigationItem.titleView = searchBar
+        searchBar.sizeToFit()
+        searchBar.delegate = self
+        searchBar.becomeFirstResponder()
+        searching = true
+        let cancel = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelSearch))
+        let spacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
+        navigationItem.leftBarButtonItems = [spacer]
+        spacer.width = 5
+        navigationItem.rightBarButtonItems = [spacer, cancel]
+        filterContentForSearchText(searchBar.text!)
+    }
+    
+    @objc func cancelSearch() {
+        print("cancel")
+        navigationItem.titleView = .none
+        configureNavBar()
+        searching = false
+        tableView.reloadData()
     }
     
     @objc func ellipsisTapped() {
