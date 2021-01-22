@@ -10,9 +10,7 @@ import UIKit
 
 extension ListController: UISearchBarDelegate {
     func filterContentForSearchText(_ searchText: String) {
-        print("boong")
         if searchText == "" {
-            print("zom")
             filteredTasks = []
         } else {
             filteredTasks = (tasksList + completedTasks).filter { (task: TaskObject) -> Bool in

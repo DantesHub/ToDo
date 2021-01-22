@@ -7,7 +7,7 @@ import IQKeyboardManagerSwift
 protocol ReloadDelegate {
     func reloadTableView()
 }
-
+var searching = false
 var keyboard = false
 var keyboard2 = false
 var lastKeyboardHeight: CGFloat = 0
@@ -144,6 +144,7 @@ class ListController: UIViewController, TaskViewDelegate {
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
+        overrideUserInterfaceStyle = .light
         IQKeyboardManager.shared.enable = false
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
@@ -747,10 +748,11 @@ class ListController: UIViewController, TaskViewDelegate {
     @objc func tappedOutside() {
         if !creating {
             self.view.endEditing(true)
+            if !editingCell {
+                configureNavBar()
+            }
         }
-        if !editingCell {
-            configureNavBar()
-        }
+  
     }
     
     func createTableHeader() {
@@ -1100,6 +1102,5 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
 }
-
 
 

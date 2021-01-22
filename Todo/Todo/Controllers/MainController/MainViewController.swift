@@ -14,7 +14,7 @@ import RealmSwift
 import Realm
 var lists = [ListObject]()
 var groups = [ListGroup]()
-
+var tappedSearch = false
 var defaultColor = UIColor.blue
 
 class MainViewController: UIViewController, ReloadDelegate {
@@ -39,6 +39,8 @@ class MainViewController: UIViewController, ReloadDelegate {
        view.showsVerticalScrollIndicator = false
        return view
     }()
+    let plusIV = UIImageView()
+    let newListLabel = UILabel()
     let popUpCellId = "popUpCell"
     let stackView = UIStackView()
     let footerView = UIView()
@@ -55,6 +57,7 @@ class MainViewController: UIViewController, ReloadDelegate {
     //MARK: - instantiate
     override func viewDidLoad() {
         super.viewDidLoad()
+        overrideUserInterfaceStyle = .light
         getRealmData()
         UIFont.overrideInitialize()
         configureNavBar()
@@ -163,7 +166,6 @@ class MainViewController: UIViewController, ReloadDelegate {
         footerView.backgroundColor = .white
         
         let tappedListImageRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddList))
-        let plusIV = UIImageView()
         plusIV.image = UIImage(named: "plus")?.resize(targetSize: CGSize(width: 40, height: 40)).withTintColor(defaultColor)
         footerView.addSubview(plusIV)
         plusIV.centerY(to: footerView)
@@ -172,7 +174,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         plusIV.isUserInteractionEnabled = true
         
         let tappedListLabelRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddList))
-        let newListLabel = UILabel()
+
         newListLabel.font = UIFont(name: "OpenSans-Regular", size: 17)
         newListLabel.text = "New List"
         newListLabel.textColor = defaultColor
@@ -317,7 +319,11 @@ class MainViewController: UIViewController, ReloadDelegate {
         
         self.present(alertController, animated: true, completion: nil)
     }
-    @objc func tappedAddList() {
+     @objc private func tappedAddList() {
+//        DispatchQueue.main.async { [self] in
+//            plusIV.alpha = 0.6
+//            newListLabel.alpha = 0.6
+//        }
         let controller = ListController()
         listTitle = "Untitled List"
         controller.reloadDelegate = self
@@ -326,10 +332,13 @@ class MainViewController: UIViewController, ReloadDelegate {
         completedTasks = []
         controller.navigationController?.isNavigationBarHidden = false
         premadeListTapped = false
-        DispatchQueue.main.async {
-            self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
-            self.navigationController?.pushViewController(controller, animated: false)
+        self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
+        self.navigationController?.pushViewController(viewController: controller, animated: false) { [self] in
+            print("booga")
+            plusIV.alpha = 1
+            newListLabel.alpha = 1
         }
+        
     }
 
     
@@ -375,8 +384,8 @@ class MainViewController: UIViewController, ReloadDelegate {
         let listGroupTableView = AddListToGroupTableView(frame: view.bounds)
         listGroupTableView.reloadDelegate = self
         listGroupTableView.parentView = self
-        listGroupTableView.searching = true
-        listGroupTableView.setUpViews()
+        listGroupTableView.searching = false
+        listGroupTableView.configureUI()
         view.addSubview(listGroupTableView)
     }
     

@@ -26,6 +26,7 @@ class SliderSectionHeader: UICollectionReusableView{
     var listOption = true
      override init(frame: CGRect) {
         super.init(frame: frame)
+        overrideUserInterfaceStyle = .light
          addSubview(label)
         label.top(to: self, offset: 20)
         label.centerX(to: self)

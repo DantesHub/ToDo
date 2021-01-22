@@ -88,7 +88,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let completedView = UITableViewHeaderFooterView(reuseIdentifier: "completedHeader")
                 
-        completedView.backgroundColor = .clear
+        completedView.tintColor = .clear
         if section == 1 && completedTasks.count != 0 && !searching {
             let label = UIButton()
             label.titleLabel?.font = UIFont(name: "OpenSans-Regular", size: 18)

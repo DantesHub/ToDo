@@ -17,13 +17,15 @@ extension ListController: UITextFieldDelegate {
                 createNewList()
             }
         default:
+            tappedDone()
             break
         }
+        textField.resignFirstResponder()
         return true
     }
     func createNewList(tag: Int = 0) {
-        let oldTitle = listTitle
         listTitle = bigTextField.text ?? "Untitled List"
+        let oldTitle = listTitle
         let list = ListObject()
         list.name = listTitle
         //need to update realmData, maybe send notification
@@ -33,7 +35,7 @@ extension ListController: UITextFieldDelegate {
         for result in results {
             if result.name == list.name {
                 //we need to tell user that name is taken
-                if list.name != oldTitle || list.name == "Important" || list.name == "Planned" || list.name == "All Tasks" {
+                if list.name == oldTitle || list.name == "Important" || list.name == "Planned" || list.name == "All Tasks" {
                     nameTaken = true
                     let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
                     let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
@@ -91,13 +93,16 @@ extension ListController: UITextFieldDelegate {
         }
         return true
     }
+    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
+        print("yoma")
+    }
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
         return true
-    
     }
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         stabilize = true
+        print("jolo")
         return true
     }
 }

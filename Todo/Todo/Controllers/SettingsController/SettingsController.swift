@@ -15,6 +15,7 @@ class SettingsController: UIViewController {
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
+        overrideUserInterfaceStyle = .light
         configureUI()
     }
     

@@ -10,6 +10,9 @@ target 'Todo' do
   pod "TinyConstraints"
   pod 'Layoutless'
   pod 'FSCalendar'
+  pod 'Firebase/Analytics'
+  pod 'Purchases'
+  pod 'Firebase/Crashlytics'
   pod "GWInfinitePickerView"
   pod 'IQKeyboardManagerSwift'
 end

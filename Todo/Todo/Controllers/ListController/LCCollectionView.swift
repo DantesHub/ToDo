@@ -111,7 +111,6 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             cell.type = customizeSelection
             cell.delegate = self
             cell.removeBase()
-            print("")
             if customizeSelection == "Photo" {
                 cell.image = photos[indexPath.row]
                 cell.color = UIColor.clear
@@ -663,12 +662,15 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             addTaskField.addButton(leftButton: .addedReminder, toolBarDelegate: self)
         }
         
-        tappedOutside2()
+        slideUpViewTapped()
+        pickerView.removeFromSuperview()
         addTaskField.becomeFirstResponder()
+    
     }
     
     @objc func calendarNext() {
         pickerView.backgroundColor = .white
+        pickerView.overrideUserInterfaceStyle = .light
         slideUpViewTapped()
         createSlider(createSlider: false, picker: true)
         timePicker?.sizeToFit()

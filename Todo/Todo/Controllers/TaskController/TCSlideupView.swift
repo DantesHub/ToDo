@@ -280,6 +280,7 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
     func dateHelper() {
         if selectedDateOption == "Pick a Date & Time" {
             pickerView.backgroundColor = .white
+            pickerView.overrideUserInterfaceStyle = .light
             selectedTaskDate = self.formatter.string(from: Date())
             slideUpViewTapped()
             createSlider(createSlider: false)

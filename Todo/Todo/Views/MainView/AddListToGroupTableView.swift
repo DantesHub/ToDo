@@ -66,19 +66,16 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
         tableView.rowHeight = 50
         tableView.separatorStyle = .none
         tableView.showsVerticalScrollIndicator = false
-//        tableView.isScrollEnabled = false
-        searchBar.placeholder = "Search For List"
-//        searchBar.sizeToFit()
-        searchBar.delegate = self
-        let textFieldInsideUISearchBar = searchBar.value(forKey: "searchField") as? UITextField
-        textFieldInsideUISearchBar?.font = UIFont(name: "OpenSans-Regular", size: 12)
-        //SearchBar Placeholder
-        let textFieldInsideUISearchBarLabel = textFieldInsideUISearchBar!.value(forKey: "placeholderLabel") as? UILabel
-        textFieldInsideUISearchBarLabel?.font = UIFont(name: "OpenSans-Regular", size: 12)
-        
-//        header.clipsToBounds = false
-//        header.layer.addBorder(edge: .bottom, color: .darkGray, thickness: 1)
-        if searching {
+    }
+    func configureUI() {
+        if self.searching {
+            let textFieldInsideUISearchBar = searchBar.value(forKey: "searchField") as? UITextField
+            textFieldInsideUISearchBar?.font = UIFont(name: "OpenSans-Regular", size: 12)
+            //SearchBar Placeholder
+            let textFieldInsideUISearchBarLabel = textFieldInsideUISearchBar!.value(forKey: "placeholderLabel") as? UILabel
+            textFieldInsideUISearchBarLabel?.font = UIFont(name: "OpenSans-Regular", size: 12)
+            searchBar.placeholder = "Search For List"
+            searchBar.delegate = self
             container.addSubview(searchBar)
             searchBar.leading(to: self, offset: 50)
             searchBar.trailing(to: self, offset: -50)
@@ -92,7 +89,6 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
             searchBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
             searchBar.searchTextField.font = UIFont(name: "OpenSans", size: 20)
             searchBar.tintColor = .white
-            //            header.width(tableView.frame.width)
             searchBar.height(60)
         } else {
             header = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 50))
@@ -101,7 +97,6 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
             header.trailing(to: self, offset: -50)
             header.backgroundColor = .white
             header.topToSuperview(offset: 0)
-            //            header.width(tableView.frame.width)
             header.layer.cornerRadius = 25
             header.height(60)
             header.addSubview(title)
@@ -111,6 +106,7 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
             done.setTitle("Done", for: .normal)
             done.addTarget(self, action: #selector(dismissView), for: .touchUpInside)
             done.setTitleColor(.systemBlue, for: .normal)
+            done.titleLabel!.font = UIFont(name: "OpenSans", size: 16)
             done.trailing(to: header, offset: -15)
             done.centerY(to: header)
             hr.leadingToSuperview()
@@ -119,7 +115,7 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
             hr.backgroundColor = .darkGray
             hr.topToBottom(of: header)
             title.text = "Add List"
-            title.font = UIFont(name: "OpenSans-Bold", size: 20)
+            title.font = UIFont(name: "OpenSans-Bold", size: 18)
             
             title.textColor = .black
             title.center(in: header)
@@ -254,7 +250,7 @@ extension AddListToGroupTableView: UITableViewDataSource, UITableViewDelegate{
         }
         let cell = ListToGroupCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: K.listGroupCell, title: listCell.name)
         cell.delegate = self
-        if searching {
+        if self.searching {
             cell.imgView.image = UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 20, height: 20)).rotate(radians: .pi/2)
         } else {
             cell.imgView.image = listCell.selected ? UIImage(named: "star")?.resize(targetSize: CGSize(width: 25, height: 25)) : UIImage(named: "plus")?.resize(targetSize: CGSize(width: 25, height: 25))
@@ -263,7 +259,7 @@ extension AddListToGroupTableView: UITableViewDataSource, UITableViewDelegate{
         return cell
     }
    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            if searching {
+        if self.searching {
                 dismissView()
                 let controller = ListController()
                 controller.reloadDelegate = parentView
@@ -301,6 +297,7 @@ extension AddListToGroupTableView: UISearchBarDelegate {
         if isFiltering == false {
             tableView.reloadData()
         } else {
+            tappedSearch = true
             filterContentForSearchText(searchBar.text!)
             tableView.reloadData()
         }

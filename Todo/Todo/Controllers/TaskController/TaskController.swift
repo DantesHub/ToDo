@@ -101,6 +101,7 @@ class TaskController: UIViewController, ReloadSlider {
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
+        overrideUserInterfaceStyle = .light
         IQKeyboardManager.shared.enable = true
         getSteps()
         configureUI()

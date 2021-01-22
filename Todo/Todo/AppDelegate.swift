@@ -11,6 +11,8 @@ import CoreData
 import RealmSwift
 import Realm
 import IQKeyboardManagerSwift
+import Firebase
+import Purchases
 
 var uiRealm = try! Realm()
 @UIApplicationMain
@@ -27,6 +29,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UserDefaults.standard.register(defaults: [
                "notif": true,
                ])
+        Purchases.debugLogsEnabled = true
+        Purchases.configure(withAPIKey: "AHheigtCZwIDDNXLWGlcpEHQzgvcVjaA")
+        FirebaseApp.configure()
         return true
     }
 

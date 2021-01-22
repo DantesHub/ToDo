@@ -259,6 +259,8 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
                     cell.cellTitle.text = "Every " + repeatTask
                     cell.createX()
                     cell.cellTitle.textColor = col
+                } else {
+                    cell.removeX()
                 }
             case "Add File":
                 cell.cellImage.image = UIImage(named: "file")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(.gray)

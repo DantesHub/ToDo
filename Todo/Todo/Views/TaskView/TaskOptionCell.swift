@@ -42,10 +42,12 @@ class TaskOptionCell: UITableViewCell {
         cellTitle.font = UIFont(name: "OpenSans-Regular", size: 20)
         cellTitle.textColor = UIColor.darkGray
     }
-    
+    func removeX() {
+        x.removeFromSuperview()
+    }
     func createX() {
         x.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(x)
+        contentView.addSubview(x)
         x.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
         x.topAnchor.constraint(equalTo: self.topAnchor, constant: 1).isActive = true
         let xTapped = UITapGestureRecognizer(target: self, action: #selector(tappedX))
@@ -76,7 +78,9 @@ class TaskOptionCell: UITableViewCell {
                 case "Add Due Date":
                     try! uiRealm.write {
                         result.planned = ""
+                        result.repeated = ""
                     }
+                    delegate?.resetVariable(type: "Repeat")
                     cellTitle.text = "Add Due Date"
                 case "Repeat":
                     try! uiRealm.write {

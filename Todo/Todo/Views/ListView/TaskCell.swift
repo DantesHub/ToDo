@@ -120,6 +120,10 @@ class TaskCell: UITableViewCell {
             taskCellDelegate?.resignResponder()
             navigationController.view.layer.add(CATransition().popFromRight(), forKey: nil)
             navigationController.pushViewController(controller, animated: false)
+            if searching {
+                searching = false
+                taskCellDelegate?.reloadTable()
+            }
         } else {
             print("janke")
         }

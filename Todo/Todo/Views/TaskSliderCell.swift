@@ -20,6 +20,7 @@ class TaskSliderCell: BaseCell {
     let icon = UIImageView()
     override func setUpViews() {
         super.setUpViews()
+        overrideUserInterfaceStyle = .light
         self.addSubview(icon)
         icon.centerY(to: self)
         icon.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
