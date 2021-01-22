@@ -1,4 +1,9 @@
 PODS:
+  - FBSDKCoreKit/Basics (6.5.2)
+  - FBSDKCoreKit/Core (6.5.2):
+    - FBSDKCoreKit/Basics
+  - FBSDKCoreKit/Swift (6.5.2):
+    - FBSDKCoreKit/Core
   - Firebase/Analytics (6.32.2):
     - Firebase/Core
   - Firebase/Core (6.32.2):
@@ -86,6 +91,7 @@ PODS:
   - TinyConstraints (4.0.1)
 
 DEPENDENCIES:
+  - FBSDKCoreKit/Swift
   - Firebase/Analytics
   - Firebase/Crashlytics
   - FSCalendar
@@ -98,6 +104,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - FBSDKCoreKit
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
@@ -120,6 +127,7 @@ SPEC REPOS:
     - TinyConstraints
 
 SPEC CHECKSUMS:
+  FBSDKCoreKit: ada5c8a05188daefc9addb985c52b8a1b26da519
   Firebase: 47176280bfba198e531f909cfb1612dad216cb96
   FirebaseAnalytics: 3c2fee6a922023ccfda7af87e4e641bad1fc11ba
   FirebaseCore: 1d697bb944bf2af5fc248f1a66e165c9dd88bf97
@@ -141,6 +149,6 @@ SPEC CHECKSUMS:
   RealmSwift: aedc4363150f3c61f91ae0537ed116d2d080a4dd
   TinyConstraints: 8dd91295e56797648c7bc335dd20e1d91ec4c192
 
-PODFILE CHECKSUM: 04d67ed94551bee4707540fe696cc0c3b741e947
+PODFILE CHECKSUM: 83651bb4b8cc810b35d91e0ae7a8355aee75bd56
 
 COCOAPODS: 1.10.0

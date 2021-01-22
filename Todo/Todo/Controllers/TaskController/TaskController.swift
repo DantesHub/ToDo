@@ -21,7 +21,7 @@ class TaskController: UIViewController, ReloadSlider {
     var repeatTask = ""
     let titleTextField = UITextField()
     let addStepField = UITextField()
-    let noteTextField = PaddedTextField()
+    let noteTextField = UITextView()
     let tableView = UITableView(frame: .zero, style: .grouped)
     let stepsTableView = SelfSizedTableView()
     var tableViewTop : NSLayoutConstraint?
@@ -85,6 +85,7 @@ class TaskController: UIViewController, ReloadSlider {
     var dates = ["Later Today", "Tomorrow", "Next Week", "Pick a Date & Time"]
     var priorities = [UIColor.red, orange, .blue, UIColor.clear]
     var accessBool = false
+    var taskObject = TaskObject()
     let formatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM dd,yyyy"
@@ -138,6 +139,11 @@ class TaskController: UIViewController, ReloadSlider {
     
     //MARK: - Helper functions
     func configureUI() {
+        for result in results {
+            if result.id == id {
+                taskObject = result
+            }
+        }
         view.backgroundColor = .white
         view.addSubview(scrollView)
         configureNavBar()
@@ -177,8 +183,10 @@ class TaskController: UIViewController, ReloadSlider {
         self.stackView.addArrangedSubview(noteTextField)
         noteTextField.height(UIScreen.main.bounds.height/6)
         noteTextField.backgroundColor = .white
-        noteTextField.placeholder = "Add Note"
+        noteTextField.text = "Notes"
         noteTextField.font = UIFont(name: "OpenSans-Regular", size: 20)
+        noteTextField.textContainerInset = UIEdgeInsets(top: 5, left: 20, bottom: 5, right: 20)
+
         let hr = UIView()
         self.view.addSubview(hr)
         hr.topToBottom(of: noteTextField)

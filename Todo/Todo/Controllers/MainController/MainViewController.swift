@@ -12,6 +12,7 @@ import MobileCoreServices
 import Layoutless
 import RealmSwift
 import Realm
+
 var lists = [ListObject]()
 var groups = [ListGroup]()
 var tappedSearch = false

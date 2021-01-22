@@ -8,7 +8,7 @@
 
 import UIKit
 
-extension TaskController:  UITextFieldDelegate {
+extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == addStepField {
             createNewStep(textField: textField)
@@ -16,24 +16,31 @@ extension TaskController:  UITextFieldDelegate {
         return true
     }
     
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if let character = text.first, character.isNewline {
+            textView.resignFirstResponder()
+            try! uiRealm.write {
+                taskObject.note = noteTextField.text ?? ""
+            }
+            return false
+        }
+        return true
+    }
+    
     func createNewStep(textField: UITextField) {
         if textField.text! != "" {
-            for result in results {
-                if result.id == id {
-                    try! uiRealm.write {
-                        let step = Step()
-                        step.stepName = textField.text!
-                        step.done = false
-                        self.steps.append(step)
-                        heightConstraint?.isActive = false
-                        heightConstraint = stepsTableView.heightAnchor.constraint(equalToConstant: CGFloat(130 + (60 * steps.count)))
-                        heightConstraint?.isActive = true
-                        self.stepsTableView.reloadData()
-                        result.steps.append(step)
-                        textField.text = ""
-                        delegate?.reloadTable()
-                    }
-                }
+            try! uiRealm.write {
+                let step = Step()
+                step.stepName = textField.text!
+                step.done = false
+                self.steps.append(step)
+                heightConstraint?.isActive = false
+                heightConstraint = stepsTableView.heightAnchor.constraint(equalToConstant: CGFloat(130 + (60 * steps.count)))
+                heightConstraint?.isActive = true
+                self.stepsTableView.reloadData()
+                taskObject.steps.append(step)
+                textField.text = ""
+                delegate?.reloadTable()
             }
         }
     }

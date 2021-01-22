@@ -63,7 +63,6 @@
 		FEF48600254A0833000CCDF7 /* LCTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF485FF254A0833000CCDF7 /* LCTableView.swift */; };
 		FEF48602254A0E60000CCDF7 /* SliderSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF48601254A0E60000CCDF7 /* SliderSectionHeader.swift */; };
 		FEF7F0662568516600E92BC9 /* TaskOptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF7F0652568516600E92BC9 /* TaskOptionCell.swift */; };
-		FEF7F06A2568698D00E92BC9 /* PaddedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF7F0692568698D00E92BC9 /* PaddedTextField.swift */; };
 		FEF7F06D2569B5ED00E92BC9 /* StepCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF7F06C2569B5ED00E92BC9 /* StepCell.swift */; };
 /* End PBXBuildFile section */
 
@@ -128,7 +127,6 @@
 		FEF485FF254A0833000CCDF7 /* LCTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LCTableView.swift; sourceTree = "<group>"; };
 		FEF48601254A0E60000CCDF7 /* SliderSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderSectionHeader.swift; sourceTree = "<group>"; };
 		FEF7F0652568516600E92BC9 /* TaskOptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskOptionCell.swift; sourceTree = "<group>"; };
-		FEF7F0692568698D00E92BC9 /* PaddedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedTextField.swift; sourceTree = "<group>"; };
 		FEF7F06C2569B5ED00E92BC9 /* StepCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -285,7 +283,6 @@
 				FEAEAE5D2527B08F003FD07D /* HorizontalBorder.swift */,
 				FEBC2484253668970073EBB1 /* BaseCell.swift */,
 				FE0520D6255747AD0052F8DA /* CircleView.swift */,
-				FEF7F0692568698D00E92BC9 /* PaddedTextField.swift */,
 				FE7010A425A2646D008AD73D /* BoxOption.swift */,
 			);
 			path = Views;
@@ -517,7 +514,6 @@
 				FE0520D125538D230052F8DA /* LCKeyboardToolbarDelegate.swift in Sources */,
 				FEAEAE62252BBAA2003FD07D /* MainMenuCell.swift in Sources */,
 				FE7010A525A2646D008AD73D /* BoxOption.swift in Sources */,
-				FEF7F06A2568698D00E92BC9 /* PaddedTextField.swift in Sources */,
 				FE0520D7255747AD0052F8DA /* CircleView.swift in Sources */,
 				FE4B42CC256DE418007CFE37 /* TCSlideupView.swift in Sources */,
 				FE4B42EF257C3C05007CFE37 /* CircleCell.swift in Sources */,
