@@ -40,6 +40,9 @@ class MainViewController: UIViewController, ReloadDelegate {
        view.showsVerticalScrollIndicator = false
        return view
     }()
+    var wait = true
+    var stackBottom: NSLayoutConstraint?
+    var groupHeight: NSLayoutConstraint?
     let plusIV = UIImageView()
     let newListLabel = UILabel()
     let popUpCellId = "popUpCell"
@@ -55,10 +58,12 @@ class MainViewController: UIViewController, ReloadDelegate {
         return cv
     }()
     var selectedGroupName = ""
+    var groupTableHeight: CGFloat = 0
     //MARK: - instantiate
     override func viewDidLoad() {
         super.viewDidLoad()
         overrideUserInterfaceStyle = .light
+        topTableView.overrideUserInterfaceStyle = .light
         getRealmData()
         UIFont.overrideInitialize()
         configureNavBar()
@@ -99,6 +104,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         }
         lists = sortedListResults.map { $0 }
         groupTableView.reloadData()
+        topTableView.reloadData()
         listTableView.reloadData()
     }
     func configureUI() {
@@ -118,7 +124,8 @@ class MainViewController: UIViewController, ReloadDelegate {
         self.stackView.leadingAnchor.constraint(equalTo: self.scrollView.leadingAnchor).isActive = true;
         self.stackView.topAnchor.constraint(equalTo: self.scrollView.topAnchor).isActive = true;
         self.stackView.trailingAnchor.constraint(equalTo: self.scrollView.trailingAnchor).isActive = true;
-        self.stackView.bottomAnchor.constraint(equalTo: self.scrollView.bottomAnchor).isActive = true;
+        stackBottom = self.stackView.bottomAnchor.constraint(equalTo: self.scrollView.bottomAnchor)
+        stackBottom?.isActive = true
 
         //constrain width of stack view to width of self.view, NOT scroll view
         self.stackView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true;
@@ -252,7 +259,14 @@ class MainViewController: UIViewController, ReloadDelegate {
         groupTableView.dataSource = self
         groupTableView.delegate = self
         groupTableView.dragInteractionEnabled = true // Enable intra-app drags for iPhone.
-        groupTableView.heightAnchor.constraint(greaterThanOrEqualToConstant: CGFloat(groups.count * 70)).isActive = true
+        for group in groups {
+            for _ in group.lists {
+                groupTableHeight += 40
+            }
+            groupTableHeight += 70
+        }
+        groupHeight = groupTableView.heightAnchor.constraint(greaterThanOrEqualToConstant: CGFloat(groupTableHeight))
+        groupHeight?.isActive = true
         groupTableView.dragDelegate = self
         groupTableView.dropDelegate = self
         groupTableView.backgroundColor = .white
@@ -280,6 +294,7 @@ class MainViewController: UIViewController, ReloadDelegate {
     
     @objc func tappedAddGroup() {
         let alertController = UIAlertController(title: "Add New Group", message: "", preferredStyle: UIAlertController.Style.alert)
+        alertController.overrideUserInterfaceStyle = .light
         alertController.addTextField { (textField : UITextField!) -> Void in
             textField.placeholder = "Untitled Group"
         }
@@ -335,7 +350,6 @@ class MainViewController: UIViewController, ReloadDelegate {
         premadeListTapped = false
         self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
         self.navigationController?.pushViewController(viewController: controller, animated: false) { [self] in
-            print("booga")
             plusIV.alpha = 1
             newListLabel.alpha = 1
         }
@@ -385,7 +399,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         let listGroupTableView = AddListToGroupTableView(frame: view.bounds)
         listGroupTableView.reloadDelegate = self
         listGroupTableView.parentView = self
-        listGroupTableView.searching = false
+        listGroupTableView.searching = true
         listGroupTableView.configureUI()
         view.addSubview(listGroupTableView)
     }

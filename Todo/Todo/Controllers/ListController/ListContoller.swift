@@ -238,6 +238,7 @@ class ListController: UIViewController, TaskViewDelegate {
         addTaskField.backgroundColor = .white
         addTaskField.delegate = self
         addTaskField.borderStyle = .none
+        addTaskField.overrideUserInterfaceStyle = .light
         addTaskField.borderStyle = .roundedRect
         
         if creating {
@@ -367,17 +368,11 @@ class ListController: UIViewController, TaskViewDelegate {
                        }) { (lo) in
             
             if deleting {
-                try! uiRealm.write {
-                    if tasksList.count + completedTasks.count > 0 {
-                        for task in tasksList + completedTasks {
-                            uiRealm.delete(task)
-                        }
-                    }
+                    MainViewController().deleteList(name: listTitle)
                     self.tableView.removeFromSuperview()
-                    uiRealm.delete(self.listObject)
                     self.reloadDelegate?.reloadTableView()
                     self.navigationController?.popViewController(animated: true)
-                }
+                
             }
         }
     }
@@ -523,13 +518,13 @@ class ListController: UIViewController, TaskViewDelegate {
             }
         } else if listTitle == "Important" {
             for result in results {
-                if result.favorited == true {
+                if result.favorited == true && result.completed == false {
                     tasksList.append(result)
                 }
             }
-        } else if listTitle == "Planned"{
+        } else if listTitle == "Planned"  {
             for result in results {
-                if result.planned != "" {
+                if result.planned != "" && result.completed == false {
                     tasksList.append(result)
                 }
             }
@@ -926,6 +921,7 @@ class ListController: UIViewController, TaskViewDelegate {
                 }
             }
         }
+        reloadDelegate?.reloadTableView()
     }
     @objc func tappedOutsideCustom() {
         UIView.animate(withDuration: 0.4,

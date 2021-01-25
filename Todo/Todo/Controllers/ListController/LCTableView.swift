@@ -10,12 +10,14 @@ import UIKit
 extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate, UITableViewDragDelegate, UITableViewDropDelegate {
     func reloadTaskTableView(at: IndexPath, checked: Bool, repeats: String = "") {
         if checked {
+            print("broma")
             let task = completedTasks.remove(at: at.row)
             if UserDefaults.standard.bool(forKey: "toTop") {
                 tasksList.insert(task, at: 0)
             } else {
                 tasksList.append(task)
             }
+            print("yurma")
             if !searching {
                 self.tableView.performBatchUpdates({
                     self.tableView.moveRow(at: at, to: IndexPath(item: UserDefaults.standard.bool(forKey: "toTop") ? 0 : tasksList.count - 1, section: 0))
@@ -370,6 +372,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                         cell.completed = true
                 }
             } else {
+                print("yurmasadf")
                 for idx in 0..<tasksList.count {
                     if idx > delIdx {
                         let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 0)) as! TaskCell
@@ -379,6 +382,8 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                     }
                 }
                 tableView.deleteRows(at: [indexPath], with: .fade)
+                print("reply")
+
             }
            
         }
@@ -386,9 +391,12 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
 
     func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
          reloadDelegate?.reloadTableView()
-          let cell = tableView.cellForRow(at: indexPath!) as! TaskCell
-          cell.clipsToBounds = true
-          cell.layer.cornerRadius = 10
+        if  tableView.isValid(indexPath: indexPath ?? IndexPath(row: 250, section: 3)){
+                let cell = tableView.cellForRow(at: indexPath!) as! TaskCell
+                cell.clipsToBounds = true
+                cell.layer.cornerRadius = 10
+            
+        }
       }
     
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
@@ -400,7 +408,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     }
     
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-            print("bronchidis")
             pickUpSection = indexPath.section
             return tasksList.dragItems(for: indexPath)
     }

@@ -257,6 +257,12 @@ extension UITableView {
         UIView.animate(withDuration: 0, animations: { self.reloadData() })
             { _ in completion() }
     }
+    func isValid(indexPath: IndexPath) -> Bool {
+         guard indexPath.section < numberOfSections,
+               indexPath.row < numberOfRows(inSection: indexPath.section)
+             else { return false }
+         return true
+     }
 }
 
 extension UICollectionView {

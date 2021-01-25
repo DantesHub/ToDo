@@ -272,6 +272,55 @@ func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSes
         }
         return false
     }
+    public func deleteList(name: String) {
+        let lists = uiRealm.objects(ListObject.self)
+        let tasks = uiRealm.objects(TaskObject.self)
+        let positions = uiRealm.objects(GroupPosition.self)
+        var deletedPozs: [(pos: Int, name: String)] = []
+        try! uiRealm.write {
+            var deletedIndex = 0
+            for (idx,list) in lists.enumerated() {
+                if list.name == name {
+                    deletedIndex = idx
+                    //delete all tasks in deleted list
+                    for task in tasks {
+                        if task.parentList == list.name {
+                            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [task.id])
+                            uiRealm.delete(task.steps)
+                            uiRealm.delete(task)
+                        }
+                    }
+                    //delete group positions for deleted list
+                    for poz in list.groupPositions {
+                        for poz2 in positions {
+                            if poz.groupName == poz2.groupName && poz.groupPosition == poz2.groupPosition {
+                                deletedPozs.append((poz2.groupPosition, poz2.groupName))
+                                uiRealm.delete(poz2)
+                                break
+                            }
+                        }
+                    }
+                    uiRealm.delete(list)
+                    break
+                }
+            }
+            
+            //update group positions in group positions realm
+            for pos in positions {
+                for deletedPos in deletedPozs {
+                    if deletedPos.name == pos.groupName && pos.groupPosition > deletedPos.pos {
+                        pos.groupPosition -= 1
+                    }
+                }
+            }
+            //update list positions in realm
+            for list in lists {
+                if list.position > deletedIndex {
+                    list.position -= 1
+                }
+            }
+        }
+    }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
     if tableView == listTableView {
@@ -279,56 +328,11 @@ func tableView(_ tableView: UITableView, dropSessionDidUpdate session: UIDropSes
         if editingStyle == .delete {
             lists.remove(at: indexPath.row)
             listTableView.deleteRows(at: [indexPath], with: .fade)
-            let lists = uiRealm.objects(ListObject.self)
-            let tasks = uiRealm.objects(TaskObject.self)
-            let positions = uiRealm.objects(GroupPosition.self)
-            var deletedPozs: [(pos: Int, name: String)] = []
-            try! uiRealm.write {
-                var deletedIndex = 0
-                for (idx,list) in lists.enumerated() {
-                    if list.name == listName{
-                        deletedIndex = idx
-                        //delete all tasks in deleted list
-                        for task in tasks {
-                            if task.parentList == list.name {
-                                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [task.id])
-                                uiRealm.delete(task.steps)
-                                uiRealm.delete(task)
-                            }
-                        }
-                        //delete group positions for deleted list
-                        for poz in list.groupPositions {
-                            for poz2 in positions {
-                                if poz.groupName == poz2.groupName && poz.groupPosition == poz2.groupPosition {
-                                    deletedPozs.append((poz2.groupPosition, poz2.groupName))
-                                    uiRealm.delete(poz2)
-                                    break
-                                }
-                            }
-                        }
-                        uiRealm.delete(list)
-                        break
-                    }
-                }
-                
-                //update group positions in group positions realm
-                for pos in positions {
-                    for deletedPos in deletedPozs {
-                        if deletedPos.name == pos.groupName && pos.groupPosition > deletedPos.pos {
-                            pos.groupPosition -= 1
-                        }
-                    }
-                }
-                //update list positions in realm
-                for list in lists {
-                    if list.position > deletedIndex {
-                        list.position -= 1
-                    }
-                }
-            }
+            deleteList(name: listName)
         }
         getRealmData()
         groupTableView.reloadData()
+        topTableView.reloadData()
     } else if tableView == groupTableView {
         let selectedGroupName = groups[indexPath.section].name
         let selectedListName = groups[indexPath.section].lists[indexPath.row].name

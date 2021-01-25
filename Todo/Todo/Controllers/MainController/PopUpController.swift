@@ -40,6 +40,60 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
             view.addSubview(listGroupTableView)
         } else if indexPath.row == 1{
             //tapped rename group
+            let oldName = selectedGroup?.name
+            print(oldName)
+            let alertController = UIAlertController(title: "Add New Group", message: "", preferredStyle: UIAlertController.Style.alert)
+            alertController.overrideUserInterfaceStyle = .light
+            alertController.addTextField { (textField : UITextField!) -> Void in
+                textField.text = selectedGroup?.name
+            }
+            let saveAction = UIAlertAction(title: "Save", style: UIAlertAction.Style.default, handler: { [self] alert -> Void in
+            let firstTextField = alertController.textFields![0] as UITextField
+            let createdGroup = ListGroup()
+            createdGroup.name = firstTextField.text ?? "Untitled Group"
+            createdGroup.position = (groups.count - 1) + 1
+            let groups = uiRealm.objects(ListGroup.self)
+            var nameTaken = false
+            for group in groups {
+                if group.name == firstTextField.text {
+                    if group.name == oldName {
+                        nameTaken = true
+                        slideUpViewTapped()
+                        return
+                    }
+                    let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
+                    let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
+                        (action : UIAlertAction!) -> Void in })
+                    
+                    alertController.addAction(okayAction)
+                    self.present(alertController, animated: true, completion: nil)
+                }
+            }
+            if !nameTaken {
+                let positions = uiRealm.objects(GroupPosition.self)
+                try! uiRealm.write {
+                    for pos in positions {
+                        if pos.groupName == oldName {
+                            pos.groupName = firstTextField.text!
+                        }
+                    }
+                    selectedGroup?.name = firstTextField.text!
+                }
+                self.groupTableView.heightAnchor.constraint(greaterThanOrEqualToConstant: CGFloat(groups.count * 70)).isActive = true
+                self.getRealmData()
+                self.groupTableView.reloadData()
+            }
+                slideUpViewTapped()
+
+        })
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.default, handler: {
+            (action : UIAlertAction!) -> Void in })
+        
+        alertController.addAction(saveAction)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
         } else {
             let groups = uiRealm.objects(ListGroup.self)
             let positions = uiRealm.objects(GroupPosition.self)

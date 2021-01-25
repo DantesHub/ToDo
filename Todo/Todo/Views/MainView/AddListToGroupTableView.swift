@@ -33,7 +33,11 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
     override init(frame: CGRect) {
         super.init(frame: frame)
         overrideUserInterfaceStyle = .light
-        setUpListDictionary()
+        if !searching {
+            setUpListDictionary()
+            configureUI()
+        }
+        
     }
     
     required init?(coder: NSCoder) {
@@ -68,6 +72,9 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
         tableView.showsVerticalScrollIndicator = false
     }
     func configureUI() {
+        if searching {
+            setUpListDictionary()
+        }
         if self.searching {
             let textFieldInsideUISearchBar = searchBar.value(forKey: "searchField") as? UITextField
             textFieldInsideUISearchBar?.font = UIFont(name: "OpenSans-Regular", size: 12)
@@ -76,6 +83,7 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
             textFieldInsideUISearchBarLabel?.font = UIFont(name: "OpenSans-Regular", size: 12)
             searchBar.placeholder = "Search For List"
             searchBar.delegate = self
+            searchBar.overrideUserInterfaceStyle = .light
             container.addSubview(searchBar)
             searchBar.leading(to: self, offset: 50)
             searchBar.trailing(to: self, offset: -50)
@@ -92,6 +100,7 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
             searchBar.height(60)
         } else {
             header = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 50))
+            header.overrideUserInterfaceStyle = .light
             container.addSubview(header)
             header.leading(to: self, offset: 50)
             header.trailing(to: self, offset: -50)
@@ -133,13 +142,18 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
         for result  in results {
             var listCell = ListCell()
             listCell.name = result.name
-            if (selectedGroup?.lists.contains(where: {$0.name == result.name}) == true) {
-                listCell.selected = true
+            if !searching {
+                if (selectedGroup?.lists.contains(where: {$0.name == result.name}) == true) {
+                    listCell.selected = true
+                } else {
+                    listCell.selected = false
+                }
+                listDictionary.append(listCell)
             } else {
-                listCell.selected = false
+                listDictionary.append(listCell)
             }
-            listDictionary.append(listCell)
         }
+        print("yodle", listDictionary)
         setUpViews()
     }
     
