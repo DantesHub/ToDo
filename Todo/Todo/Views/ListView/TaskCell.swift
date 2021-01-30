@@ -13,6 +13,7 @@ protocol TaskViewDelegate {
     func reloadTaskTableView(at: IndexPath, checked: Bool, repeats: String)
     func reloadTable()
     func createObservers()
+    func reloadEditList()
     func resignResponder()
 }
 
@@ -84,8 +85,11 @@ class TaskCell: UITableViewCell {
         
         self.addSubview(title)
         title.font = UIFont(name: "OpenSans-Regular", size: 18)
-        title.leadingAnchor.constraint(equalTo: circle.trailingAnchor, constant: 10).isActive = true
         title.top(to: self, offset: 12)
+        title.leadingAnchor.constraint(equalTo: circle.trailingAnchor, constant: 10).isActive = true
+        title.trailing(to: self, offset: -40)
+        title.adjustsFontSizeToFitWidth = false
+        title.lineBreakMode = .byTruncatingTail
         
         if !editingCell {
             self.contentView.addSubview(star)
@@ -127,10 +131,12 @@ class TaskCell: UITableViewCell {
         } else {
             print("janke")
         }
-
+        
+        
     }
     
     func configureBottomView() {
+        
         star.image = UIImage(named: favorited ? "starfilled" :"star")?.resize(targetSize: CGSize(width: 27, height: 27))
         var priColor = K.getColor(prioritized)
         if priColor == UIColor.clear {
@@ -363,11 +369,13 @@ class TaskCell: UITableViewCell {
         self.selectedCell = false
         bullet.removeFromSuperview()
         selectedDict[id] = false
+        taskCellDelegate?.reloadEditList()
     }
     
     @objc func tappedCircle() {
         selectedDict[id] = true
         if editingCell || selectedCell {
+            taskCellDelegate?.reloadEditList()
             createSelectedCell()
         } else {
             configureCircle()

@@ -50,7 +50,7 @@ class TaskController: UIViewController, ReloadSlider {
        return view
     }()
     var priority = 0
-    var defaultList = ["Add to a List", "Priority", "Remind Me", "Add Due Date", "Repeat", "Add File"]
+    var defaultList = ["Add to a List", "Priority", "Remind Me", "Add Due Date", "Repeat"]
     var footer = UIView()
     let results = uiRealm.objects(TaskObject.self)
     var stepsFooterView = UIView()
@@ -175,7 +175,7 @@ class TaskController: UIViewController, ReloadSlider {
         tableView.dataSource = self
         tableView.register(TaskOptionCell.self, forCellReuseIdentifier: "taskOptionCell")
         tableView.isScrollEnabled = false
-        tableView.height(385)
+        tableView.height(320)
         tableView.backgroundColor = .red
     }
     
@@ -213,7 +213,7 @@ class TaskController: UIViewController, ReloadSlider {
         let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(tappedBack))
         backButton.image = UIImage(named: "arrow")?.rotate(radians: -.pi/2)?.resize(targetSize: CGSize(width: 25, height: 25))
         backButton.title = "Back"
-        self.navigationItem.title = "Edit Task"
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationItem.leftBarButtonItem = backButton
         navigationItem.rightBarButtonItems = .none
     }
@@ -261,6 +261,8 @@ class TaskController: UIViewController, ReloadSlider {
         containerView.addGestureRecognizer(tapGesture)
     }
     @objc func tappedOutside2() {
+        print("calling")
+        self.view.endEditing(true)
         if window!.subviews.contains(pickerView) {
             UIView.animate(withDuration: 0.4,
                            delay: 0, usingSpringWithDamping: 1.0,
@@ -308,6 +310,7 @@ class TaskController: UIViewController, ReloadSlider {
 
     
     @objc func tappedBack() {
+        tappedOutside2()
         _ = navigationController?.popViewController(animated: true)
         delegate?.createObservers()
     }
@@ -326,6 +329,7 @@ class TaskController: UIViewController, ReloadSlider {
     }
     
     @objc func tappedCheck() {
+        let toTop = UserDefaults.standard.bool(forKey: "toTop")
         check.removeFromSuperview()
         var totalTasks = 0
         for task in results {
@@ -335,12 +339,15 @@ class TaskController: UIViewController, ReloadSlider {
         }
         
         for result in results {
+            try! uiRealm.write {
+
             if result.id == id {
-                try! uiRealm.write {
                     result.completed = false
-                    result.position = totalTasks
+                    result.position = toTop ? 0 : totalTasks
                     result.completedDate = Date(timeIntervalSince1970: 0)
-                }
+            } else {
+                result.position = result.position + 1
+            }
             }
         }
         
@@ -349,7 +356,7 @@ class TaskController: UIViewController, ReloadSlider {
         headerTitle.text = titleText
         delegate?.reloadTable()
         completed = false
-        path = IndexPath(row: tasksList.count - 1, section: 0)
+        path = IndexPath(row: toTop ? 0 : tasksList.count - 1, section: 0)
     }
     
     @objc func tappedCircle() {
@@ -440,9 +447,7 @@ class TaskController: UIViewController, ReloadSlider {
                                if error != nil { }
                             }
                         }
-                        DispatchQueue.main.async { [self] in
-                        
-                        }
+                       
                     } else {
                         task.completedDate = Date()
                     }

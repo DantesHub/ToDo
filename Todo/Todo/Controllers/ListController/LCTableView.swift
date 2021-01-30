@@ -8,16 +8,21 @@
 
 import UIKit
 extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate, UITableViewDragDelegate, UITableViewDropDelegate {
+    func reloadEditList() {
+        if allSelected() {
+            selectAll.label.text = "Deselect All"
+        } else {
+            selectAll.label.text = "Select All"
+        }
+    }
     func reloadTaskTableView(at: IndexPath, checked: Bool, repeats: String = "") {
         if checked {
-            print("broma")
             let task = completedTasks.remove(at: at.row)
             if UserDefaults.standard.bool(forKey: "toTop") {
                 tasksList.insert(task, at: 0)
             } else {
                 tasksList.append(task)
             }
-            print("yurma")
             if !searching {
                 self.tableView.performBatchUpdates({
                     self.tableView.moveRow(at: at, to: IndexPath(item: UserDefaults.standard.bool(forKey: "toTop") ? 0 : tasksList.count - 1, section: 0))
@@ -70,6 +75,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         } 
         return 2
     }
+    
  
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if searching {
@@ -118,14 +124,13 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             } else {
                 label.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 22)).rotate(radians: .pi), for: .normal)
             }
-            label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: sortType != "Priority" ? 10 : 0, right: 0)
+            label.titleEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: sortType != "Priority" ? 10 : 17, right: 0)
             completedView.addSubview(label)
             label.top(to: completedView, offset: 5)
             label.leadingAnchor.constraint(equalTo: completedView.leadingAnchor, constant: 5).isActive = true
             label.backgroundColor = UIColor.black.withAlphaComponent(0.6)
             //            label.width(tableView.frame.width * 0.35)
-            label.height(28
-            )
+            label.height(28)
             label.layer.cornerRadius = 10
             label.addTarget(self, action: #selector(tappedReverse), for: .touchUpInside)
             
@@ -147,7 +152,9 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         try! uiRealm.write {
             listObject.sortType = ""
             sortType = ""
+            listObject.reversed = true
         }
+        reversed = true
         formatter.dateFormat = "MMM dd,yyyy-h:mm a"
         let farDate  = formatter.date(from: "Jan 01, 2100-4:50 PM")!
         tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate < formatter.date(from: $1.createdAt) ?? farDate }
@@ -164,6 +171,9 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     @objc func tappedReverse(button: UIButton) {
         //depending on tag we need to reverse or not
         reversed = !reversed
+        try! uiRealm.write {
+            listObject.reversed = reversed
+        }
         let  formatter = DateFormatter()
         formatter.dateFormat = "MMM dd,yyyy-h:mm a"
         let farDate  = formatter.date(from: "Jan 01, 2100-4:50 PM")!
@@ -178,7 +188,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             case "Due Date":
                 tasksList.sort { formatter.date(from: $0.planned) ?? farDate > formatter.date(from: $1.planned) ?? farDate }
             case "Creation Date":
-                tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate > formatter.date(from: $1.createdAt) ?? farDate }
+                tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate < formatter.date(from: $1.createdAt) ?? farDate }
             default:
                 break
             }
@@ -193,10 +203,11 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             case "Due Date":
                     tasksList.sort { formatter.date(from: $0.planned) ?? farDate < formatter.date(from: $1.planned) ?? farDate }
             case "Creation Date":
-                tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate < formatter.date(from: $1.createdAt) ?? farDate }
+                tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate > formatter.date(from: $1.createdAt) ?? farDate }
             default:
                 break
-            }        }
+            }
+        }
       
         for (idx, task) in tasksList.enumerated() {
             try! uiRealm.write {
@@ -372,7 +383,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                         cell.completed = true
                 }
             } else {
-                print("yurmasadf")
                 for idx in 0..<tasksList.count {
                     if idx > delIdx {
                         let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 0)) as! TaskCell
@@ -382,12 +392,12 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                     }
                 }
                 tableView.deleteRows(at: [indexPath], with: .fade)
-                print("reply")
 
             }
            
         }
     }
+  
 
     func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
          reloadDelegate?.reloadTableView()
@@ -428,7 +438,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     }
     private func tableView(tableView: UITableView!, canEditRowAtIndexPath indexPath: NSIndexPath!) -> Bool
     {
-        print("zig")
         return true
     }
     

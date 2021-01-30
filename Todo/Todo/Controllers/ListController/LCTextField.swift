@@ -11,10 +11,10 @@ extension ListController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         switch textField {
         case bigTextField:
-            if bigTextField.isEditing {
+            if creating {
+                createNewList(tag: 0)
+            } else if bigTextField.isEditing {
                 createNewList(tag: 1)
-            } else {
-                createNewList()
             }
         default:
             tappedDone()
@@ -24,8 +24,8 @@ extension ListController: UITextFieldDelegate {
         return true
     }
     func createNewList(tag: Int = 0) {
-        listTitle = bigTextField.text ?? "Untitled List"
         let oldTitle = listTitle
+        listTitle = bigTextField.text ?? "Untitled List"
         let list = ListObject()
         list.name = listTitle
         //need to update realmData, maybe send notification
@@ -35,15 +35,15 @@ extension ListController: UITextFieldDelegate {
         for result in results {
             if result.name == list.name {
                 //we need to tell user that name is taken
-                if list.name == oldTitle || list.name == "Important" || list.name == "Planned" || list.name == "All Tasks" {
+                if list.name != oldTitle || list.name == "Important" || list.name == "Planned" || list.name == "All Tasks" {
                     nameTaken = true
+                    stabilize = true
                     let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
-                    let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
-                                                    (action : UIAlertAction!) -> Void in })
-                    
+                    let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: { (action) in
+                        print(stabilize, self.customizeListView.frame.origin.y)
+                    })
                     alertController.addAction(okayAction)
                     self.present(alertController, animated: true, completion: nil)
-                    createTappedDone()
                 }
             }
         }
@@ -77,6 +77,11 @@ extension ListController: UITextFieldDelegate {
                 createdNewList = true                
             }
             addTaskField.isHidden = false
+            photoButton.removeFromSuperview()
+            backgroundButton.removeFromSuperview()
+            textButton.removeFromSuperview()
+            customizeCollectionView.removeFromSuperview()
+            customizeListView.removeFromSuperview()
             configureNavBar()
             reloadDelegate?.reloadTableView()
         }
@@ -93,16 +98,13 @@ extension ListController: UITextFieldDelegate {
         }
         return true
     }
-    override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
-        print("yoma")
-    }
+
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
         return true
     }
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         stabilize = true
-        print("jolo")
         return true
     }
 }

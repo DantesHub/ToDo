@@ -37,7 +37,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         if tableView == stepsTableView {
             return steps.count
         } else {
-            return 6
+            return 5
         }
     }
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -68,11 +68,18 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
                 configureCircle(priColor)
             }
             
-            headerTitle.font = UIFont(name: "OpenSans-Bold", size: 25)
-            headerTitle.text = taskTitle
             stepsHeaderView.addSubview(headerTitle)
-            headerTitle.leadingToTrailing(of: circle, offset: 25)
+            headerTitle.leadingToTrailing(of: circle, offset: 15)
+            headerTitle.trailingToSuperview(offset: 40)
             headerTitle.centerY(to: stepsHeaderView)
+            headerTitle.sizeToFit()
+            headerTitle.numberOfLines = 2
+            headerTitle.font = UIFont(name: "OpenSans-Bold", size: 23)
+            headerTitle.adjustsFontSizeToFitWidth = false
+            headerTitle.lineBreakMode = .byWordWrapping
+            headerTitle.text = taskTitle
+            
+           
             
             star.image = UIImage(named: favorited ? "starfilled" : "star")?.resize(targetSize: CGSize(width: 30, height: 30))
             stepsHeaderView.addSubview(star)
@@ -284,6 +291,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         if tableView == self.tableView {
             tappedIcon = defaultList[indexPath.row]
             slideUpView.reloadData()
+            self.view.endEditing(true)
             if tappedIcon == "Repeat" {
                 createSlider(repeatt: true)
             } else {

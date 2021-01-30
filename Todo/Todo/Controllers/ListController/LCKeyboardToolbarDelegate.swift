@@ -2,6 +2,7 @@ import UIKit
 
 extension ListController: KeyboardToolbarDelegate, ReloadSlider {
     @objc func keyboardWillShow(notification: NSNotification) {
+         print("keyboard will show")
          let info:NSDictionary = notification.userInfo! as NSDictionary
          let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
          if !creating {
@@ -10,6 +11,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                      self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - 65
              }
              addedStep = true
+             keyboard2 = true
              stabilize = false
          } else {
              if keyboard == true || keyboard2 {
@@ -27,7 +29,6 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
      }
      
      @objc func keyboardWillChangeFrame(notification: NSNotification) {
-         print("changing frame")
          let info:NSDictionary = notification.userInfo! as NSDictionary
          let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
          if !creating {
@@ -51,6 +52,9 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
         if tappedIcon == "List Options" {
             slideUpViewTapped()
         } else if tappedIcon == "Sort Options" {
+            slideUpViewTapped()
+            ellipsisTapped()
+        } else if tappedIcon == "Add to a List" {
             slideUpViewTapped()
         } else {
             slideUpViewTapped()

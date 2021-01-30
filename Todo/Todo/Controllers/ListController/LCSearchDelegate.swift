@@ -29,13 +29,7 @@ extension ListController: UISearchBarDelegate {
        filterContentForSearchText(searchBar.text!)
     }
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        isFiltering = !isSearchBarEmpty
-        if isFiltering == false {
-            tableView.reloadData()
-        } else {
-            filterContentForSearchText(searchBar.text!)
-            tableView.reloadData()
-        }
-
+        filterContentForSearchText(searchBar.text!)
+        tableView.reloadData()
     }
 }

@@ -10,6 +10,8 @@ protocol ReloadDelegate {
 var searching = false
 var keyboard = false
 var keyboard2 = false
+var planned = false
+var reminder = false
 var lastKeyboardHeight: CGFloat = 0
 var stabilize = false
 let toolbar = KeyboardToolbar()
@@ -57,9 +59,8 @@ class ListController: UIViewController, TaskViewDelegate {
     var frameView = UIView()
     var tappedIcon = ""
     var favorited = false
-    var planned = false
+
     var sortType = ""
-    var reminder = false
     var added50ToReminder = false
     var added50ToDueDate = false
     var selectedListTextColor = UIColor.white
@@ -108,8 +109,11 @@ class ListController: UIViewController, TaskViewDelegate {
         cv.backgroundColor = .white
         return cv
     }()
+    var listName = ""
+    var nameTaken2 = false
     var imagePicker = UIImagePickerController()
     let window = UIApplication.shared.keyWindow
+    let selectAll = BoxOption()
     var photos: [String] = ["addPicture", "campfire", "mountain", "nature", "forest", "rain", "seaside", "seaside2", "space"]
     var backgroundColors:[UIColor] = [blue, purple, darkRed, darkOrange, darkGreen, turq, gray]
     var textColors:[UIColor] = [.white, blue, purple, darkRed, darkOrange, darkGreen, turq, gray]
@@ -119,7 +123,7 @@ class ListController: UIViewController, TaskViewDelegate {
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
     var completedExpanded = true
-    var reversed = false
+    var reversed = true
     let lists = uiRealm.objects(ListObject.self)
     var accessBool = false
     var listObject: ListObject = ListObject()
@@ -243,6 +247,7 @@ class ListController: UIViewController, TaskViewDelegate {
         
         if creating {
             addTaskField.isHidden = true
+            
             createTappedDone()
         }
         
@@ -385,7 +390,6 @@ class ListController: UIViewController, TaskViewDelegate {
         footer.height(100)
         footer.backgroundColor = lightGray
         
-        let selectAll = BoxOption()
         footer.addSubview(selectAll)
         selectAll.image = "list"
         selectAll.createImage()
@@ -420,6 +424,14 @@ class ListController: UIViewController, TaskViewDelegate {
         deleteTask.width(100)
         let deleteRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedDeleteTask))
         deleteTask.addGestureRecognizer(deleteRecognizer)
+    }
+    func allSelected() -> Bool {
+        for id in selectedDict.keys {
+            if selectedDict[id] == false {
+                return false
+            }
+        }
+        return true
     }
     func checkIfAllFalse() -> Bool {
         var allFalse = true
@@ -483,10 +495,21 @@ class ListController: UIViewController, TaskViewDelegate {
         }
     }
     @objc func tappedSelectAll() {
-        for id in selectedDict.keys {
-            selectedDict[id] = true
+        if allSelected() {
+            //deselect everything
+            for id in selectedDict.keys {
+                selectedDict[id] = false
+            }
+            selectAll.label.text = "Select All"
+            tableView.reloadData()
+        } else {
+            for id in selectedDict.keys {
+                selectedDict[id] = true
+            }
+            selectAll.label.text = "Deselect All"
+            tableView.reloadData()
         }
-        tableView.reloadData()
+        
     }
     
     
@@ -636,11 +659,6 @@ class ListController: UIViewController, TaskViewDelegate {
         if sender.tag == 0 {
             updateTheme()
         }
-        photoButton.removeFromSuperview()
-        backgroundButton.removeFromSuperview()
-        textButton.removeFromSuperview()
-        customizeCollectionView.removeFromSuperview()
-        customizeListView.removeFromSuperview()
     }
     
     @objc func tappedDoneEditing() {
@@ -659,10 +677,11 @@ class ListController: UIViewController, TaskViewDelegate {
         self.addTaskField.resignFirstResponder()
         if addTaskField.text!.trimmingCharacters(in: .whitespacesAndNewlines) != ""  {
             try! uiRealm.write {
+                let toTop = UserDefaults.standard.bool(forKey: "toTop")
                 let id = UUID().uuidString
                 let task = TaskObject()
                 task.id = id
-                task.position = tasksList.count
+                task.position = toTop ? 0 : tasksList.count
                 task.completed = false
                 task.name = addTaskField.text!
                 if listTitle == "Important" {
@@ -676,15 +695,12 @@ class ListController: UIViewController, TaskViewDelegate {
                 let formatter2 = DateFormatter()
                 formatter2.dateFormat = "h:mm a"
                 if planned {
-                    dateDueSelected = formatter.string(from: Date())
                     task.planned = dateDueSelected + "-" + timeDueSelected
                 } else if listTitle == "Planned" {
-                    let date = Date()
-                    task.planned = formatter.string(from: date) + "-" + formatter2.string(from: date)
+                    task.planned = dateDueSelected + "-" + timeDueSelected
                 }
                 
                 if reminder {
-                    dateReminderSelected = formatter.string(from: Date())
                     task.reminder = dateReminderSelected + "-" + timeReminderSelected
                     createReminderNotification(id: id)
                 }
@@ -709,6 +725,14 @@ class ListController: UIViewController, TaskViewDelegate {
                     print("default")
                 }
                 task.priority = pri
+                if toTop {
+                    for task in tasksList {
+                        task.position = task.position + 1
+                    }
+                    tasksList.insert(task, at: 0)
+                } else {
+                    tasksList.append(task)
+                }
                 uiRealm.add(task)
             }
         } else {
@@ -735,7 +759,6 @@ class ListController: UIViewController, TaskViewDelegate {
         addTaskField.addKeyboardToolBar(leftButtons: leftBarButtons, rightButtons: [], toolBarDelegate: self)
         configureNavBar()
         addTaskField.text = ""
-        getRealmData()
         tableView.reloadData()
         reloadDelegate?.reloadTableView()
     }
@@ -747,7 +770,7 @@ class ListController: UIViewController, TaskViewDelegate {
                 configureNavBar()
             }
         }
-  
+        cancelSearch()
     }
     
     func createTableHeader() {
@@ -900,6 +923,9 @@ class ListController: UIViewController, TaskViewDelegate {
         customizeSelection = "Photo"
         photoButton.setTitleColor(.white, for: .normal)
         customizeCollectionView.reloadData()
+        customizeCollectionView.removeFromSuperview()
+        customizeListView.removeFromSuperview()
+        creating = false
         updateTheme()
     }
     private func updateTheme() {
@@ -936,7 +962,9 @@ class ListController: UIViewController, TaskViewDelegate {
     
     @objc func tappedCustomBack() {
         tappedOutsideCustom()
+        creating = false
         customizeCollectionView.removeFromSuperview()
+        customizeListView.removeFromSuperview()
         createSlider(listOptions: true)
     }
     @objc func tappedText() {
@@ -1079,14 +1107,23 @@ class ListController: UIViewController, TaskViewDelegate {
         let spacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
         navigationItem.leftBarButtonItems = [spacer]
         spacer.width = 5
+        headerView.isHidden = true
+        self.tableViewTop?.constant = sortType != "" ? -20 : -60
         navigationItem.rightBarButtonItems = [spacer, cancel]
         filterContentForSearchText(searchBar.text!)
     }
     
     @objc func cancelSearch() {
-        print("cancel")
         navigationItem.titleView = .none
-        configureNavBar()
+        headerView.isHidden = false
+        if sortType != "" {
+            self.tableViewTop?.constant = 120
+        } else {
+            self.tableViewTop?.constant = 80
+        }
+        if !creating {
+            configureNavBar()
+        }
         searching = false
         tableView.reloadData()
     }

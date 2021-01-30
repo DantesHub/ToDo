@@ -27,8 +27,8 @@ class StepCell: UITableViewCell {
     var x = UIImageView(image: UIImage(named: "plus")?.rotate(radians: -.pi/4)?.resize(targetSize: CGSize(width: 35, height: 35)).withTintColor(.gray))
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.addSubview(circleView)
-        self.addSubview(cellTitle)
+        contentView.addSubview(circleView)
+        contentView.addSubview(cellTitle)
         
         cellTitle.leadingAnchor.constraint(equalTo: circleView.trailingAnchor, constant: 13).isActive = true
         cellTitle.translatesAutoresizingMaskIntoConstraints = false
@@ -37,7 +37,7 @@ class StepCell: UITableViewCell {
         cellTitle.textColor = UIColor.darkGray
         
         x.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(x)
+        contentView.addSubview(x)
         x.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
         x.topAnchor.constraint(equalTo: self.topAnchor, constant: 5).isActive = true
         x.isUserInteractionEnabled = true

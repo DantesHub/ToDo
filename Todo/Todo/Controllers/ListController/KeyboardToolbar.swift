@@ -95,7 +95,8 @@ enum KeyboardToolbarButton: Int {
             let  btn = UIButton()
             btn.frame = CGRect(x: 10, y: 5, width: 160, height: 40)
             btn.layer.cornerRadius = 20
-            btn.backgroundColor = selectedPriority
+
+            btn.backgroundColor = selectedPriority == .clear ? .black : selectedPriority
             var label = "Priority "
             switch selectedPriority {
             case .red:
@@ -123,7 +124,6 @@ enum KeyboardToolbarButton: Int {
             btn.layer.cornerRadius = 20
             btn.backgroundColor = .blue
             var label = ""
-            print("recreating?")
             if selectedDueDate == "Pick a Date & Time" {
                 label = dateDueSelected + " " + timeDueSelected
                 btn.frame = CGRect(x: 10, y: 5, width: 270, height: 40)

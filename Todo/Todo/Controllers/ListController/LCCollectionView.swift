@@ -431,15 +431,15 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
 
         switch sortOptions[row] {
         case "Important":
-            tasksList.sort { $0.favorited && !$1.favorited }
+            tasksList.sort { !$0.favorited && $1.favorited }
         case "Alphabetically":
-            tasksList.sort { $0.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) < $1.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
+            tasksList.sort { $0.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) > $1.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
         case "Priority":
-            tasksList.sort { $0.priority > $1.priority }
+            tasksList.sort { $0.priority < $1.priority }
         case "Due Date":
-                tasksList.sort { formatter.date(from: $0.planned) ?? farDate < formatter.date(from: $1.planned) ?? farDate }
+                tasksList.sort { formatter.date(from: $0.planned) ?? farDate > formatter.date(from: $1.planned) ?? farDate }
         case "Creation Date":
-            tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate > formatter.date(from: $1.createdAt) ?? farDate }
+            tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate < formatter.date(from: $1.createdAt) ?? farDate }
         default:
             break
         }
@@ -463,6 +463,13 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         switch listOptions[row] {
         case "Rename List":
             slideUpViewTapped()
+            if headerView.isHidden {
+                self.navigationItem.title = ""
+                tableViewTop?.constant = sortType != "" ? 120 : 80
+                tableView.setContentOffset(.init(x: 0, y: -80), animated: true)
+                self.headerView.isHidden = false
+            }
+            tableView.isEditing = false
             bigTextField.isUserInteractionEnabled = true
             addTaskField.isHidden = true
             bigTextField.becomeFirstResponder()

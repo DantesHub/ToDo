@@ -61,10 +61,11 @@ class SliderSectionHeader: UICollectionReusableView{
     }
     
     @objc func tappedBackArrow() {
-        print("bink")
         if listOption {
+            reminder = false
+            planned = false
             reloadDelegate?.reloadSlider()
-        }
+        } 
     }
 
     required init?(coder aDecoder: NSCoder) {

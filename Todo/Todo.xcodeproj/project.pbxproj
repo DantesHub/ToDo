@@ -342,9 +342,9 @@
 			isa = PBXGroup;
 			children = (
 				FEAEAE61252BBAA2003FD07D /* MainMenuCell.swift */,
+				FE77193D2537813D00131A5D /* AddListToGroupTableView.swift */,
 				FE76790D253E3B9500012A59 /* GroupCell.swift */,
 				FEBC2482253668580073EBB1 /* MainPopUpcell.swift */,
-				FE77193D2537813D00131A5D /* AddListToGroupTableView.swift */,
 				FE77193F2537973B00131A5D /* AddListToGroupCell.swift */,
 			);
 			path = MainView;
