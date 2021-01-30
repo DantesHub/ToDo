@@ -74,6 +74,7 @@ class TaskController: UIViewController, ReloadSlider {
     var timePicker: UIDatePicker?
     var repeatPicker: UIPickerView?
     let backArrow = UIButton(frame: CGRect(x: 10, y: 15, width: 25, height: 25))
+    let repeatTitle = UILabel(frame: CGRect(x: 200, y: 15, width: 200, height: 25))
     let window = UIApplication.shared.keyWindow
     let screenSize = UIScreen.main.bounds.size
     let slideUpViewHeight: CGFloat = 350
@@ -213,12 +214,16 @@ class TaskController: UIViewController, ReloadSlider {
         let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(tappedBack))
         backButton.image = UIImage(named: "arrow")?.rotate(radians: -.pi/2)?.resize(targetSize: CGSize(width: 25, height: 25))
         backButton.title = "Back"
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+//        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         self.navigationItem.leftBarButtonItem = backButton
         navigationItem.rightBarButtonItems = .none
+        navigationController?.navigationBar.barTintColor = .clear
+        navigationController?.navigationBar.isTranslucent = true
     }
     func createSlider(createSlider: Bool = true, picker: Bool = false, repeatt: Bool = false) {
         containerView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
+        navigationController?.navigationBar.barTintColor = UIColor.black.withAlphaComponent(0.9)
+        navigationController?.navigationBar.isTranslucent = true
         containerView.frame = self.view.frame
         window?.addSubview(containerView)
         containerView.alpha = 0
@@ -235,7 +240,7 @@ class TaskController: UIViewController, ReloadSlider {
                            delay: 0, usingSpringWithDamping: 1.0,
                            initialSpringVelocity: 1.0,
                            options: .curveEaseOut, animations: { [self] in
-                            self.containerView.alpha = 0.8
+                            self.containerView.alpha = 0.3
                             self.slideUpView.frame = CGRect(x: 0, y: self.screenSize.height - slideUpViewHeight - (repeatt ? 100 : 0), width: self.slideUpView.frame.width, height: self.slideUpView.frame.height)
                            }, completion: nil)
         } else {

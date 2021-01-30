@@ -8,6 +8,7 @@
 
 import UIKit
 import TinyConstraints
+import Purchases
 import StoreKit
 
 class SubscriptionController: UIViewController {
@@ -21,6 +22,7 @@ class SubscriptionController: UIViewController {
         cv.backgroundColor = lightGray
         return cv
     }()
+    var packagesAvailableForPurchase = [Purchases.Package]()
     var topImages = ["group", "infinityGreen", "theme", "infinityGreen", "notif", "repeatBlue", "files"]
     var topTitles = ["Groups", "No Limits", "Premium Design", "Due Date", "Unlimited Reminder", "Repeat", "File & Notes"]
     var stories = [""]
@@ -52,6 +54,37 @@ class SubscriptionController: UIViewController {
     //MARK: - init
     override func viewDidLoad() {
         configureUI()
+        print("loading")
+        Purchases.shared.offerings { (offerings, error) in
+            if let offerings = offerings {
+                print(offerings)
+                let offer = offerings.current
+                let packages = offer?.availablePackages
+                guard packages != nil else {
+                    return
+                }
+                print(packages)
+                for i in 0...packages!.count - 1 {
+                    let package = packages![i]
+                    self.packagesAvailableForPurchase.append(package)
+                    let product = package.product
+                    let title = product.localizedTitle
+                    let price = product.price
+                    var duration = ""
+                    let subscriptionPeriod = product.subscriptionPeriod
+                    
+                    switch subscriptionPeriod!.unit {
+                    case SKProduct.PeriodUnit.month:
+                        duration = "\(subscriptionPeriod?.numberOfUnits)"
+                    case SKProduct.PeriodUnit.year:
+                        duration = "\(subscriptionPeriod?.numberOfUnits)"
+                    default:
+                        duration = ""
+                    }
+                    
+                }
+            }
+        }
         
     }
     //MARK: - helper funcs
@@ -140,8 +173,15 @@ class SubscriptionController: UIViewController {
     }
  
 
-    @objc func tappedContinue() {
-        print("tapped Continue ")
+    @objc func tappedContinue(sender:UIButton) {
+        print(packagesAvailableForPurchase)
+//        let package = packagesAvailableForPurchase[0]
+//        Purchases.shared.purchasePackage(package) { (transaction, purchaserInfo, error, userCancelled) in
+//            if purchaserInfo?.entitlements.all["pro"]?.isActive == true {
+//                // Unlock that great "pro" content
+//                self.dismiss(animated: true, completion: nil)
+//            }
+//        }
     }
     
     @objc func tappedBack() {

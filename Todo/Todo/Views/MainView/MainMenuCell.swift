@@ -14,6 +14,7 @@ class MainMenuCell: UITableViewCell {
     var cellTitle = UILabel()
     var count = UILabel()
     var rounded = false
+    var allTasks = false
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.addSubview(cellImage)
@@ -24,7 +25,6 @@ class MainMenuCell: UITableViewCell {
 
         cellImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
 
-        cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: 20).isActive = true
         cellTitle.centerY(to: self)
         cellTitle.font = UIFont(name: "OpenSans-Regular", size: 17)
         cellTitle.textColor = UIColor.black
@@ -34,6 +34,9 @@ class MainMenuCell: UITableViewCell {
         count.text = "2"
         count.textColor = UIColor.gray
         count.centerY(to: self)
+    }
+    func configureLeading() {
+        cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: !allTasks ? 23 : 20).isActive = true
     }
     
     override func layoutSubviews() {

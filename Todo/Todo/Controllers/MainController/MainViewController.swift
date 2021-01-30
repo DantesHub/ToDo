@@ -16,7 +16,7 @@ import Realm
 var lists = [ListObject]()
 var groups = [ListGroup]()
 var tappedSearch = false
-var defaultColor = UIColor.blue
+var defaultColor: UIColor = .systemBlue
 
 class MainViewController: UIViewController, ReloadDelegate {
     //MARK: - instace variables
@@ -174,7 +174,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         footerView.backgroundColor = .white
         
         let tappedListImageRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddList))
-        plusIV.image = UIImage(named: "plus")?.resize(targetSize: CGSize(width: 40, height: 40)).withTintColor(defaultColor)
+        plusIV.image = UIImage(named: "plus")?.resize(targetSize: CGSize(width: 35, height: 35)).withTintColor(defaultColor)
         footerView.addSubview(plusIV)
         plusIV.centerY(to: footerView)
         plusIV.leadingAnchor.constraint(equalTo: footerView.leadingAnchor, constant: 20).isActive = true
@@ -183,7 +183,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         
         let tappedListLabelRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddList))
 
-        newListLabel.font = UIFont(name: "OpenSans-Regular", size: 17)
+        newListLabel.font = UIFont(name: "OpenSans-Regular", size: 15)
         newListLabel.text = "New List"
         newListLabel.textColor = defaultColor
         footerView.addSubview(newListLabel)
@@ -193,7 +193,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         newListLabel.isUserInteractionEnabled = true
         
         let tappedGroupImageRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddGroup))
-        groupIV.image = UIImage(named: "folderPlus")?.resize(targetSize: CGSize(width: 30, height: 30)).withTintColor(defaultColor)
+        groupIV.image = UIImage(named: "folderPlus")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(defaultColor)
         footerView.addSubview(groupIV)
         groupIV.centerY(to: footerView)
         groupIV.trailingAnchor.constraint(equalTo: footerView.trailingAnchor, constant: -20).isActive = true
@@ -202,7 +202,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         
         let tappedGroupLabelRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddGroup))
         let newGroupLabel = UILabel()
-        newGroupLabel.font = UIFont(name: "OpenSans-Regular", size: 17)
+        newGroupLabel.font = UIFont(name: "OpenSans-Regular", size: 15)
         newGroupLabel.text = "New Group"
         newGroupLabel.textColor = defaultColor
         footerView.addSubview(newGroupLabel)
@@ -215,10 +215,12 @@ class MainViewController: UIViewController, ReloadDelegate {
     func configureNavBar() {
         let label = UILabel()
         label.textColor = UIColor.white
-        label.text = "Monday August, 17"
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMMM d"
+        label.text = formatter.string(from: Date())
         label.font = UIFont(name: "OpenSans-Regular", size: 18)
         self.navigationItem.leftBarButtonItem = UIBarButtonItem.init(customView: label)
-        label.textColor = .blue
+        label.textColor = .systemBlue
         navigationController?.navigationBar.barTintColor = .white
         navigationController?.navigationBar.isTranslucent = false
         let elipsis = UIBarButtonItem(title: "Play", style: .plain, target: self, action: #selector(ellipsisTapped))

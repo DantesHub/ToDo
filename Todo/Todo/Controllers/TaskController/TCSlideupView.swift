@@ -220,6 +220,10 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         set.setTitle("Done", for: .normal)
         pickerView.addSubview(set)
         pickerView.addSubview(backArrow)
+        repeatTitle.text = "Repeat"
+        repeatTitle.font = UIFont(name: "OpenSans-Regular", size: 20)
+        repeatTitle.frame.origin.x = view.frame.maxX/2 - 40
+        pickerView.addSubview(repeatTitle)
         repeatPicker?.sizeToFit()
         repeatPicker = UIPickerView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: pickerView.frame.height))
         repeatPicker?.delegate = self
@@ -229,6 +233,7 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
     
     @objc func tappedRepeatPickerBack() {
         slideUpViewTapped()
+        repeatTitle.removeFromSuperview()
         pickerView.removeFromSuperview()
         calendar.removeFromSuperview()
         backArrow.removeFromSuperview()

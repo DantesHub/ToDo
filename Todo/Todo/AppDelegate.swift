@@ -30,7 +30,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                "notif": true,
                ])
         Purchases.debugLogsEnabled = true
-        Purchases.configure(withAPIKey: "AHheigtCZwIDDNXLWGlcpEHQzgvcVjaA")
+        Purchases.configure(withAPIKey: "QVhSykgRJUGGLcQPSSBJalEizttWWOJw")
         FirebaseApp.configure()
         return true
     }

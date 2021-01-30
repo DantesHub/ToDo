@@ -217,7 +217,7 @@ class ListController: UIViewController, TaskViewDelegate {
         configureNavBar()
         createTableView()
         createObservers()
-        plusTaskView = UIImageView(frame: CGRect(x: self.view.frame.width - 100, y: self.view.frame.height - 200, width: 60, height: 60))
+        plusTaskView = UIImageView(frame: CGRect(x: self.view.frame.width - 100, y: self.view.frame.height - 150, width: 60, height: 60))
         view.addSubview(plusTaskView)
         let padding:CGFloat = 10
         plusTaskView.contentMode = .scaleAspectFit
@@ -300,6 +300,7 @@ class ListController: UIViewController, TaskViewDelegate {
     
     func createSlider(createSlider: Bool = true, picker: Bool = false, listOptions: Bool = false, sortOptions: Bool = false) {
         containerView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
+   
         containerView.frame = self.view.frame
         window?.addSubview(containerView)
         containerView.alpha = 0
@@ -316,7 +317,7 @@ class ListController: UIViewController, TaskViewDelegate {
                            delay: 0, usingSpringWithDamping: 1.0,
                            initialSpringVelocity: 1.0,
                            options: .curveEaseOut, animations: { [self] in
-                            self.containerView.alpha = 0.8
+                            self.containerView.alpha = 0.3
                             self.slideUpView.frame = CGRect(x: 0, y: self.screenSize.height - slideUpViewHeight - extraHeight, width: self.slideUpView.frame.width, height: self.slideUpView.frame.height + extraHeight)
                            }, completion: nil)
         } else {
@@ -820,7 +821,7 @@ class ListController: UIViewController, TaskViewDelegate {
                                delay: 0, usingSpringWithDamping: 1.0,
                                initialSpringVelocity: 1.0,
                                options: .curveEaseOut, animations: { [self] in
-                                self.containerView.alpha = 0.8
+                                self.containerView.alpha = 0.3
                                 self.customizeListView.frame = CGRect(x: 0, y: self.screenSize.height - 250, width: self.customizeListView.frame.width, height: self.customizeListView.frame.height)
                                }, completion: nil)
             }

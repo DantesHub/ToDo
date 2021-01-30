@@ -124,7 +124,11 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             } else {
                 label.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 22)).rotate(radians: .pi), for: .normal)
             }
-            label.titleEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: sortType != "Priority" ? 10 : 17, right: 0)
+            if sortType == "Creation Date" || sortType == "Alphabetically" {                
+                label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 12, right: 0)
+            } else {
+                label.titleEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: sortType != "Priority" ? 10 : 12, right: 0)
+            }
             completedView.addSubview(label)
             label.top(to: completedView, offset: 5)
             label.leadingAnchor.constraint(equalTo: completedView.leadingAnchor, constant: 5).isActive = true

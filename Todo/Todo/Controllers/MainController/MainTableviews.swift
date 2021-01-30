@@ -48,14 +48,14 @@ func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) ->
         groupHeader.backgroundColor = .white
         let label = UILabel()
         groupHeader.addSubview(label)
-        let folderImage = UIImageView(image: UIImage(named: "folder")?.resize(targetSize: CGSize(width: 25, height: 25)))
+        let folderImage = UIImageView(image: UIImage(named: "folder")?.resize(targetSize: CGSize(width: 30, height: 30)))
         groupHeader.addSubview(folderImage)
-        folderImage.leadingAnchor.constraint(equalTo: groupHeader.leadingAnchor, constant: 20).isActive = true
+        folderImage.leadingAnchor.constraint(equalTo: groupHeader.leadingAnchor, constant: 25).isActive = true
         folderImage.centerY(to: groupHeader)
         label.centerY(to: groupHeader)
         label.font = UIFont(name: "OpenSans-Bold", size: 16)
         label.textColor = .black
-        label.leadingAnchor.constraint(equalTo: folderImage.leadingAnchor, constant: 40).isActive = true
+        label.leadingAnchor.constraint(equalTo: folderImage.leadingAnchor, constant: 50).isActive = true
         label.text = groups[section].name
         
         let arw = UIButton(type: .custom)
@@ -95,6 +95,7 @@ func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) ->
 func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     if tableView == listTableView {
         let cell = tableView.dequeueReusableCell(withIdentifier: "listCell", for: indexPath) as! MainMenuCell
+        cell.configureLeading()
         var cellImage = ""
         var colorIn = false
         let bg = lists[indexPath.row].backgroundImage
@@ -161,6 +162,10 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
         return cell
     } else { //topTableView
         let cell = tableView.dequeueReusableCell(withIdentifier: "topCell", for: indexPath) as! MainMenuCell
+        if topList[indexPath.row].title == "All Tasks" {
+            cell.allTasks = true
+        }
+        cell.configureLeading()
         let results = uiRealm.objects(TaskObject.self)
         if indexPath.row == 0 {
             cell.cellImage.image = UIImage(named: topList[indexPath.row].imgName)?.resize(targetSize: CGSize(width: 25, height: 25))

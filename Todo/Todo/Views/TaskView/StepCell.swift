@@ -37,7 +37,7 @@ class StepCell: UITableViewCell {
         cellTitle.textColor = UIColor.darkGray
         
         x.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(x)
+        self.addSubview(x)
         x.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
         x.topAnchor.constraint(equalTo: self.topAnchor, constant: 5).isActive = true
         x.isUserInteractionEnabled = true

@@ -42,16 +42,17 @@ class SettingsCell: UITableViewCell {
         self.addSubview(cellTitle)
         self.addSubview(count)
         
-        cellImage.centerY(to: self)
-        
- 
+    
 
         
         }
+    
 
     func configureSide() {
+        let offset: CGFloat = sectionNumber == 0 ? 10 : 0
+        cellImage.centerY(to: self, offset: offset + 5)
         if !(sectionNumber == 1 && rowNum == 0) && !(sectionNumber == 2 && rowNum == 0){
-            cellImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 25).isActive = true
+            cellImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
         }
         if !(sectionNumber == 2 && rowNum == 0) {
             cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: 20).isActive = true
@@ -60,7 +61,7 @@ class SettingsCell: UITableViewCell {
             cellTitle.centerY(to: self)
         }
    
-        cellTitle.font = UIFont(name: "OpenSans-Regular", size: 18)
+        cellTitle.font = UIFont(name: "OpenSans-Regular", size: 20)
         cellTitle.textColor = UIColor.black
         if sectionNumber == 1 {
             self.addSubview(toggler)
@@ -79,11 +80,11 @@ class SettingsCell: UITableViewCell {
         } else if sectionNumber == 0 {
             self.addSubview(arrowView)
             arrowView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true
-            arrowView.centerY(to: self)
+            arrowView.centerY(to: self, offset: offset + 5)
             let arrowGest = UIGestureRecognizer(target: self, action: #selector(tappedArrow))
             arrowView.addGestureRecognizer(arrowGest)
-            cellImage.image = UIImage(named: "star")?.resize(targetSize: CGSize(width: 40, height: 40)).withTintColor(gold)
-            cellTitle.top(to: self, offset: 25)
+            cellImage.image = UIImage(named: "star")?.resize(targetSize: CGSize(width: 45, height: 45)).withTintColor(gold)
+            cellTitle.top(to: self, offset: 40)
             cellTitle.text = "To Do Premium"
             cellTitle.font = UIFont(name: "OpenSans-Bold", size: 20)
             

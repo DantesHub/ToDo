@@ -64,6 +64,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
                 circle.layer.borderColor = priColor.cgColor
             }
             
+            
             if completed {
                 configureCircle(priColor)
             }
@@ -127,7 +128,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
     }
     
     private func configureDefaultFooter() {
-        let col = listTextColor == .white ? .blue : listTextColor
+        let col = listTextColor == .white ? .systemBlue : listTextColor
         plus.leading(to: stepsFooterView, offset: 20)
         plus.top(to: stepsFooterView, offset: -7)
         plus.image = plus.image?.withTintColor(col)
@@ -191,7 +192,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             cell.cellTitle.text = steps[indexPath.row].stepName
             cell.id = steps[indexPath.row].id
             cell.delegate = self
-            cell.cellTitle.textColor = K.getColor(priority) == .clear ? listTextColor == .white ? .blue : listTextColor : K.getColor(priority)
+            cell.cellTitle.textColor = K.getColor(priority) == .clear ? listTextColor == .white ? .systemBlue : listTextColor : K.getColor(priority)
             cell.taskDelegate = delegate
             cell.selectionStyle = .none
 //            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 0.35)
@@ -204,7 +205,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             cell.type = defaultList[indexPath.row]
             cell.id = id
             cell.taskDelegate = delegate
-            let col = listTextColor == .white ? .blue : listTextColor
+            let col = listTextColor == .white ? .systemBlue : listTextColor
             switch defaultList[indexPath.row] {
             case "Add to a List":
                 var parented = false
@@ -233,9 +234,9 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
                         cell.cellTitle.text = "Priority 2"
                         cell.cellTitle.textColor = orange
                     } else if priority == 3 {
-                        cell.cellImage.image = cell.cellImage.image?.withTintColor(.blue)
+                        cell.cellImage.image = cell.cellImage.image?.withTintColor(.systemBlue)
                         cell.cellTitle.text = "Priority 3"
-                        cell.cellTitle.textColor = .blue
+                        cell.cellTitle.textColor = .systemBlue
                     } else if priority == 4 {
                         cell.cellImage.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 19, height: 22)).withTintColor(col)
                         cell.cellTitle.text = "Priority 4"
@@ -251,7 +252,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
                     cell.cellTitle.text = Date().getDifference(date: newReminder)
                 }
             case "Add Due Date":
-                cell.cellImage.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(plannedDate == "" ? .gray : .blue)
+                cell.cellImage.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(plannedDate == "" ? .gray : .systemBlue)
                 cell.cellTitle.textColor = plannedDate == "" ? .gray : col
                 let newPlanned = plannedDate.replacingOccurrences(of: "-", with: " ")
                 if plannedDate != "" {

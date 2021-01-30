@@ -428,7 +428,10 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         let  formatter = DateFormatter()
         formatter.dateFormat = "MMM dd,yyyy-h:mm a"
         let farDate  = formatter.date(from: "Jan 01, 2100-4:50 PM")!
-
+        try! uiRealm.write {
+            listObject.reversed = true
+        }
+        reversed = true
         switch sortOptions[row] {
         case "Important":
             tasksList.sort { !$0.favorited && $1.favorited }
@@ -439,7 +442,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         case "Due Date":
                 tasksList.sort { formatter.date(from: $0.planned) ?? farDate > formatter.date(from: $1.planned) ?? farDate }
         case "Creation Date":
-            tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate < formatter.date(from: $1.createdAt) ?? farDate }
+            tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate > formatter.date(from: $1.createdAt) ?? farDate }
         default:
             break
         }
