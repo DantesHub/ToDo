@@ -169,6 +169,12 @@ class ListController: UIViewController, TaskViewDelegate {
         darkFilter.bottomToSuperview()
         
         configureUI()
+        
+        if !creating {
+            print("setting")
+            UserDefaults.standard.set(listTitle, forKey: "lastOpened")
+        }
+        
     }
     
     var scrollHeight: CGFloat = 100
@@ -517,19 +523,7 @@ class ListController: UIViewController, TaskViewDelegate {
     func getRealmData() {
         var results = uiRealm.objects(TaskObject.self)
         results = results.sorted(byKeyPath: "position", ascending: true)
-        for list in lists {
-            if list.name == listTitle {
-                listObject = list
-                sortType = list.sortType
-                reversed = list.reversed
-                selectedListBackground = K.getListColor(list.backgroundColor)
-                selectedListTextColor = K.getListColor(list.textColor)
-                selectedListImage = list.backgroundImage
-                if selectedListImage == "addPicture" {
-                    selectedImage = getSavedImage(named: list.name) ?? UIImage()
-                }
-            }
-        }
+ 
         completedTasks = []
         tasksList = []
         if listTitle == "All Tasks" {
@@ -560,6 +554,32 @@ class ListController: UIViewController, TaskViewDelegate {
                     tasksList.append(result)
                 }
             }
+        }
+        var notFound = true
+        for list in lists {
+            if list.name == listTitle {
+                notFound = false
+                listObject = list
+                sortType = list.sortType
+                reversed = list.reversed
+                selectedListBackground = K.getListColor(list.backgroundColor)
+                selectedListTextColor = K.getListColor(list.textColor)
+                selectedListImage = list.backgroundImage
+                if selectedListImage == "addPicture" {
+                    selectedImage = getSavedImage(named: list.name) ?? UIImage()
+                }
+            }
+        }
+        
+        if notFound {
+            if listTitle == "Important" {
+                selectedListImage = "redWall"
+            } else if listTitle == "All Tasks" {
+                selectedListImage = "greenWall"
+            } else if listTitle == "Planned" {
+                selectedListImage = "blueWall"
+            }
+            selectedListTextColor = .white
         }
        
         completedTasks = completedTasks.sorted {
@@ -596,10 +616,30 @@ class ListController: UIViewController, TaskViewDelegate {
         semasphore.wait()
         return
     }
+    @objc func tappedOutside3() {
+        slideUpViewTapped()
+        if !editingCell {
+            self.view.endEditing(true)
+            configureNavBar()
+        }
+    }
     
     @objc func tappedAddTask() {
-        slideUpView.reloadData()
         addTaskField.becomeFirstResponder()
+        containerView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
+        containerView.frame = self.view.frame
+        containerView.alpha = 0
+        view?.insertSubview(containerView, belowSubview: addTaskField)
+        let tapGesture = UITapGestureRecognizer(target: self,
+                                                action: #selector(tappedOutside3))
+        tapGesture.cancelsTouchesInView = false
+        containerView.addGestureRecognizer(tapGesture)
+        UIView.animate(withDuration: 0.5,
+                       delay: 0, usingSpringWithDamping: 1.0,
+                       initialSpringVelocity: 1.0,
+                       options: .curveEaseOut, animations: { [self] in
+                        self.containerView.alpha = 0.3
+                       }, completion: nil)
         let done = UIButton(type: .system)
         done.setTitle("Done", for: .normal)
         done.setTitleColor(.white, for: .normal)
@@ -617,7 +657,9 @@ class ListController: UIViewController, TaskViewDelegate {
             content.body = "Let's Get To It!"
             let formatter3 = DateFormatter()
             formatter3.dateFormat = "MMM dd,yyyy h:mm a"
-            
+            if dateReminderSelected == "" {
+                dateReminderSelected = formatter.string(from: Date())
+            }
             let dat = formatter3.date(from: dateReminderSelected + " " + timeReminderSelected)
             let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dat!)
             let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
@@ -643,7 +685,13 @@ class ListController: UIViewController, TaskViewDelegate {
             if selectedListImage == "addPicture" {
                 backgroundImage.image = selectedImage
             } else {
-                let selectedImage = selectedListImage + "Background"
+                var selectedImage = ""
+                if selectedListImage == "blueWall" || selectedListImage == "greenWall" || selectedListImage == "redWall" {
+                     selectedImage = selectedListImage
+                } else {
+                     selectedImage = selectedListImage + "Background"
+
+                }
                 backgroundImage.image = UIImage(named: selectedImage)
             }
           
@@ -696,12 +744,21 @@ class ListController: UIViewController, TaskViewDelegate {
                 let formatter2 = DateFormatter()
                 formatter2.dateFormat = "h:mm a"
                 if planned {
+                    if dateDueSelected == "" {
+                        dateDueSelected = formatter.string(from: Date())
+                    }
                     task.planned = dateDueSelected + "-" + timeDueSelected
                 } else if listTitle == "Planned" {
+                    if dateDueSelected == "" {
+                        dateDueSelected = formatter.string(from: Date())
+                    }
                     task.planned = dateDueSelected + "-" + timeDueSelected
                 }
                 
                 if reminder {
+                    if dateReminderSelected == "" {
+                        dateReminderSelected = formatter.string(from: Date())
+                    }
                     task.reminder = dateReminderSelected + "-" + timeReminderSelected
                     createReminderNotification(id: id)
                 }
@@ -758,9 +815,9 @@ class ListController: UIViewController, TaskViewDelegate {
         scrollView.contentSize = CGSize(width: UIScreen.main.bounds.width, height: 85)
         let leftBarButtons: [KeyboardToolbarButton] = premadeListTapped ? [.addToList, .priority, .dueDate, .reminder, .favorite] : [.priority, .dueDate, .reminder, .favorite]
         addTaskField.addKeyboardToolBar(leftButtons: leftBarButtons, rightButtons: [], toolBarDelegate: self)
-        configureNavBar()
         addTaskField.text = ""
         tableView.reloadData()
+        tappedOutside3()
         reloadDelegate?.reloadTableView()
     }
     
@@ -813,22 +870,23 @@ class ListController: UIViewController, TaskViewDelegate {
             view.addSubview(customizeListView)
         }
         if !change {
-            customizeListView.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: 150)
+            customizeListView.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: view.frame.height * 0.17)
         } else {
-            customizeListView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: view.frame.width, height: 250)
+            customizeListView.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: view.frame.height * 0.27)
             if change {
                 UIView.animate(withDuration: 0.5,
                                delay: 0, usingSpringWithDamping: 1.0,
                                initialSpringVelocity: 1.0,
                                options: .curveEaseOut, animations: { [self] in
                                 self.containerView.alpha = 0.3
-                                self.customizeListView.frame = CGRect(x: 0, y: self.screenSize.height - 250, width: self.customizeListView.frame.width, height: self.customizeListView.frame.height)
+                                self.customizeListView.frame = CGRect(x: 0, y: self.screenSize.height - 220, width: self.customizeListView.frame.width, height: self.customizeListView.frame.height)
                                }, completion: nil)
             }
         }
         if change {
+            customizeListView.overrideUserInterfaceStyle = .light
             let title = UILabel()
-            title.font = UIFont(name: "OpenSans-Bold", size: 25)
+            title.font = UIFont(name: "OpenSans-Bold", size: 18)
             title.text = "Change Theme"
             customizeListView.addSubview(title)
             title.top(to: customizeListView, offset: 20)
@@ -912,7 +970,7 @@ class ListController: UIViewController, TaskViewDelegate {
         customizeCollectionView.leading(to: customizeListView)
         customizeCollectionView.trailing(to: customizeListView)
         
-        customizeCollectionView.topToBottom(of: photoButton, offset: 5)
+        customizeCollectionView.topToBottom(of: photoButton, offset: 0)
         customizeCollectionView.backgroundColor = .white
         customizeCollectionView.allowsSelection = true
         customizeCollectionView.width(view.frame.width)
@@ -930,9 +988,11 @@ class ListController: UIViewController, TaskViewDelegate {
         updateTheme()
     }
     private func updateTheme() {
+        var foundList = false
         try! uiRealm.write {
             for list in lists  {
                 if list.name == listTitle {
+                    foundList = true
                     list.backgroundColor = K.getStringColor(selectedListBackground)
                     if selectedListTextColor != UIColor.clear {
                         list.textColor = K.getStringColor(selectedListTextColor)
@@ -948,9 +1008,35 @@ class ListController: UIViewController, TaskViewDelegate {
                 }
             }
         }
+        if !foundList { // one of the default lists
+            try! uiRealm.write {
+                let lst = ListObject()
+                lst.name = listTitle
+                if selectedListTextColor != UIColor.clear {
+                    lst.textColor = K.getStringColor(selectedListTextColor)
+                } else {
+                    lst.textColor = "white"
+                }
+                if selectedListBackground == UIColor.clear && selectedListImage == "" {
+                    if listTitle == "Important" {
+                        lst.backgroundImage = "redWall"
+                    } else if listTitle == "All Tasks" {
+                        lst.backgroundImage = "greenWall"
+                    } else if listTitle == "Planned" {
+                        lst.backgroundImage = "blueWall"
+                    }
+                } else {
+                    lst.backgroundImage = selectedListImage
+                }
+                changeTheme()
+                uiRealm.add(lst)
+            }
+        }
         reloadDelegate?.reloadTableView()
     }
     @objc func tappedOutsideCustom() {
+
+        creating = false
         UIView.animate(withDuration: 0.4,
                        delay: 0, usingSpringWithDamping: 1.0,
                        initialSpringVelocity: 1.0,
@@ -958,7 +1044,10 @@ class ListController: UIViewController, TaskViewDelegate {
                         self.containerView.alpha = 0
                         self.customizeListView.frame = CGRect(x: 0, y: (self.window?.frame.height)!, width: self.customizeListView.frame.width, height: self.customizeListView.frame.height
                         )
-                       }, completion: nil)
+                       }) { (bo) in
+            self.customizeCollectionView.removeFromSuperview()
+            self.customizeListView.removeFromSuperview()
+        }
     }
     
     @objc func tappedCustomBack() {
@@ -1062,7 +1151,8 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func tappedBack() {
-        _ = navigationController?.popViewController(animated: true)
+            _ = navigationController?.popViewController(animated: true)
+       
         tasksList = []
         completedTasks = []
     }
@@ -1085,13 +1175,8 @@ class ListController: UIViewController, TaskViewDelegate {
         self.navigationItem.leftBarButtonItem = backButton
    
 
-        if listTitle == "Important" || listTitle == "Planned" || listTitle == "All Tasks" {
-            let spacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
-            spacer.width = 20
-            navigationItem.rightBarButtonItems = [spacer, search]
-        } else {
-            navigationItem.rightBarButtonItems = [elipsis, search]
-        }
+     
+        navigationItem.rightBarButtonItems = [elipsis, search]
         navigationController?.navigationBar.barTintColor = .clear
         navigationController?.navigationBar.isTranslucent = true
     }
@@ -1130,9 +1215,15 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func ellipsisTapped() {
-        tappedIcon = "List Options"
-        slideUpView.reloadData()
-        createSlider(listOptions: true)
+        print("elipsis")
+        if listTitle == "Important" || listTitle == "Planned" || listTitle == "All Tasks" {
+            createCustomListView(change: true)
+        } else {
+            tappedIcon = "List Options"
+            slideUpView.reloadData()
+            createSlider(listOptions: true)
+        }
+      
     }
     
 }

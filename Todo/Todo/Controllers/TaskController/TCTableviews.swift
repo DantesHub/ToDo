@@ -3,6 +3,9 @@
 import UIKit
 
 extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOptionProtocol {
+    func createDone() {
+        createTappedDone(title: false, step: true)
+    }
     func resetVariable(type: String) {
         switch type {
         case "Add Due Date":
@@ -42,7 +45,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
     }
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if tableView == stepsTableView {
-            let stepsHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.width, height: 80))
+            let stepsHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.width, height: taskTitle.count > 16 ? 160 : 80))
             stepsHeaderView.backgroundColor = .white
             circle.width(35)
             circle.height(35)
@@ -68,19 +71,18 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             if completed {
                 configureCircle(priColor)
             }
-            
             stepsHeaderView.addSubview(headerTitle)
             headerTitle.leadingToTrailing(of: circle, offset: 15)
             headerTitle.trailingToSuperview(offset: 40)
+            headerTitle.height(min: stepsHeaderView.frame.height == 80 ? 50 : 80, max:  160, priority: .defaultHigh, isActive: true)
             headerTitle.centerY(to: stepsHeaderView)
+
             headerTitle.sizeToFit()
-            headerTitle.numberOfLines = 2
+            headerTitle.textContainer.maximumNumberOfLines = 2
+            headerTitle.textContainer.lineBreakMode = .byTruncatingTail;
             headerTitle.font = UIFont(name: "OpenSans-Bold", size: 23)
-            headerTitle.adjustsFontSizeToFitWidth = false
-            headerTitle.lineBreakMode = .byWordWrapping
             headerTitle.text = taskTitle
-            
-           
+            headerTitle.delegate = self
             
             star.image = UIImage(named: favorited ? "starfilled" : "star")?.resize(targetSize: CGSize(width: 30, height: 30))
             stepsHeaderView.addSubview(star)
@@ -94,6 +96,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             return UIView(frame: .zero)
         }
     }
+   
     func configureCircle(_ color: UIColor) {
         DispatchQueue.main.async { [self] in
             circle.addSubview(check)
@@ -163,14 +166,15 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         let done = UIButton(type: .system)
         let col = listTextColor == .white ? .gray : listTextColor
         done.setTitle("Done", for: .normal)
-        done.setTitleColor(col, for: .normal)
-        let img =  UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(col)
+        done.setTitleColor(.systemBlue, for: .normal)
+        let img =  UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(.systemBlue)
         done.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 18)
         done.setImage(img, for: .normal)
-        done.tintColor = col
+        done.tintColor = .systemBlue
         done.addTarget(self, action: #selector(tappedDone), for: .touchUpInside)
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
     }
+
     
     @objc func tappedDone() {
         createNewStep(textField: addStepField)
@@ -299,7 +303,9 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
                 createSlider()
             }
         } else {
-            return
+            let stepCell = tableView.cellForRow(at: indexPath) as! StepCell
+            editingStep = steps[indexPath.row]
+            stepCell.cellTitle.becomeFirstResponder()
         }
     }
     

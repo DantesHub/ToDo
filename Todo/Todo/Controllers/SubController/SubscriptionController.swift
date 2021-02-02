@@ -23,7 +23,7 @@ class SubscriptionController: UIViewController {
         return cv
     }()
     var packagesAvailableForPurchase = [Purchases.Package]()
-    var topImages = ["group", "infinityGreen", "theme", "infinityGreen", "notif", "repeatBlue", "files"]
+    var topImages = ["group", "infinityGreen", "theme", "infinityGreen", "unlimitedReminder", "repeatBlue", "files"]
     var topTitles = ["Groups", "No Limits", "Premium Design", "Due Date", "Unlimited Reminder", "Repeat", "File & Notes"]
     var stories = [""]
     var bottomCollectionView: UICollectionView = {
@@ -39,7 +39,8 @@ class SubscriptionController: UIViewController {
         cv.backgroundColor = .white
         return cv
     }()
-    
+    let yearlyBox = PriceBox()
+    let monthlyBox = PriceBox()
     var continueButton = UIButton()
     var continueDesc = UILabel()
     var header = UIView()
@@ -51,39 +52,39 @@ class SubscriptionController: UIViewController {
     let six = RoundView()
     let seven = RoundView()
     let successStories = UILabel()
+    var dots = [RoundView]()
+    let upgradeLabel = UILabel()
+    var monthlyPrice: Double = 0
+    var yearlyPrice: Double = 0
+    var yearlyMonthlyPrice: Double = 0
     //MARK: - init
     override func viewDidLoad() {
-        configureUI()
-        print("loading")
-        Purchases.shared.offerings { (offerings, error) in
+        Purchases.shared.offerings { [self] (offerings, error) in
             if let offerings = offerings {
-                print(offerings)
                 let offer = offerings.current
                 let packages = offer?.availablePackages
                 guard packages != nil else {
                     return
                 }
-                print(packages)
                 for i in 0...packages!.count - 1 {
                     let package = packages![i]
                     self.packagesAvailableForPurchase.append(package)
                     let product = package.product
-                    let title = product.localizedTitle
                     let price = product.price
-                    var duration = ""
-                    let subscriptionPeriod = product.subscriptionPeriod
-                    
-                    switch subscriptionPeriod!.unit {
-                    case SKProduct.PeriodUnit.month:
-                        duration = "\(subscriptionPeriod?.numberOfUnits)"
-                    case SKProduct.PeriodUnit.year:
-                        duration = "\(subscriptionPeriod?.numberOfUnits)"
-                    default:
-                        duration = ""
+                    let name = product.productIdentifier
+                    print(price, "price", name, product.localizedTitle)
+                    if name == "ios.premium.monthly.to.do.list.1" {
+                        monthlyPrice = round(100 * Double(truncating: price))/100
+                        
+                    } else if name == "ios.premium.yearly.to.do.list.1" {
+                        yearlyPrice = round(100 * Double(truncating: price))/100
+                        yearlyMonthlyPrice = (round(100 * (yearlyPrice/12))/100) - 0.01
                     }
-                    
+                    print(monthlyPrice)
+
                 }
             }
+            configureUI()
         }
         
     }
@@ -93,11 +94,12 @@ class SubscriptionController: UIViewController {
         header.leadingToSuperview()
         header.trailingToSuperview()
         header.topToSuperview()
+        header.overrideUserInterfaceStyle = .light
         header.backgroundColor = .white
         header.height(view.frame.height * 0.08)
         let headerTitle = UILabel()
         headerTitle.font = UIFont(name: "OpenSans", size: 28)
-        headerTitle.text = "Go Premium!"
+        headerTitle.text = "To Do Premium"
         header.addSubview(headerTitle)
         headerTitle.center(in: header)
         
@@ -119,7 +121,7 @@ class SubscriptionController: UIViewController {
         topCollectionView.height(view.frame.height * 0.30)
         topCollectionView.delegate = self
         topCollectionView.dataSource = self
-        let dots = [one, two, three, four, five, six, seven]
+        dots = [one, two, three, four, five, six, seven]
         for dot in dots {
             view.addSubview(dot)
             dot.width(8)
@@ -137,31 +139,69 @@ class SubscriptionController: UIViewController {
         seven.leadingToTrailing(of: six, offset: 12)
         
         
-        successStories.text = "Success Stories"
-        successStories.font = UIFont(name: "OpenSans-Bold", size: 22)
-        view.addSubview(successStories)
-        successStories.centerX(to: view)
-        successStories.topToBottom(of: four, offset: 50)
+//        successStories.text = "Success Stories"
+//        successStories.font = UIFont(name: "OpenSans-Bold", size: 22)
+//        view.addSubview(successStories)
+//        successStories.centerX(to: view)
+//        successStories.topToBottom(of: four, offset: 50)
         
-        bottomCollectionView.leadingToSuperview()
-        bottomCollectionView.trailingToSuperview()
-        bottomCollectionView.topToBottom(of: topCollectionView, offset: 70)
-        bottomCollectionView.height(view.frame.height * 0.25)
-        bottomCollectionView.backgroundColor = .white
-        bottomCollectionView.delegate = self
-        bottomCollectionView.dataSource = self
+        view.addSubview(upgradeLabel)
+        upgradeLabel.font = UIFont(name: "OpenSans-Bold", size: 20)
+        upgradeLabel.centerX(to: view)
+        upgradeLabel.text = "Upgrade to Premium Offer"
+        upgradeLabel.textColor = .darkGray
+        upgradeLabel.topToBottom(of: topCollectionView, offset: 50)
         
-        view.addSubview(continueDesc)
-        continueDesc.centerX(to: view)
-        continueDesc.topToBottom(of: bottomCollectionView, offset: 26)
-        continueDesc.font = UIFont(name: "OpenSans", size: 6)
-        continueDesc.text = "7 day free trial, then $3.99 a month"
-        continueDesc.textColor = .systemBlue
+        view.addSubview(yearlyBox)
+        yearlyBox.topToBottom(of: upgradeLabel, offset: 35)
+        yearlyBox.leading(to: view, offset: view.frame.width * 0.10)
+        yearlyBox.width(view.frame.width * 0.40)
+        yearlyBox.height(view.frame.height * 0.20)
+        yearlyBox.selected = true
+        yearlyBox.priceLabel.text = "$\(yearlyPrice)"
+        yearlyBox.yearly = true
+        yearlyBox.title.text = "Pay Yearly"
+        yearlyBox.smallLabel.text = "($\(yearlyMonthlyPrice)/mo)"
+        yearlyBox.width = view.frame.width * 0.40 * 0.43
+        yearlyBox.height = view.frame.height * 0.20 * 0.13
+        yearlyBox.configure()
+        let yearlyGest = UITapGestureRecognizer(target: self, action: #selector(tappedYearly))
+        yearlyBox.addGestureRecognizer(yearlyGest)
+        
+        view.addSubview(monthlyBox)
+        monthlyBox.topToBottom(of: upgradeLabel, offset: 35)
+        monthlyBox.leadingToTrailing(of: yearlyBox,offset: 5)
+        monthlyBox.width(view.frame.width * 0.40)
+        monthlyBox.height(view.frame.height * 0.20)
+        monthlyBox.selected = false
+        monthlyBox.priceLabel.text = "$\(monthlyPrice)"
+        monthlyBox.yearly = false
+        monthlyBox.title.text = "Pay Monthly"
+        monthlyBox.smallLabel.text = "($\(monthlyPrice)/mo)"
+        monthlyBox.width = view.frame.width * 0.40 * 0.43
+        monthlyBox.height = view.frame.height * 0.20 * 0.13
+        monthlyBox.configure()
+        let monthlyGest = UITapGestureRecognizer(target: self, action: #selector(tappedMonthly))
+        monthlyBox.addGestureRecognizer(monthlyGest)
+//        bottomCollectionView.leadingToSuperview()
+//        bottomCollectionView.trailingToSuperview()
+//        bottomCollectionView.topToBottom(of: topCollectionView, offset: 70)
+//        bottomCollectionView.height(view.frame.height * 0.25)
+//        bottomCollectionView.backgroundColor = .white
+//        bottomCollectionView.delegate = self
+//        bottomCollectionView.dataSource = self
+//        
+//        view.addSubview(continueDesc)
+//        continueDesc.centerX(to: view)
+//        continueDesc.topToBottom(of: bottomCollectionView, offset: 26)
+//        continueDesc.font = UIFont(name: "OpenSans", size: 6)
+//        continueDesc.text = "7 day free trial, then $3.99 a month"
+//        continueDesc.textColor = .systemBlue
         
         view.addSubview(continueButton)
         continueButton.leading(to: view, offset: 30)
         continueButton.trailing(to: view, offset: -30)
-        continueButton.topToBottom(of: continueDesc, offset: 5)
+        continueButton.topToBottom(of: yearlyBox, offset: view.frame.height * 0.07)
         continueButton.titleLabel?.font = UIFont(name: "OpenSans-Bold", size: 20)
         continueButton.height(self.view.frame.height * 0.08)
         continueButton.setTitle("CONTINUE", for: .normal)
@@ -169,19 +209,75 @@ class SubscriptionController: UIViewController {
         continueButton.layer.cornerRadius = 15
         continueButton.addTarget(self, action: #selector(tappedContinue), for: .touchUpInside)
   
+        let privacy = UILabel()
+        let terms = UILabel()
         
+
+        privacy.textColor = .lightGray
+        terms.textColor = .lightGray
+        
+        privacy.text = "Privacy Policy"
+        terms.text = "Terms of Use"
+        privacy.font = UIFont(name: "OpenSans", size: 4)
+        terms.font = UIFont(name: "OpenSans", size: 4)
+        view.addSubview(privacy)
+        view.addSubview(terms)
+        privacy.trailing(to: view, offset: -(view.frame.width * 0.075))
+        terms.leading(to: view, offset: view.frame.width * 0.075)
+        privacy.topToBottom(of: continueButton, offset: 30)
+        terms.topToBottom(of: continueButton, offset: 30)
+        privacy.isUserInteractionEnabled = true
+        terms.isUserInteractionEnabled = true
+        let privacyGest = UITapGestureRecognizer(target: self, action: #selector(tappedPrivacy))
+        privacy.addGestureRecognizer(privacyGest)
+        let termsGest = UITapGestureRecognizer(target: self, action: #selector(tappedTerms))
+        terms.addGestureRecognizer(termsGest)
+    }
+    @objc func tappedYearly()  {
+        yearlyBox.selected = true
+        yearlyBox.configure()
+        monthlyBox.selected = false
+        monthlyBox.configure()
+    }
+    @objc func tappedMonthly() {
+        monthlyBox.selected = true
+        monthlyBox.configure()
+        yearlyBox.selected = false
+        yearlyBox.configure()
+    }
+    
+    @objc func tappedPrivacy() {
+        print("fda")
+        if let url = URL(string: "http://alarmandcalm.fun/index.php/alarm-calm-privacy-policy/") {
+            UIApplication.shared.open(url)
+        }
+    }
+    @objc func tappedTerms() {
+        if let url = URL(string: "http://alarmandcalm.fun/index.php/alarm-calm-terms-of-use") {
+            UIApplication.shared.open(url)
+        }
     }
  
 
     @objc func tappedContinue(sender:UIButton) {
         print(packagesAvailableForPurchase)
-//        let package = packagesAvailableForPurchase[0]
-//        Purchases.shared.purchasePackage(package) { (transaction, purchaserInfo, error, userCancelled) in
-//            if purchaserInfo?.entitlements.all["pro"]?.isActive == true {
-//                // Unlock that great "pro" content
-//                self.dismiss(animated: true, completion: nil)
-//            }
-//        }
+        var package = packagesAvailableForPurchase[0]
+        if yearlyBox.selected {
+             package = packagesAvailableForPurchase.last { (package) -> Bool in
+                return package.product.productIdentifier == "ios.premium.yearly.to.do.list.1"
+             }!
+        } else {
+             package = packagesAvailableForPurchase.last { (package) -> Bool in
+                return package.product.productIdentifier == "ios.premium.monthly.to.do.list.1"
+             }!
+        }
+        Purchases.shared.purchasePackage(package) { (transaction, purchaserInfo, error, userCancelled) in
+            if purchaserInfo?.entitlements.all["premium"]?.isActive == true {
+                // Unlock that great "pro" content
+                UserDefaults.standard.setValue(true, forKey: "isPro")
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
     }
     
     @objc func tappedBack() {

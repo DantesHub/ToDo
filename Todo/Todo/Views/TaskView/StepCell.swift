@@ -10,9 +10,19 @@ import UIKit
 import TinyConstraints
 import RealmSwift
 
+extension StepCell: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        delegate?.createDone()
+    }
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        print("setting")
+        editingStepText = textField.text ?? ""
+        return true
+    }
+}
 class StepCell: UITableViewCell {
     var circleView = RoundView()
-    var cellTitle = UILabel()
+    var cellTitle = UITextField()
     var done = false
     var priColor = UIColor()
     var id = ""
@@ -30,12 +40,13 @@ class StepCell: UITableViewCell {
         contentView.addSubview(circleView)
         contentView.addSubview(cellTitle)
         
+        cellTitle.delegate = self
         cellTitle.leadingAnchor.constraint(equalTo: circleView.trailingAnchor, constant: 13).isActive = true
         cellTitle.translatesAutoresizingMaskIntoConstraints = false
         cellTitle.topAnchor.constraint(equalTo: self.topAnchor, constant: 5).isActive = true
         cellTitle.font = UIFont(name: "OpenSans-Regular", size: 18)
         cellTitle.textColor = UIColor.darkGray
-        
+        cellTitle.isUserInteractionEnabled = true
         x.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(x)
         x.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20).isActive = true

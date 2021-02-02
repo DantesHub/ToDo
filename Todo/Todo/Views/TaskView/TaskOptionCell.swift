@@ -9,6 +9,7 @@
 import UIKit
 import TinyConstraints
 protocol TaskOptionProtocol {
+    func createDone()
     func resetVariable(type: String)
     func reloadTable()
     func reloadStepsTable()

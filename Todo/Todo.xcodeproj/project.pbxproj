@@ -16,6 +16,7 @@
 		FE07127A25B23F170040F1D5 /* SubCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE07127925B23F170040F1D5 /* SubCollectionView.swift */; };
 		FE07128025B241720040F1D5 /* TopCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE07127F25B241720040F1D5 /* TopCell.swift */; };
 		FE07128325B241F90040F1D5 /* BottomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE07128225B241F90040F1D5 /* BottomCell.swift */; };
+		FE39F95D25C8D65D00ADCE7A /* PriceBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE39F95C25C8D65D00ADCE7A /* PriceBox.swift */; };
 		FE4B42CC256DE418007CFE37 /* TCSlideupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42CB256DE418007CFE37 /* TCSlideupView.swift */; };
 		FE4B42D0256DE645007CFE37 /* TaskSliderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42CF256DE645007CFE37 /* TaskSliderCell.swift */; };
 		FE4B42D9256EE7F3007CFE37 /* TCTableviews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE4B42D8256EE7F3007CFE37 /* TCTableviews.swift */; };
@@ -78,6 +79,7 @@
 		FE07127925B23F170040F1D5 /* SubCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubCollectionView.swift; sourceTree = "<group>"; };
 		FE07127F25B241720040F1D5 /* TopCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopCell.swift; sourceTree = "<group>"; };
 		FE07128225B241F90040F1D5 /* BottomCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomCell.swift; sourceTree = "<group>"; };
+		FE39F95C25C8D65D00ADCE7A /* PriceBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceBox.swift; sourceTree = "<group>"; };
 		FE4B42CB256DE418007CFE37 /* TCSlideupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCSlideupView.swift; sourceTree = "<group>"; };
 		FE4B42CF256DE645007CFE37 /* TaskSliderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSliderCell.swift; sourceTree = "<group>"; };
 		FE4B42D8256EE7F3007CFE37 /* TCTableviews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCTableviews.swift; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 			children = (
 				FE07127F25B241720040F1D5 /* TopCell.swift */,
 				FE07128225B241F90040F1D5 /* BottomCell.swift */,
+				FE39F95C25C8D65D00ADCE7A /* PriceBox.swift */,
 			);
 			path = SubscriptionView;
 			sourceTree = "<group>";
@@ -546,6 +549,7 @@
 				FEF7F0662568516600E92BC9 /* TaskOptionCell.swift in Sources */,
 				FE4B42D0256DE645007CFE37 /* TaskSliderCell.swift in Sources */,
 				FE7C7653252559FA000549A1 /* SelfSizedTableView.swift in Sources */,
+				FE39F95D25C8D65D00ADCE7A /* PriceBox.swift in Sources */,
 				FE0520CE25536B490052F8DA /* Task.swift in Sources */,
 				FEBC2483253668580073EBB1 /* MainPopUpcell.swift in Sources */,
 				FEF485FE254A080D000CCDF7 /* LCTextField.swift in Sources */,
@@ -693,13 +697,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.2;
 				DEVELOPMENT_TEAM = AN6UCW8N8P;
 				INFOPLIST_FILE = Todo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.alarmandcalm.todolist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -713,13 +718,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.2;
 				DEVELOPMENT_TEAM = AN6UCW8N8P;
 				INFOPLIST_FILE = Todo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.alarmandcalm.todolist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

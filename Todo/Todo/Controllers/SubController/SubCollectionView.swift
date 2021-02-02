@@ -49,7 +49,16 @@ extension SubscriptionController: UICollectionViewDelegate, UICollectionViewData
         }
         return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     }
-
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if collectionView == topCollectionView {
+            var newDots = dots.map { $0 }
+            let selectedDot = newDots.remove(at: indexPath.row)
+            selectedDot.backgroundColor = .black
+            for dot in newDots {
+                dot.backgroundColor = .lightGray
+            }
+        }
+    }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         if collectionView == bottomCollectionView {

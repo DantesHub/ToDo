@@ -12,8 +12,10 @@ extension SettingsController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
             return 1
+        } else if section == 1 {
+            return 2
         }
-        return 2
+        return 3
     }
     func numberOfSections(in tableView: UITableView) -> Int {
         return 3
@@ -49,7 +51,30 @@ extension SettingsController: UITableViewDataSource, UITableViewDelegate {
             SKStoreReviewController.requestReview()
         } else if indexPath.section == 0 {
             self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+        } else if indexPath.section == 2 && indexPath.row == 2 {
+            if (SKPaymentQueue.canMakePayments()) {
+              SKPaymentQueue.default().restoreCompletedTransactions()
+            }
         }
+    }
+    func paymentQueue(_ queue: SKPaymentQueue!, updatedTransactions transactions: [SKPaymentTransaction]!)    {
+      print("Received Payment Transaction Response from Apple");
+      for transaction in transactions {
+        switch transaction.transactionState {
+        case .purchased, .restored:
+          print("Purchased purchase/restored")
+            UserDefaults.standard.setValue(true, forKey: "isPro")
+          SKPaymentQueue.default().finishTransaction(transaction as SKPaymentTransaction)
+          break
+        case .failed:
+          print("Purchased Failed")
+          SKPaymentQueue.default().finishTransaction(transaction as SKPaymentTransaction)
+          break
+        default:
+          print("default")
+          break
+        } 
+      }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

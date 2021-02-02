@@ -16,16 +16,55 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
         return true
     }
     
+
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView == headerTitle {
+            createTappedDone(title: true)
+        }
+    }
+    public func createTappedDone(title: Bool = false, step: Bool = false) {
+        let done = UIButton(type: .system)
+        done.setTitle("Done", for: .normal)
+        done.setTitleColor(.systemBlue, for: .normal)
+        done.titleLabel!.font = UIFont(name: "OpenSans-Regular", size: 18)
+        done.setImage(UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25)), for: .normal)
+        done.tintColor = .systemBlue
+        if title {
+            done.addTarget(self, action: #selector(doneEditingList), for: .touchUpInside)
+        } else if step {
+            done.addTarget(self, action: #selector(doneEditingStep), for: .touchUpInside)
+        }
+        navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
+    }
+    @objc func doneEditingStep() {
+        view.endEditing(true)
+        try! uiRealm.write {
+            editingStep.stepName = editingStepText
+        }
+        configureNavBar()
+    }
+    @objc func doneEditingList() {
+        headerTitle.resignFirstResponder()
+        try! uiRealm.write {
+            taskObject.name = headerTitle.text ?? ""
+        }
+        delegate?.reloadTable()
+        configureNavBar()
+    }
+
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if let character = text.first, character.isNewline {
-            textView.resignFirstResponder()
-            try! uiRealm.write {
-                taskObject.note = noteTextField.text ?? ""
+            if textView == noteTextField {
+                textView.resignFirstResponder()
+                try! uiRealm.write {
+                    taskObject.note = noteTextField.text ?? ""
+                }
+                return false
             }
-            return false
         }
         return true
     }
+    
     
     func createNewStep(textField: UITextField) {
         if textField.text! != "" {

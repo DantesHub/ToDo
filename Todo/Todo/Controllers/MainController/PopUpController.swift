@@ -36,6 +36,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
         if indexPath.row == 0 {
             let listGroupTableView = AddListToGroupTableView(frame: view.bounds)
             listGroupTableView.reloadDelegate = self
+            listGroupTableView.configureUI()
             slideUpViewTapped()
             view.addSubview(listGroupTableView)
         } else if indexPath.row == 1{

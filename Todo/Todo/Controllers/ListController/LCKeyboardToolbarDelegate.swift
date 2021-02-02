@@ -21,8 +21,10 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                  keyboard2 = true
              }
             if stabilize {
+                print("in here", lastKeyboardHeight)
                 self.customizeListView.frame.origin.y = self.customizeListView.frame.origin.y - lastKeyboardHeight - 140
             }
+            
             stabilize = false
              createdNewList = true
          }
@@ -45,6 +47,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
     
     
     @objc func keyboardWillHide(notification: NSNotification) {
+        print("hiding")
         self.addTaskField.frame.origin.y = self.view.frame.height
         self.customizeListView.frame.origin.y = self.view.frame.height
     }

@@ -12,7 +12,8 @@ import MobileCoreServices
 import Layoutless
 import RealmSwift
 import Realm
-
+import Purchases
+var mainIsRoot = false
 var lists = [ListObject]()
 var groups = [ListGroup]()
 var tappedSearch = false
@@ -36,9 +37,9 @@ class MainViewController: UIViewController, ReloadDelegate {
     var groupHeader = UIView()
     var listHeader = UIView()
     lazy var scrollView: UIScrollView = {
-       let view = UIScrollView()
-       view.showsVerticalScrollIndicator = false
-       return view
+        let view = UIScrollView()
+        view.showsVerticalScrollIndicator = false
+        return view
     }()
     var wait = true
     var stackBottom: NSLayoutConstraint?
@@ -53,7 +54,7 @@ class MainViewController: UIViewController, ReloadDelegate {
     var slideUpView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let cv = UICollectionView(frame: .zero
-        , collectionViewLayout: layout)
+                                  , collectionViewLayout: layout)
         cv.backgroundColor = .white
         return cv
     }()
@@ -67,7 +68,13 @@ class MainViewController: UIViewController, ReloadDelegate {
         getRealmData()
         UIFont.overrideInitialize()
         configureNavBar()
+        
         configureUI()
+        Purchases.shared.purchaserInfo { (purchaserInfo, error) in
+            if purchaserInfo?.entitlements.all["premium"]?.isActive == true {
+                print("we premium boys")
+            }
+        }
     }
     
     //MARK: - helper functions
@@ -89,18 +96,18 @@ class MainViewController: UIViewController, ReloadDelegate {
                 for position in list.groupPositions {
                     if position.groupName == result.name {
                         groupList[position.groupPosition] = list
-                 }
-               }
+                    }
+                }
             }
             try! uiRealm.write {
                 result.lists = groupList
             }
-             
+            
             groups.append(result)
         }
         let listResults = uiRealm.objects(ListObject.self)
         let sortedListResults = listResults.sorted {
-             $0.position < $1.position
+            $0.position < $1.position
         }
         lists = sortedListResults.map { $0 }
         groupTableView.reloadData()
@@ -115,7 +122,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         scrollView.topToSuperview()
         scrollView.bottom(to: view, offset: -80)
         createFooter()
-
+        
         self.scrollView.addSubview(self.stackView)
         self.stackView.translatesAutoresizingMaskIntoConstraints = false
         self.stackView.axis = .vertical
@@ -126,7 +133,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         self.stackView.trailingAnchor.constraint(equalTo: self.scrollView.trailingAnchor).isActive = true;
         stackBottom = self.stackView.bottomAnchor.constraint(equalTo: self.scrollView.bottomAnchor)
         stackBottom?.isActive = true
-
+        
         //constrain width of stack view to width of self.view, NOT scroll view
         self.stackView.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true;
         stackView.addArrangedSubview(topTableView)
@@ -139,7 +146,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         topTableView.separatorStyle = .none
         topTableView.isScrollEnabled = false
         self.topTableView.contentInset = UIEdgeInsets(top: 10,left: 0,bottom: 0,right: 0)
-
+        
         listHeader = UIView()
         listHeader.backgroundColor = .white
         stackView.addArrangedSubview(listHeader)
@@ -159,7 +166,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         let tapGestureRecognizer2 = UITapGestureRecognizer(target: self, action: #selector(handleListExpandClose))
         listArw.isUserInteractionEnabled = true
         listArw.addGestureRecognizer(tapGestureRecognizer2)
-
+        
         let hr = HorizontalBorder(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
         listHeader.addSubview(hr)
         createListSection()
@@ -182,7 +189,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         plusIV.isUserInteractionEnabled = true
         
         let tappedListLabelRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedAddList))
-
+        
         newListLabel.font = UIFont(name: "OpenSans-Regular", size: 15)
         newListLabel.text = "New List"
         newListLabel.textColor = defaultColor
@@ -243,7 +250,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         label.font = UIFont(name: "OpenSans-Regular", size: 20)
         label.textColor = .blue
         label.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: 20).isActive = true
-  
+        
         view.insertSubview(arw, belowSubview: footerView)
         arw.centerY(to: groupHeader)
         arw.height(20)
@@ -252,7 +259,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleExpandClose))
         arw.isUserInteractionEnabled = true
         arw.addGestureRecognizer(tapGestureRecognizer)
-
+        
         let hr = HorizontalBorder(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height))
         groupHeader.addSubview(hr)
         
@@ -276,9 +283,23 @@ class MainViewController: UIViewController, ReloadDelegate {
         groupTableView.allowsSelection = true
         groupTableView.separatorStyle = .none
         groupTableView.isScrollEnabled = false
+        if !mainIsRoot {
+            let controller = ListController()
+            controller.reloadDelegate = self
+            controller.creating = false;
+            if UserDefaults.standard.string(forKey: "lastOpened") != nil {
+                listTitle = UserDefaults.standard.string(forKey: "lastOpened")!
+                if listTitle == "Planned" || listTitle == "All Tasks" || listTitle == "Important" {
+                    premadeListTapped = true
+                }
+            }
+            controller.navigationController?.isNavigationBarHidden = false
+            self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
+            self.navigationController?.pushViewController(controller, animated: false)
+        }
     }
     
-
+    
     func createListSection() {
         stackView.addArrangedSubview(listTableView)
         listTableView.register(MainMenuCell.self, forCellReuseIdentifier: "listCell")
@@ -295,53 +316,59 @@ class MainViewController: UIViewController, ReloadDelegate {
     }
     
     @objc func tappedAddGroup() {
-        let alertController = UIAlertController(title: "Add New Group", message: "", preferredStyle: UIAlertController.Style.alert)
-        alertController.overrideUserInterfaceStyle = .light
-        alertController.addTextField { (textField : UITextField!) -> Void in
-            textField.placeholder = "Untitled Group"
+        let isPro = UserDefaults.standard.bool(forKey: "isPro")
+        if isPro == true {
+            let alertController = UIAlertController(title: "Add New Group", message: "", preferredStyle: UIAlertController.Style.alert)
+            alertController.overrideUserInterfaceStyle = .light
+            alertController.addTextField { (textField : UITextField!) -> Void in
+                textField.placeholder = "Untitled Group"
+            }
+            let saveAction = UIAlertAction(title: "Save", style: UIAlertAction.Style.default, handler: { alert -> Void in
+                let firstTextField = alertController.textFields![0] as UITextField
+                let createdGroup = ListGroup()
+                createdGroup.name = firstTextField.text ?? "Untitled Group"
+                createdGroup.position = (groups.count - 1) + 1
+                let groups = uiRealm.objects(ListGroup.self)
+                var nameTaken = false
+                for group in groups {
+                    if group.name == firstTextField.text {
+                        nameTaken = true
+                        let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
+                        let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
+                                                        (action : UIAlertAction!) -> Void in })
+                        
+                        alertController.addAction(okayAction)
+                        self.present(alertController, animated: true, completion: nil)
+                    }
+                }
+                if !nameTaken {
+                    try! uiRealm.write {
+                        uiRealm.add(createdGroup)
+                    }
+                    self.groupTableView.heightAnchor.constraint(greaterThanOrEqualToConstant: CGFloat(groups.count * 70)).isActive = true
+                    self.getRealmData()
+                    self.groupTableView.reloadData()
+                }
+                
+            })
+            
+            let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.default, handler: {
+                                                (action : UIAlertAction!) -> Void in })
+            
+            alertController.addAction(saveAction)
+            alertController.addAction(cancelAction)
+            
+            self.present(alertController, animated: true, completion: nil)
+            return
         }
-        let saveAction = UIAlertAction(title: "Save", style: UIAlertAction.Style.default, handler: { alert -> Void in
-            let firstTextField = alertController.textFields![0] as UITextField
-            let createdGroup = ListGroup()
-            createdGroup.name = firstTextField.text ?? "Untitled Group"
-            createdGroup.position = (groups.count - 1) + 1
-            let groups = uiRealm.objects(ListGroup.self)
-            var nameTaken = false
-            for group in groups {
-                if group.name == firstTextField.text {
-                    nameTaken = true
-                    let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
-                    let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
-                        (action : UIAlertAction!) -> Void in })
-                    
-                    alertController.addAction(okayAction)
-                    self.present(alertController, animated: true, completion: nil)
-                }
-            }
-            if !nameTaken {
-                try! uiRealm.write {
-                    uiRealm.add(createdGroup)
-                }
-                self.groupTableView.heightAnchor.constraint(greaterThanOrEqualToConstant: CGFloat(groups.count * 70)).isActive = true
-                self.getRealmData()
-                self.groupTableView.reloadData()
-            }
-          
-        })
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertAction.Style.default, handler: {
-            (action : UIAlertAction!) -> Void in })
-        
-        alertController.addAction(saveAction)
-        alertController.addAction(cancelAction)
-        
-        self.present(alertController, animated: true, completion: nil)
+        self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
     }
-     @objc private func tappedAddList() {
-//        DispatchQueue.main.async { [self] in
-//            plusIV.alpha = 0.6
-//            newListLabel.alpha = 0.6
-//        }
+    @objc private func tappedAddList() {
+        //        DispatchQueue.main.async { [self] in
+        //            plusIV.alpha = 0.6
+        //            newListLabel.alpha = 0.6
+        //        }
         let controller = ListController()
         listTitle = "Untitled List"
         controller.reloadDelegate = self
@@ -357,7 +384,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         }
         
     }
-
+    
     
     @objc func handleListExpandClose() {
         var indexPaths = [IndexPath]()
@@ -412,4 +439,4 @@ class MainViewController: UIViewController, ReloadDelegate {
     
 }
 
-    
+

@@ -17,8 +17,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             guard let windowScene = (scene as? UIWindowScene) else { return }
 
             let window = UIWindow(windowScene: windowScene)
-            window.rootViewController = UINavigationController(rootViewController: MainViewController())
-            self.window = window
+        let controller = MainViewController()
+
+        if UserDefaults.standard.value(forKey: "lastOpened") == nil {
+            mainIsRoot = true
+        } else {
+            mainIsRoot = false
+        }
+        window.rootViewController = UINavigationController(rootViewController: controller )
+
+        self.window = window
             window.makeKeyAndVisible()
         }
     

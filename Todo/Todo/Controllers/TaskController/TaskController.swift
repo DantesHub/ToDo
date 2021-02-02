@@ -11,6 +11,9 @@ import RealmSwift
 import TinyConstraints
 import FSCalendar
 import IQKeyboardManagerSwift
+
+var editingStep = Step()
+var editingStepText = ""
 class TaskController: UIViewController, ReloadSlider {
     //MARK: - instance variables
     var plannedDate = ""
@@ -38,8 +41,9 @@ class TaskController: UIViewController, ReloadSlider {
         return iv
     }()
     var path = IndexPath()
-    let headerTitle = UILabel()
+    let headerTitle = UITextView()
     var id = ""
+    var notes = ""
     var selectedRepeat = ""
     let parentLists = uiRealm.objects(ListObject.self)
     let stackView = UIStackView()
@@ -70,6 +74,7 @@ class TaskController: UIViewController, ReloadSlider {
     var selectedTaskTime = ""
     var containerView = UIView()
     var set = UIButton()
+    var createdAt = ""
     var calendar = FSCalendar()
     var timePicker: UIDatePicker?
     var repeatPicker: UIPickerView?
@@ -184,7 +189,7 @@ class TaskController: UIViewController, ReloadSlider {
         self.stackView.addArrangedSubview(noteTextField)
         noteTextField.height(UIScreen.main.bounds.height/6)
         noteTextField.backgroundColor = .white
-        noteTextField.text = "Notes"
+        noteTextField.text = notes == "" ? "Notes" : notes
         noteTextField.font = UIFont(name: "OpenSans-Regular", size: 20)
         noteTextField.textContainerInset = UIEdgeInsets(top: 5, left: 20, bottom: 5, right: 20)
 
@@ -266,7 +271,6 @@ class TaskController: UIViewController, ReloadSlider {
         containerView.addGestureRecognizer(tapGesture)
     }
     @objc func tappedOutside2() {
-        print("calling")
         self.view.endEditing(true)
         if window!.subviews.contains(pickerView) {
             UIView.animate(withDuration: 0.4,
@@ -372,23 +376,21 @@ class TaskController: UIViewController, ReloadSlider {
         var repeats = ""
         print(tasksList.count, "aloha")
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
-        for task in results {
-            if task.id == id {
                 try! uiRealm.write {
-                    task.completed = true
-                    delTaskPosition = task.position
-                    task.position = -1
-                    if task.repeated != "" {
+                    taskObject.completed = true
+                    delTaskPosition = taskObject.position
+                    taskObject.position = -1
+                    if taskObject.repeated != "" {
                         let formatter = DateFormatter()
                         formatter.dateFormat = "MMM dd,yyyy-h:mm a"
-                        repeats = task.repeated
-                        task.completed = false
-                        task.position = totalTasks
+                        repeats = taskObject.repeated
+                        taskObject.completed = false
+                        taskObject.position = totalTasks
                         var newDate = Date()
-                        if task.reminder != "" {
-                            newDate = formatter.date(from: task.reminder)!
+                        if taskObject.reminder != "" {
+                            newDate = formatter.date(from: taskObject.reminder)!
                         }
-                        let plannedDate = formatter.date(from: task.planned)!
+                        let plannedDate = formatter.date(from: taskObject.planned)!
                         var modifiedDateReminder = Date()
                         var modifiedDatePlanned = Date()
                         var val = 1
@@ -434,18 +436,18 @@ class TaskController: UIViewController, ReloadSlider {
                             break
                         }
                         
-                        task.planned = formatter.string(from: modifiedDatePlanned)
+                        taskObject.planned = formatter.string(from: modifiedDatePlanned)
                         self.plannedDate = formatter.string(from: modifiedDatePlanned)
-                        if task.reminder != "" {
+                        if taskObject.reminder != "" {
                             //create new notification and reset reminder in realm
                             let content = UNMutableNotificationContent()
-                            content.title = task.name
+                            content.title = taskObject.name
                             content.body = "Let's Get To It!"
                             let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: modifiedDateReminder)
                             let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
-                            let request = UNNotificationRequest(identifier: task.id,
+                            let request = UNNotificationRequest(identifier: taskObject.id,
                                         content: content, trigger: trigger)
-                            task.reminder = formatter.string(from: modifiedDateReminder)
+                            taskObject.reminder = formatter.string(from: modifiedDateReminder)
                             self.reminderDate = formatter.string(from: modifiedDateReminder)
                             let notificationCenter = UNUserNotificationCenter.current()
                             notificationCenter.add(request) { (error) in
@@ -454,12 +456,10 @@ class TaskController: UIViewController, ReloadSlider {
                         }
                        
                     } else {
-                        task.completedDate = Date()
+                        taskObject.completedDate = Date()
                     }
                 }
-            }
-        }
-        
+ 
         for task in results {
             if task.parentList == parentList && task.completed == false && task.position > delTaskPosition {
                 try! uiRealm.write {
@@ -524,9 +524,63 @@ class TaskController: UIViewController, ReloadSlider {
         let createdLabel = UILabel()
         createdLabel.font = UIFont(name: "OpenSans-Regular", size: 18)
         createdLabel.textColor = .gray
-        createdLabel.text = "Completed on Nov 19, 2020"
+
+        print(createdAt)
+        let dash = createdAt.firstIndex(of: "-")
+        let newStr = createdAt[..<dash!]
+        createdLabel.text = "Created on \(newStr)"
         footer.addSubview(createdLabel)
-        createdLabel.center(in: footer)
+        createdLabel.center(in: footer, offset: CGPoint(x: 0, y: -10))
+        let trashcan = UIImageView()
+        trashcan.image = UIImage(named: "Delete List")?.withTintColor(.red).resize(targetSize: CGSize(width: 34, height: 34))
+        footer.addSubview(trashcan)
+        trashcan.centerY(to: footer, offset: -10)
+        trashcan.trailing(to: footer, offset: -30)
+        
+        let gestTrash = UITapGestureRecognizer(target: self, action: #selector(deleteList))
+        trashcan.isUserInteractionEnabled = true
+        trashcan.addGestureRecognizer(gestTrash)
+    }
+    @objc func deleteList() {
+        let tasks = uiRealm.objects(TaskObject.self)
+        var delIdx = 0
+        var completedd = false
+        for task in  tasks {
+            if task.id == id {
+                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [task.id])
+                for step in task.steps {
+                    try! uiRealm.write {
+                        uiRealm.delete(step)
+                    }
+                }
+            }
+            if path.section == 0 && task.id == id  {
+                tasksList.removeAll(where: {$0.id == task.id})
+                delIdx = task.position
+                try! uiRealm.write {
+                    uiRealm.delete(task)
+                }
+            } else if (path.section == 1  && task.id == id) {
+                completedd = true
+                completedTasks.removeAll(where: {$0.id == task.id})
+                delIdx = task.position
+                try! uiRealm.write {
+                    uiRealm.delete(task)
+                }
+            }
+        }
+        
+        if delIdx != -1 {
+            for task in tasks {
+                if task.parentList == listTitle && task.position > delIdx {
+                    try! uiRealm.write {
+                        task.position -= 1
+                    }
+                }
+            }
+        }
+        delegate?.reloadTable()
+        tappedBack()
     }
 }
 

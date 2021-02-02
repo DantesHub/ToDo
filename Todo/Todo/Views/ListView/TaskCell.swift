@@ -13,7 +13,6 @@ protocol TaskViewDelegate {
     func reloadTaskTableView(at: IndexPath, checked: Bool, repeats: String)
     func reloadTable()
     func createObservers()
-    func reloadEditList()
     func resignResponder()
 }
 
@@ -29,10 +28,12 @@ class TaskCell: UITableViewCell {
     var plannedDate = UILabel()
     var bell = UIImageView()
     var reminderDate = UILabel()
+    var createdAt = ""
     var repeatImage = UIImageView()
     var bottomView = UIView()
     var listLabel = UILabel()
     var prioritized = 0
+    var taskObject = TaskObject()
     var path = IndexPath()
     var taskPlannedDate = ""
     var repeatTask  = ""
@@ -41,6 +42,7 @@ class TaskCell: UITableViewCell {
     var position = 0
     var selectedCell = false
     var id = ""
+    var notes = ""
     override var frame: CGRect {
             get {
                 return super.frame
@@ -48,7 +50,7 @@ class TaskCell: UITableViewCell {
             set (newFrame) {
                 var frame =  newFrame
                 frame.origin.y += 4
-                frame.size.height -= 2 * 8
+                frame.size.height -= 2 * 5
                 super.frame = frame
             }
         }
@@ -110,34 +112,31 @@ class TaskCell: UITableViewCell {
     @objc func tappedCell() {
         if !editingCell {
             let controller = TaskController()
+            controller.notes = notes
             controller.plannedDate = taskPlannedDate
             controller.reminderDate = reminderDate.text ?? ""
             controller.taskTitle = title.text ?? ""
             controller.favorited = favorited
             controller.id = id
+            controller.taskObject = taskObject
             controller.priority = prioritized
             controller.completed = completed
             controller.path = path
+            controller.createdAt = createdAt
             controller.repeatTask = repeatTask
             controller.parentList = parentList
             controller.delegate = taskCellDelegate
             taskCellDelegate?.resignResponder()
             navigationController.view.layer.add(CATransition().popFromRight(), forKey: nil)
             navigationController.pushViewController(controller, animated: false)
-            if searching {
-                searching = false
-                taskCellDelegate?.reloadTable()
-            }
         } else {
             print("janke")
         }
-        
-        
+
     }
     
     func configureBottomView() {
-        
-        star.image = UIImage(named: favorited ? "starfilled" :"star")?.resize(targetSize: CGSize(width: 27, height: 27))
+        star.image = UIImage(named: favorited ? "starfilled" :"star")?.resize(targetSize: CGSize(width: 27, height: 27)).withTintColor(.gray)
         var priColor = K.getColor(prioritized)
         if priColor == UIColor.clear {
             priColor = .white
@@ -214,9 +213,9 @@ class TaskCell: UITableViewCell {
                 break
             }
             if color == UIColor.clear {
-                priority.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 12, height: 14))
+                priority.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 10, height: 12))
             } else {
-                priority.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 12, height: 14)).withTintColor(color!)
+                priority.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 10, height: 12)).withTintColor(color!)
             }
         }
         
@@ -263,7 +262,7 @@ class TaskCell: UITableViewCell {
                 plannedDate.text = newDate
             }
 
-            calendar.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 17, height: 17))
+            calendar.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 15, height: 15))
             plannedDate.leadingAnchor.constraint(equalTo: calendar.trailingAnchor, constant: 5).isActive = true
             plannedDate.top(to: bottomView, offset: 5)
             plannedDate.font = UIFont(name: "OpenSans-Regular", size: 12)
@@ -280,7 +279,7 @@ class TaskCell: UITableViewCell {
         
         let dot5 = RoundView()
         if reminderDate.text != "" {
-            bell.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 17, height: 17))
+            bell.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 15, height: 15))
             if plannedDate.text != "" {
                 bell.leadingAnchor.constraint(equalTo: dot4.trailingAnchor, constant: 5).isActive = true
             } else if prioritized != 0 {
@@ -306,7 +305,7 @@ class TaskCell: UITableViewCell {
         bottomView.addSubview(repeatImage)
         repeatImage.top(to: bottomView, offset: 7)
         if repeatTask != "" {
-            repeatImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 13, height: 13))
+            repeatImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 11, height: 11))
             if reminderDate.text != "" {
                 repeatImage.leadingAnchor.constraint(equalTo: dot5.trailingAnchor, constant: 5).isActive = true
             } else if plannedDate.text != "" {
@@ -369,13 +368,11 @@ class TaskCell: UITableViewCell {
         self.selectedCell = false
         bullet.removeFromSuperview()
         selectedDict[id] = false
-        taskCellDelegate?.reloadEditList()
     }
     
     @objc func tappedCircle() {
         selectedDict[id] = true
         if editingCell || selectedCell {
-            taskCellDelegate?.reloadEditList()
             createSelectedCell()
         } else {
             configureCircle()
@@ -498,23 +495,12 @@ class TaskCell: UITableViewCell {
                     totalTasks += 1
                 }
             }
-            for task in completedTasks {
+            for task in tasks {
                 if  task.id == id {
                     try! uiRealm.write {
                         task.completed = false
-                        task.position = UserDefaults.standard.bool(forKey: "toTop") ? 0 : totalTasks
+                        task.position = totalTasks
                         task.completedDate = Date(timeIntervalSince1970: 0)
-                    }
-                }
-            }
-            
-            //update below tasks + 1 to there positions
-            if UserDefaults.standard.bool(forKey: "toTop") {
-                for task in tasksList {
-                    if task.id != id {
-                        try! uiRealm.write {
-                            task.position = task.position + 1
-                        }
                     }
                 }
             }
@@ -536,7 +522,7 @@ class TaskCell: UITableViewCell {
                     task.favorited = !isFavorited
                 }
                 
-                star.image = UIImage(named: task.favorited ? "starfilled" : "star")?.resize(targetSize: CGSize(width: 27, height: 27))
+                star.image = UIImage(named: task.favorited ? "starfilled" : "star")?.resize(targetSize: CGSize(width: 27, height: 27)).withTintColor(.gray)
             }
         }
         if listTitle == "Important" {

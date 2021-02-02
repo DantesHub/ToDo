@@ -35,16 +35,22 @@ extension ListController: UITextFieldDelegate {
         for result in results {
             if result.name == list.name {
                 //we need to tell user that name is taken
-                if list.name != oldTitle || list.name == "Important" || list.name == "Planned" || list.name == "All Tasks" {
+                if tag == 1 {
+                    if listTitle == oldTitle {
+                        helpers()
+                        return
+                    }
+                }
+                if listTitle == oldTitle || list.name == "Important" || list.name == "Planned" || list.name == "All Tasks" {
                     nameTaken = true
                     stabilize = true
                     let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
                     let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: { (action) in
-                        print(stabilize, self.customizeListView.frame.origin.y)
                     })
                     alertController.addAction(okayAction)
                     self.present(alertController, animated: true, completion: nil)
                 }
+               
             }
         }
         
@@ -76,15 +82,19 @@ extension ListController: UITextFieldDelegate {
             if keyboard == false {
                 createdNewList = true                
             }
-            addTaskField.isHidden = false
-            photoButton.removeFromSuperview()
-            backgroundButton.removeFromSuperview()
-            textButton.removeFromSuperview()
-            customizeCollectionView.removeFromSuperview()
-            customizeListView.removeFromSuperview()
-            configureNavBar()
-            reloadDelegate?.reloadTableView()
+            UserDefaults.standard.set(listTitle, forKey: "lastOpened")
+            helpers()
         }
+    }
+    func helpers() {
+        addTaskField.isHidden = false
+        photoButton.removeFromSuperview()
+        backgroundButton.removeFromSuperview()
+        textButton.removeFromSuperview()
+        customizeCollectionView.removeFromSuperview()
+        customizeListView.removeFromSuperview()
+        configureNavBar()
+        reloadDelegate?.reloadTableView()
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {

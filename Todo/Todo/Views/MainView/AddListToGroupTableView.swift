@@ -32,12 +32,7 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
      //MARK: - Init
     override init(frame: CGRect) {
         super.init(frame: frame)
-        overrideUserInterfaceStyle = .light
-        if !searching {
-            setUpListDictionary()
-            configureUI()
-        }
-        
+        overrideUserInterfaceStyle = .light        
     }
     
     required init?(coder: NSCoder) {
@@ -72,9 +67,7 @@ class AddListToGroupTableView: UIView, CustomCellUpdater {
         tableView.showsVerticalScrollIndicator = false
     }
     func configureUI() {
-        if searching {
-            setUpListDictionary()
-        }
+        setUpListDictionary()
         if self.searching {
             let textFieldInsideUISearchBar = searchBar.value(forKey: "searchField") as? UITextField
             textFieldInsideUISearchBar?.font = UIFont(name: "OpenSans-Regular", size: 12)
@@ -267,7 +260,7 @@ extension AddListToGroupTableView: UITableViewDataSource, UITableViewDelegate{
         if self.searching {
             cell.imgView.image = UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 20, height: 20)).rotate(radians: .pi/2)
         } else {
-            cell.imgView.image = listCell.selected ? UIImage(named: "star")?.resize(targetSize: CGSize(width: 25, height: 25)) : UIImage(named: "plus")?.resize(targetSize: CGSize(width: 25, height: 25))
+            cell.imgView.image = listCell.selected ? UIImage(named: "check")?.resize(targetSize: CGSize(width: 25, height: 25)) : UIImage(named: "plus")?.resize(targetSize: CGSize(width: 25, height: 25))
         }
         
         return cell

@@ -98,12 +98,15 @@ class SettingsCell: UITableViewCell {
         } else if sectionNumber == 2 {
             if rowNum == 0 {
                 cellTitle.text = "Leave Review"
-                cellImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20).isActive = true
+                cellImage.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 15).isActive = true
                 cellTitle.leadingAnchor.constraint(equalTo: cellImage.trailingAnchor, constant: 10).isActive = true
                 cellImage.image = UIImage(named: "edit")?.resize(targetSize: CGSize(width: 40, height: 40))
-            } else {
+            } else if rowNum == 1 {
                 cellTitle.text = "Contact"
                 cellImage.image = UIImage(named: "mail")?.resize(targetSize: CGSize(width: 25, height: 25))
+            } else {
+                cellTitle.text = "Restore Purchases"
+                cellImage.image = UIImage(named: "Later Today")?.resize(targetSize: CGSize(width: 30, height: 30))
             }
         }
     }

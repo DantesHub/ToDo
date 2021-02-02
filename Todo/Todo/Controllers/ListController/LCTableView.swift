@@ -114,7 +114,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             label.addTarget(self, action: #selector(tappedCompleted), for: .touchUpInside)
         } else if section == 0 && sortType != "" {
             let label = UIButton()
-            label.width(min: sortType != "Priority" ? 140 : 120, max: 400, priority: .defaultHigh, isActive: true)
+            label.width(min: sortType != "Priority" ? 140 : 120, max: 500, priority: .defaultHigh, isActive: true)
             label.titleLabel?.font = UIFont(name: "OpenSans-Regular", size: 20)
             label.titleLabel?.textColor = .white
             label.titleLabel?.adjustsFontSizeToFitWidth = true
@@ -125,7 +125,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                 label.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 22)).rotate(radians: .pi), for: .normal)
             }
             if sortType == "Creation Date" || sortType == "Alphabetically" {                
-                label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 12, right: 0)
+                label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 11, right: 0)
             } else {
                 label.titleEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: sortType != "Priority" ? 10 : 12, right: 0)
             }
@@ -284,6 +284,8 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         cell.position = task.position
         cell.parentList = task.parentList
         cell.configureBottomView()
+        cell.taskObject = task
+        cell.createdAt = task.createdAt
         cell.selectionStyle = .none
         cell.clipsToBounds = true
         cell.navigationController = (self.navigationController)!
@@ -302,7 +304,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 90; //Choose your custom row height
+        return 80; //Choose your custom row height
     }
     
     
@@ -337,6 +339,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         }
         tableView.reloadData()
     }
+    
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath) as! TaskCell
         if editingStyle == .delete {
@@ -404,15 +407,19 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
   
 
     func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
-         reloadDelegate?.reloadTableView()
+        reloadDelegate?.reloadTableView()
         if  tableView.isValid(indexPath: indexPath ?? IndexPath(row: 250, section: 3)){
                 let cell = tableView.cellForRow(at: indexPath!) as! TaskCell
                 cell.clipsToBounds = true
                 cell.layer.cornerRadius = 10
-            
+
         }
       }
     
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+//
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         if editingCell {
             return UITableViewCell.EditingStyle.none
@@ -420,7 +427,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             return UITableViewCell.EditingStyle.delete
         }
     }
-    
+
     func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
             pickUpSection = indexPath.section
             return tasksList.dragItems(for: indexPath)
@@ -440,10 +447,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             return UITableViewDropProposal(operation: .copy, intent: .insertAtDestinationIndexPath)
         }
     }
-    private func tableView(tableView: UITableView!, canEditRowAtIndexPath indexPath: NSIndexPath!) -> Bool
-    {
-        return true
-    }
+    
     
     func tableView(_ tableView: UITableView, performDropWith coordinator: UITableViewDropCoordinator) {
         let destinationIndexPath: IndexPath

@@ -59,7 +59,7 @@ extension ListController: UIImagePickerControllerDelegate, UINavigationControlle
           picker.dismiss(animated: true, completion: nil)
       }
     func uploadPhoto() {
-        print(self.customizeListView.frame.origin.y)
+        print("upload Photo")
         if listObject.name == "" {
             let results = uiRealm.objects(ListObject.self)
             nameTaken2 = false
@@ -67,10 +67,14 @@ extension ListController: UIImagePickerControllerDelegate, UINavigationControlle
             for result in results {
                 if result.name == bigTextField.text! {
                     nameTaken2 = true
-                    stabilize = true
+                    //bug happens when I call this alert controlelr
                     let alertController = UIAlertController(title: "Please select a unique List Name First", message: "", preferredStyle: UIAlertController.Style.alert)
-                    let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: nil)
-                    
+                    let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default) { [self] (action) in
+                        print(stabilize, self.customizeListView.frame.origin.y, "yolo")
+                        creating = true
+                        return
+                    }
+
                     alertController.addAction(okayAction)
                     self.present(alertController, animated: true, completion: nil)
                 }
@@ -79,16 +83,16 @@ extension ListController: UIImagePickerControllerDelegate, UINavigationControlle
         } else {
             listName = listObject.name
         }
-        if UIImagePickerController.isSourceTypeAvailable(.savedPhotosAlbum){
-            imagePicker.delegate = self
-            imagePicker.sourceType = .photoLibrary
-            imagePicker.allowsEditing = false
-            if !nameTaken2 {
-                print("stting  to false")
-                keyboard2 = false
+        if !nameTaken2 {
+            if UIImagePickerController.isSourceTypeAvailable(.savedPhotosAlbum){
+                imagePicker.delegate = self
+                imagePicker.sourceType = .photoLibrary
+                imagePicker.allowsEditing = false
+                if !nameTaken2 {
+                    keyboard2 = false
+                }
+                present(imagePicker, animated: true, completion: nil)
             }
-            present(imagePicker, animated: true, completion: nil)
         }
-        
     }
 }

@@ -15,6 +15,7 @@ class ListToGroupCell: UITableViewCell {
      //MARK: - Init
     init(style: UITableViewCell.CellStyle, reuseIdentifier: String?, title: String) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        self.overrideUserInterfaceStyle = .light
         self.title = title
         configureCellUI()
     }
