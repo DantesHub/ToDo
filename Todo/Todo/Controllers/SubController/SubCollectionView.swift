@@ -23,6 +23,7 @@ extension SubscriptionController: UICollectionViewDelegate, UICollectionViewData
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "topCell", for: indexPath) as! TopCell
             cell.imgName = topImages[indexPath.row]
             cell.title.text = topTitles[indexPath.row]
+            cell.desc.text = topDescs[indexPath.row]
             cell.configureUI()
             
             return cell

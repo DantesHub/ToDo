@@ -20,6 +20,7 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView == headerTitle {
             createTappedDone(title: true)
+        } else if textView == noteTextField {
         }
     }
     public func createTappedDone(title: Bool = false, step: Bool = false) {
@@ -53,6 +54,13 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
     }
 
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if UserDefaults.standard.bool(forKey: "isPro") == false {
+            noteTextField.resignFirstResponder()
+            view.endEditing(true)
+            self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+            return true
+        }
+      
         if let character = text.first, character.isNewline {
             if textView == noteTextField {
                 textView.resignFirstResponder()

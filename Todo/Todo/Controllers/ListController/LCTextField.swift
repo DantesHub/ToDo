@@ -46,6 +46,7 @@ extension ListController: UITextFieldDelegate {
                     stabilize = true
                     let alertController = UIAlertController(title: "Name is already in use, please use a different name", message: "", preferredStyle: UIAlertController.Style.alert)
                     let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: { (action) in
+                        return
                     })
                     alertController.addAction(okayAction)
                     self.present(alertController, animated: true, completion: nil)
@@ -68,6 +69,7 @@ extension ListController: UITextFieldDelegate {
                     listObject.name = listTitle
                 }
         
+                
                 for task in tasks {
                     if task.parentList == oldTitle {
                         try! uiRealm.write {
@@ -78,10 +80,11 @@ extension ListController: UITextFieldDelegate {
             }
             
             creating = false
-    
+            updateTheme()
             if keyboard == false {
                 createdNewList = true                
             }
+            stabilize = true
             UserDefaults.standard.set(listTitle, forKey: "lastOpened")
             helpers()
         }

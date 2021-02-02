@@ -37,7 +37,6 @@ class TopCell: BaseCell {
         desc.leading(to: self,offset: 50)
         desc.trailing(to: self, offset: -50)
         desc.textAlignment = .center
-        desc.text = "Repeat  feature will be accessible to premium users only. Whenever a freemium user clicks on “Repeat”"
         desc.numberOfLines = 2
         desc.textColor = .darkGray
         desc.font = UIFont(name: "OpenSans", size: 12)

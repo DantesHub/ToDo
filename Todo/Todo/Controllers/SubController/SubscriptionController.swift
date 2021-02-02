@@ -24,7 +24,8 @@ class SubscriptionController: UIViewController {
     }()
     var packagesAvailableForPurchase = [Purchases.Package]()
     var topImages = ["group", "infinityGreen", "theme", "infinityGreen", "unlimitedReminder", "repeatBlue", "files"]
-    var topTitles = ["Groups", "No Limits", "Premium Design", "Due Date", "Unlimited Reminder", "Repeat", "File & Notes"]
+    var topTitles = ["Groups", "No Limits", "Advanced Customization", "Deadline Management", "Unlimited Reminder", "Repeat", "File & Notes"]
+    var topDescs = ["Organize your lists into their own dedicated folders", "Be on time and set clear deadlines for your tasks", "Create as many Lists and Tasks as you wish","Get full access to premium wallpapers and customization tools","Receive smart notifications to fully manage your deadlines", "Automatise tasks creation with the repeat feature", "Add relevant information to your tasks"]
     var stories = [""]
     var bottomCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -152,9 +153,9 @@ class SubscriptionController: UIViewController {
         upgradeLabel.centerX(to: view)
         upgradeLabel.text = "Upgrade to Premium Offer"
         upgradeLabel.textColor = .darkGray
-        upgradeLabel.topToBottom(of: topCollectionView, offset: 50)
+        upgradeLabel.topToBottom(of: topCollectionView, offset: 40)
         view.addSubview(yearlyBox)
-        yearlyBox.topToBottom(of: upgradeLabel, offset: 35)
+        yearlyBox.topToBottom(of: upgradeLabel, offset: 25)
         yearlyBox.leading(to: view, offset: view.frame.width * 0.10)
         yearlyBox.width(view.frame.width * 0.40)
         yearlyBox.height(view.frame.height * 0.20)
@@ -170,7 +171,7 @@ class SubscriptionController: UIViewController {
         yearlyBox.addGestureRecognizer(yearlyGest)
         
         view.addSubview(monthlyBox)
-        monthlyBox.topToBottom(of: upgradeLabel, offset: 35)
+        monthlyBox.topToBottom(of: upgradeLabel, offset: 25)
         monthlyBox.leadingToTrailing(of: yearlyBox,offset: 5)
         monthlyBox.width(view.frame.width * 0.40)
         monthlyBox.height(view.frame.height * 0.20)
@@ -202,7 +203,7 @@ class SubscriptionController: UIViewController {
         view.addSubview(continueButton)
         continueButton.leading(to: view, offset: 30)
         continueButton.trailing(to: view, offset: -30)
-        continueButton.topToBottom(of: yearlyBox, offset: view.frame.height * 0.07)
+        continueButton.topToBottom(of: yearlyBox, offset: view.frame.height * 0.05)
         continueButton.titleLabel?.font = UIFont(name: "OpenSans-Bold", size: 20)
         continueButton.height(self.view.frame.height * 0.08)
         continueButton.setTitle("CONTINUE", for: .normal)

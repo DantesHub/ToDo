@@ -86,11 +86,12 @@ class TaskCell: UITableViewCell {
         circle.addGestureRecognizer(circleGest)
         
         self.addSubview(title)
-        title.font = UIFont(name: "OpenSans-Regular", size: 18)
-        title.top(to: self, offset: 12)
-        title.leadingAnchor.constraint(equalTo: circle.trailingAnchor, constant: 10).isActive = true
+        title.font = UIFont(name: "OpenSans-Regular", size: 16)
+        title.top(to: self, offset: 14)
         title.trailing(to: self, offset: -40)
+        title.leadingToTrailing(of: circle, offset: 5)
         title.adjustsFontSizeToFitWidth = false
+//        title.numberOfLines = 3
         title.lineBreakMode = .byTruncatingTail
         
         if !editingCell {

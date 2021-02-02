@@ -114,7 +114,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             label.addTarget(self, action: #selector(tappedCompleted), for: .touchUpInside)
         } else if section == 0 && sortType != "" {
             let label = UIButton()
-            label.width(min: sortType != "Priority" ? 140 : 120, max: 500, priority: .defaultHigh, isActive: true)
+            label.width(min: sortType != "Priority" && sortType != "Due Date" ? 180 : 130, max: 500, priority: .defaultHigh, isActive: true)
             label.titleLabel?.font = UIFont(name: "OpenSans-Regular", size: 20)
             label.titleLabel?.textColor = .white
             label.titleLabel?.adjustsFontSizeToFitWidth = true
@@ -124,11 +124,18 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             } else {
                 label.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 22)).rotate(radians: .pi), for: .normal)
             }
-            if sortType == "Creation Date" || sortType == "Alphabetically" {                
-                label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 11, right: 0)
-            } else {
-                label.titleEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: sortType != "Priority" ? 10 : 12, right: 0)
-            }
+                if UIScreen.main.nativeBounds.height == 1792 {
+                    if sortType == "Creation Date" || sortType == "Alphabetically" {
+                        label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 11, right: 0)
+                    }
+                } else {
+                    if sortType == "Creation Date" || sortType == "Alphabetically" {
+                        label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+                    }
+                }
+            
+            label.titleEdgeInsets = UIEdgeInsets(top: 10, left: 14, bottom: sortType != "Priority" ? 10 : 12, right: 0)
+
             completedView.addSubview(label)
             label.top(to: completedView, offset: 5)
             label.leadingAnchor.constraint(equalTo: completedView.leadingAnchor, constant: 5).isActive = true
@@ -184,30 +191,30 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         if reversed {
             switch sortType {
             case "Important":
-                tasksList.sort { !$0.favorited && $1.favorited }
-            case "Alphabetically":
-                tasksList.sort { $0.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) > $1.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
-            case "Priority":
-                tasksList.sort { $0.priority < $1.priority }
-            case "Due Date":
-                tasksList.sort { formatter.date(from: $0.planned) ?? farDate > formatter.date(from: $1.planned) ?? farDate }
-            case "Creation Date":
-                tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate < formatter.date(from: $1.createdAt) ?? farDate }
-            default:
-                break
-            }
-        } else {
-            switch sortType {
-            case "Important":
                 tasksList.sort { $0.favorited && !$1.favorited }
             case "Alphabetically":
                 tasksList.sort { $0.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) < $1.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
             case "Priority":
                 tasksList.sort { $0.priority > $1.priority }
             case "Due Date":
-                    tasksList.sort { formatter.date(from: $0.planned) ?? farDate < formatter.date(from: $1.planned) ?? farDate }
+                tasksList.sort { formatter.date(from: $0.planned) ?? farDate < formatter.date(from: $1.planned) ?? farDate }
             case "Creation Date":
                 tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate > formatter.date(from: $1.createdAt) ?? farDate }
+            default:
+                break
+            }
+        } else {
+            switch sortType {
+            case "Important":
+                tasksList.sort { !$0.favorited && $1.favorited }
+            case "Alphabetically":
+                tasksList.sort { $0.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) > $1.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
+            case "Priority":
+                tasksList.sort { $0.priority < $1.priority }
+            case "Due Date":
+                    tasksList.sort { formatter.date(from: $0.planned) ?? farDate > formatter.date(from: $1.planned) ?? farDate }
+            case "Creation Date":
+                tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate < formatter.date(from: $1.createdAt) ?? farDate }
             default:
                 break
             }
@@ -304,6 +311,13 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//        if indexPath.section == 0 {
+//            if tasksList[indexPath.row].name.count > 33 {
+//                return 100
+//            } else {
+//                return 80
+//            }
+//        }
         return 80; //Choose your custom row height
     }
     
@@ -390,6 +404,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                         cell.completed = true
                 }
             } else {
+                //BUG HERE
                 for idx in 0..<tasksList.count {
                     if idx > delIdx {
                         let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 0)) as! TaskCell

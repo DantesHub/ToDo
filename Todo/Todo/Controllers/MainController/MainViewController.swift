@@ -54,6 +54,7 @@ class MainViewController: UIViewController, ReloadDelegate {
     var slideUpView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let cv = UICollectionView(frame: .zero
+                                  
                                   , collectionViewLayout: layout)
         cv.backgroundColor = .white
         return cv
@@ -367,10 +368,10 @@ class MainViewController: UIViewController, ReloadDelegate {
         self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
     }
     @objc private func tappedAddList() {
-        //        DispatchQueue.main.async { [self] in
-        //            plusIV.alpha = 0.6
-        //            newListLabel.alpha = 0.6
-        //        }
+        if lists.count == 8 && UserDefaults.standard.bool(forKey: "isPro") == false {
+            self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+            return
+        }
         let controller = ListController()
         listTitle = "Untitled List"
         controller.reloadDelegate = self

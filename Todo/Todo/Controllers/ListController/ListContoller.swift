@@ -625,6 +625,10 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func tappedAddTask() {
+        if tasksList.count + completedTasks.count == 14  && UserDefaults.standard.bool(forKey: "isPro") == false{
+                self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+            return
+        }
         addTaskField.becomeFirstResponder()
         containerView.backgroundColor = UIColor.black.withAlphaComponent(0.9)
         containerView.frame = self.view.frame
@@ -657,11 +661,19 @@ class ListController: UIViewController, TaskViewDelegate {
             content.body = "Let's Get To It!"
             let formatter3 = DateFormatter()
             formatter3.dateFormat = "MMM dd,yyyy h:mm a"
+            
+            var dat = Date()
             if dateReminderSelected == "" {
                 dateReminderSelected = formatter.string(from: Date())
+                dat = formatter3.date(from: dateReminderSelected + " " + timeReminderSelected)!
+            } else if dateReminderSelected.contains("-"){
+                dateReminderSelected = dateReminderSelected.replacingOccurrences(of: "-", with: " ")
+                dat = formatter3.date(from: dateReminderSelected)!
+            } else {
+                dat = formatter3.date(from: dateReminderSelected + " " + timeReminderSelected)!
             }
-            let dat = formatter3.date(from: dateReminderSelected + " " + timeReminderSelected)
-            let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dat!)
+           
+            let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dat)
             let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
             
             // Create the request
@@ -746,20 +758,33 @@ class ListController: UIViewController, TaskViewDelegate {
                 if planned {
                     if dateDueSelected == "" {
                         dateDueSelected = formatter.string(from: Date())
+                        task.planned = dateDueSelected + "-" + timeDueSelected
+                    } else if dateDueSelected.contains("-"){
+                        task.planned = dateDueSelected
+                    } else {
+                        task.planned = dateDueSelected + "-" + timeDueSelected
                     }
-                    task.planned = dateDueSelected + "-" + timeDueSelected
+                    
                 } else if listTitle == "Planned" {
                     if dateDueSelected == "" {
                         dateDueSelected = formatter.string(from: Date())
+                        task.planned = dateDueSelected + "-" + timeDueSelected
+                    } else if dateDueSelected.contains("-"){
+                        task.planned = dateDueSelected
+                    } else {
+                        task.planned = dateDueSelected + "-" + timeDueSelected
                     }
-                    task.planned = dateDueSelected + "-" + timeDueSelected
                 }
                 
                 if reminder {
                     if dateReminderSelected == "" {
                         dateReminderSelected = formatter.string(from: Date())
+                        task.reminder = dateReminderSelected + "-" + timeReminderSelected
+                    } else if dateReminderSelected.contains("-"){
+                        task.reminder = dateReminderSelected
+                    } else {
+                        task.reminder = dateReminderSelected + "-" + timeReminderSelected
                     }
-                    task.reminder = dateReminderSelected + "-" + timeReminderSelected
                     createReminderNotification(id: id)
                 }
                 
@@ -872,7 +897,7 @@ class ListController: UIViewController, TaskViewDelegate {
         if !change {
             customizeListView.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: view.frame.height * 0.17)
         } else {
-            customizeListView.frame = CGRect(x: 0, y: view.frame.height, width: view.frame.width, height: view.frame.height * 0.27)
+            customizeListView.frame = CGRect(x: 0, y: UIScreen.main.bounds.height, width: view.frame.width, height: view.frame.height * 0.27)
             if change {
                 UIView.animate(withDuration: 0.5,
                                delay: 0, usingSpringWithDamping: 1.0,
@@ -973,8 +998,8 @@ class ListController: UIViewController, TaskViewDelegate {
         customizeCollectionView.topToBottom(of: photoButton, offset: 0)
         customizeCollectionView.backgroundColor = .white
         customizeCollectionView.allowsSelection = true
-        customizeCollectionView.width(view.frame.width)
-        customizeCollectionView.height(customizeListView.frame.height * (change ? 0.50 : 0.65))
+        print(customizeCollectionView.frame.height, "gaho")
+        customizeCollectionView.height(customizeListView.frame.height * (change ? 0.50 : 0.70))
  
     }
     @objc func tappedDoneCustom() {
@@ -987,7 +1012,7 @@ class ListController: UIViewController, TaskViewDelegate {
         creating = false
         updateTheme()
     }
-    private func updateTheme() {
+     func updateTheme() {
         var foundList = false
         try! uiRealm.write {
             for list in lists  {

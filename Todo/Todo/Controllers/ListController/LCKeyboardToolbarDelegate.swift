@@ -8,25 +8,48 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
          if !creating {
              let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
              if stabilize {
-                     self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - 65
+                print(self.addTaskField.frame.origin.y, lastKeyboardHeight, keyboardSize.height, "fdas")
+                self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - view.frame.height/13.784
              }
              addedStep = true
              keyboard2 = true
              stabilize = false
          } else {
              if keyboard == true || keyboard2 {
-                 lastKeyboardHeight = keyboardSize.height + 93
+                lastKeyboardHeight = keyboardSize.height + (view.frame.height/10.5)
              } else {
                  lastKeyboardHeight = keyboardSize.height
                  keyboard2 = true
              }
             if stabilize {
-                print("in here", lastKeyboardHeight)
-                self.customizeListView.frame.origin.y = self.customizeListView.frame.origin.y - lastKeyboardHeight - 140
+                var height: CGFloat =  6.5
+                switch UIScreen.main.nativeBounds.height {
+               case 1136:
+                   print("iPhone 5 or 5S or 5C")
+               case 1334:
+                   height = 6.5
+               case 1920, 2208:
+                    height =  6.5
+               case 2436:
+                height = 5.5
+                case 2532:
+                    height = 6
+                case 2778:
+                    height = 5.7
+               case 2688:
+                   height = 5.7
+               case 1792:
+                    height = 5.7
+               default:
+                 height = 5
+               }
+                if self.customizeListView.frame.origin.y == view.frame.height {
+                    self.customizeListView.frame.origin.y = self.customizeListView.frame.origin.y - lastKeyboardHeight - (view.frame.height/height)
+                }
+             
             }
-            
+            createdNewList = true
             stabilize = false
-             createdNewList = true
          }
      }
      
@@ -34,8 +57,29 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
          let info:NSDictionary = notification.userInfo! as NSDictionary
          let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
          if !creating {
-             if addedStep || createdNewList {
-                 lastKeyboardHeight = keyboardSize.height + 185
+             if addedStep || createdNewList  {
+                var height: CGFloat = 5
+                switch UIScreen.main.nativeBounds.height {
+               case 1136:
+                   print("iPhone 5 or 5S or 5C")
+               case 1334:
+                   height = 5
+               case 1920, 2208:
+                    height = 5.5
+                case 2436: // 11 pro
+                 height = 4.5
+                 case 2532://iphone 12
+                    height = 4.5
+                 case 2778:
+                     height = 5.7
+               case 2688: // 11 pro max
+                   height = 5
+               case 1792: // iphone 11
+                    height = 5
+               default:
+                 height = 5
+               }
+                lastKeyboardHeight = keyboardSize.height + (view.frame.height/height)
              } else {
                  lastKeyboardHeight = keyboardSize.height
              }
@@ -86,8 +130,13 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             laterTapped = false
             createSlider()
         case .reminder:
-            reminder = true
             addTaskField.resignFirstResponder()
+            if UserDefaults.standard.bool(forKey: "isPro") == false {
+                tappedOutside3()
+                self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+                return
+            }
+            reminder = true
             createSlider()
             dueDateTapped = false
             laterTapped = false

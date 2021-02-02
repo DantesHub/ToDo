@@ -294,6 +294,10 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == self.tableView {
+            if (defaultList[indexPath.row] == "Remind Me" || defaultList[indexPath.row] == "Repeat") && UserDefaults.standard.bool(forKey: "isPro") == false {
+                self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+                return
+            }
             tappedIcon = defaultList[indexPath.row]
             slideUpView.reloadData()
             self.view.endEditing(true)

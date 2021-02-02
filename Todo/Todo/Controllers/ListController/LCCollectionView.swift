@@ -226,9 +226,19 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         if collectionView == customizeCollectionView {
             let cell = collectionView.cellForItem(at: indexPath) as! CircleCell
             if customizeSelection == "Photo" {
+         
                 //upload custom photo
                 if indexPath.row == 0 {
+                    if UserDefaults.standard.bool(forKey: "isPro") == false {
+                        self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+                        return
+                    }
                     uploadPhoto()
+                }
+            } else if customizeSelection == "Text Color" {
+                if UserDefaults.standard.bool(forKey: "isPro") == false {
+                    self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+                    return
                 }
             }
             cell.isHighlighted = true
@@ -322,6 +332,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 slideUpViewTapped()
                 addTaskField.becomeFirstResponder()
             case "Reminder":
+      
                 var grantedd = false
                 let center = UNUserNotificationCenter.current()
                 let semasphore = DispatchSemaphore(value: 0)
@@ -434,13 +445,13 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         reversed = true
         switch sortOptions[row] {
         case "Important":
-            tasksList.sort { !$0.favorited && $1.favorited }
+            tasksList.sort { $0.favorited && !$1.favorited }
         case "Alphabetically":
-            tasksList.sort { $0.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) > $1.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
+            tasksList.sort { $0.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) < $1.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }
         case "Priority":
-            tasksList.sort { $0.priority < $1.priority }
+            tasksList.sort { $0.priority > $1.priority }
         case "Due Date":
-                tasksList.sort { formatter.date(from: $0.planned) ?? farDate > formatter.date(from: $1.planned) ?? farDate }
+                tasksList.sort { formatter.date(from: $0.planned) ?? farDate < formatter.date(from: $1.planned) ?? farDate }
         case "Creation Date":
             tasksList.sort { formatter.date(from: $0.createdAt) ?? farDate > formatter.date(from: $1.createdAt) ?? farDate }
         default:

@@ -148,7 +148,6 @@ extension Date {
     func getDifference(date: String, task: Bool = false) -> String {
         let newFormatter = DateFormatter()
         newFormatter.dateFormat = "MMM dd,yyyy h:mm a"
-        
         let newDate = newFormatter.date(from: date)!
         if (Calendar.current.isDateInYesterday(newDate)) {
             return "Yesterday"
@@ -167,7 +166,7 @@ extension Date {
         } else {
             return date
         }
-        
+//        return "fdasf"
     }
     func getWeekDaysInEnglish() -> [String] {
        var calendar = Calendar(identifier: .gregorian)
