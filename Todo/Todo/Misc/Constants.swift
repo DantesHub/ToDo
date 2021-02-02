@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-
+import Purchases
 let superPurple = hexStringToUIColor(hex: "#A73CDE")
 var blue = hexStringToUIColor(hex: "4b68e9")
 var purple = hexStringToUIColor(hex: "94609b")
@@ -40,6 +40,9 @@ struct K {
         default:
             return UIColor.clear
         }
+    }
+    static func configurePurchases() {
+        
     }
     
     static func getListColor(_ col: String) -> UIColor {

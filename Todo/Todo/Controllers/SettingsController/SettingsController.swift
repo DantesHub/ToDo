@@ -9,7 +9,7 @@
 import UIKit
 import StoreKit
 
-class SettingsController: UIViewController, SKPaymentTransactionObserver {
+class SettingsController: UIViewController {
     //MARK: - instance variables
     let tableView = UITableView()
     
@@ -17,7 +17,6 @@ class SettingsController: UIViewController, SKPaymentTransactionObserver {
     override func viewDidLoad() {
         super.viewDidLoad()
         overrideUserInterfaceStyle = .light
-        SKPaymentQueue.default().add(self)
         configureUI()
     }
     

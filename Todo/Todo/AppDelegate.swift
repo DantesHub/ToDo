@@ -29,19 +29,48 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } else {
             mainIsRoot = true
         }
-        window?.rootViewController = UINavigationController(rootViewController: controller )
-
-        window?.makeKeyAndVisible()
+    
         IQKeyboardManager.shared.enableAutoToolbar = false
         print(Realm.Configuration.defaultConfiguration.fileURL!)
         UserDefaults.standard.register(defaults: [
             "notif": true,
         ])
+        FirebaseApp.configure()
         Purchases.debugLogsEnabled = true
         Purchases.configure(withAPIKey: "AHheigtCZwIDDNXLWGlcpEHQzgvcVjaA")
-        FirebaseApp.configure()
+        var packagesAvailableForPurchase = [Purchases.Package]()
+        Purchases.shared.offerings {  (offerings, error) in
+            if let offerings = offerings {
+                let offer = offerings.current
+                let packages = offer?.availablePackages
+                guard packages != nil else {
+                    return
+                }
+                for i in 0...packages!.count - 1 {
+                    let package = packages![i]
+                    packagesAvailableForPurchase.append(package)
+                }
+            }
+        }
+        print(packagesAvailableForPurchase)
+        for package in packagesAvailableForPurchase {
+            Purchases.shared.purchasePackage(package) { (transaction, purchaserInfo, error, userCancelled) in
+                if purchaserInfo?.entitlements.all["premium"]?.isActive == true {
+                    print("your mother")
+                    UserDefaults.standard.setValue(true, forKey: "isPro")
+                    return
+                } else {
+                    print("setting to false")
+                    UserDefaults.standard.setValue(false, forKey: "isPro")
+                }
+            }
+        }
+        window?.rootViewController = UINavigationController(rootViewController: controller )
+
+        window?.makeKeyAndVisible()
         return true
     }
+    
     
     // MARK: UISceneSession Lifecycle
     

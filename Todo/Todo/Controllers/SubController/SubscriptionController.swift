@@ -57,6 +57,7 @@ class SubscriptionController: UIViewController {
     var monthlyPrice: Double = 0
     var yearlyPrice: Double = 0
     var yearlyMonthlyPrice: Double = 0
+    let locale = Locale.current
     //MARK: - init
     override func viewDidLoad() {
         Purchases.shared.offerings { [self] (offerings, error) in
@@ -144,24 +145,24 @@ class SubscriptionController: UIViewController {
 //        view.addSubview(successStories)
 //        successStories.centerX(to: view)
 //        successStories.topToBottom(of: four, offset: 50)
-        
+        let currencySymbol = locale.currencySymbol!
+
         view.addSubview(upgradeLabel)
         upgradeLabel.font = UIFont(name: "OpenSans-Bold", size: 20)
         upgradeLabel.centerX(to: view)
         upgradeLabel.text = "Upgrade to Premium Offer"
         upgradeLabel.textColor = .darkGray
         upgradeLabel.topToBottom(of: topCollectionView, offset: 50)
-        
         view.addSubview(yearlyBox)
         yearlyBox.topToBottom(of: upgradeLabel, offset: 35)
         yearlyBox.leading(to: view, offset: view.frame.width * 0.10)
         yearlyBox.width(view.frame.width * 0.40)
         yearlyBox.height(view.frame.height * 0.20)
         yearlyBox.selected = true
-        yearlyBox.priceLabel.text = "$\(yearlyPrice)"
+        yearlyBox.priceLabel.text = "\(currencySymbol)\(yearlyPrice)"
         yearlyBox.yearly = true
         yearlyBox.title.text = "Pay Yearly"
-        yearlyBox.smallLabel.text = "($\(yearlyMonthlyPrice)/mo)"
+        yearlyBox.smallLabel.text = "(\(currencySymbol)\(yearlyMonthlyPrice)/mo)"
         yearlyBox.width = view.frame.width * 0.40 * 0.43
         yearlyBox.height = view.frame.height * 0.20 * 0.13
         yearlyBox.configure()
@@ -174,10 +175,10 @@ class SubscriptionController: UIViewController {
         monthlyBox.width(view.frame.width * 0.40)
         monthlyBox.height(view.frame.height * 0.20)
         monthlyBox.selected = false
-        monthlyBox.priceLabel.text = "$\(monthlyPrice)"
+        monthlyBox.priceLabel.text = "\(currencySymbol)\(monthlyPrice)"
         monthlyBox.yearly = false
         monthlyBox.title.text = "Pay Monthly"
-        monthlyBox.smallLabel.text = "($\(monthlyPrice)/mo)"
+        monthlyBox.smallLabel.text = "(\(currencySymbol)\(monthlyPrice)/mo)"
         monthlyBox.width = view.frame.width * 0.40 * 0.43
         monthlyBox.height = view.frame.height * 0.20 * 0.13
         monthlyBox.configure()

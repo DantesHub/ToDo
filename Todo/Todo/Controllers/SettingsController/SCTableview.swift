@@ -8,7 +8,10 @@
 
 import UIKit
 import StoreKit
-extension SettingsController: UITableViewDataSource, UITableViewDelegate {
+import Purchases
+import MessageUI
+
+extension SettingsController: UITableViewDataSource, UITableViewDelegate, MFMailComposeViewControllerDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
             return 1
@@ -20,7 +23,7 @@ extension SettingsController: UITableViewDataSource, UITableViewDelegate {
     func numberOfSections(in tableView: UITableView) -> Int {
         return 3
     }
-
+    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         var header = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 80))
         if section != 0 {
@@ -36,8 +39,8 @@ extension SettingsController: UITableViewDataSource, UITableViewDelegate {
         } else {
             header = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 0))
         }
-  
-
+        
+        
         return header
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -52,48 +55,55 @@ extension SettingsController: UITableViewDataSource, UITableViewDelegate {
         } else if indexPath.section == 0 {
             self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
         } else if indexPath.section == 2 && indexPath.row == 2 {
-            if (SKPaymentQueue.canMakePayments()) {
-              SKPaymentQueue.default().restoreCompletedTransactions()
+            let alertController = UIAlertController(title: "", message: "", preferredStyle: UIAlertController.Style.alert)
+            let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {
+                                            (action : UIAlertAction!) -> Void in })
+            alertController.addAction(okayAction)
+            Purchases.shared.restoreTransactions { (purchaserInfo, error) in
+                if purchaserInfo?.entitlements.all["premium"]?.isActive == true {
+                    alertController.title = "Purchase Restored!"
+                    UserDefaults.standard.setValue(true, forKey: "isPro")
+                } else {
+                    alertController.title = "Unable to restore purchase on this account"
+                    UserDefaults.standard.setValue(false, forKey: "isPro")
+                }
+                self.present(alertController, animated: true, completion: nil)
             }
+        } else if indexPath.section == 2 && indexPath.row ==  1{ //email
+            if MFMailComposeViewController.canSendMail() {
+                   let mail = MFMailComposeViewController()
+                   mail.mailComposeDelegate = self
+                   mail.setToRecipients(["support@alarmandcalm.fun"])
+                   mail.setMessageBody("<p>To the Todo team</p>", isHTML: true)
+                   present(mail, animated: true)
+               } else {
+                   // show failure alert
+               }
         }
     }
-    func paymentQueue(_ queue: SKPaymentQueue!, updatedTransactions transactions: [SKPaymentTransaction]!)    {
-      print("Received Payment Transaction Response from Apple");
-      for transaction in transactions {
-        switch transaction.transactionState {
-        case .purchased, .restored:
-          print("Purchased purchase/restored")
-            UserDefaults.standard.setValue(true, forKey: "isPro")
-          SKPaymentQueue.default().finishTransaction(transaction as SKPaymentTransaction)
-          break
-        case .failed:
-          print("Purchased Failed")
-          SKPaymentQueue.default().finishTransaction(transaction as SKPaymentTransaction)
-          break
-        default:
-          print("default")
-          break
-        } 
-      }
-    }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.section == 0 {
-            return 100
-        }
-        return 80
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true)
     }
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "settingsCell", for: indexPath) as! SettingsCell
-        if indexPath.section != 0  {
-            cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 1)
-        }
-        cell.sectionNumber = indexPath.section
-        cell.rowNum = indexPath.row
-        cell.configureSide()
-        cell.selectionStyle = .none
-        return cell
+
+
+func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    if indexPath.section == 0 {
+        return 100
     }
-    
-    
+    return 80
+}
+func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCell(withIdentifier: "settingsCell", for: indexPath) as! SettingsCell
+    if indexPath.section != 0  {
+        cell.layer.addBorder(edge: .bottom, color: lightGray, thickness: 1)
+    }
+    cell.sectionNumber = indexPath.section
+    cell.rowNum = indexPath.row
+    cell.configureSide()
+    cell.selectionStyle = .none
+    return cell
+}
+
+
 }
