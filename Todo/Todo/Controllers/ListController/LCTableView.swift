@@ -357,67 +357,66 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         let cell = tableView.cellForRow(at: indexPath) as! TaskCell
         if editingStyle == .delete {
-            let tasks = uiRealm.objects(TaskObject.self)
-            var delIdx = 0
-            var completedd = false
-            for task in  tasks {
-                if task.id == cell.id {
-                    UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [task.id])
-                    for step in task.steps {
+                let tasks = uiRealm.objects(TaskObject.self)
+                var delIdx = 0
+                var completedd = false
+                for task in  tasks {
+                    if task.id == cell.id {
+                        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [task.id])
+                        for step in task.steps {
+                            try! uiRealm.write {
+                                uiRealm.delete(step)
+                            }
+                        }
+                    }
+                    if indexPath.section == 0 && task.parentList == listTitle && task.id == cell.id && task.name == cell.title.text {
+                        tasksList.removeAll(where: {$0.id == task.id})
+                        delIdx = task.position
                         try! uiRealm.write {
-                            uiRealm.delete(step)
+                            uiRealm.delete(task)
+                        }
+                    } else if (indexPath.section == 1 && task.parentList == listTitle && task.id == cell.id && cell.title.text == task.name) {
+                        completedd = true
+                        completedTasks.removeAll(where: {$0.id == task.id})
+                        delIdx = task.position
+                        try! uiRealm.write {
+                            uiRealm.delete(task)
                         }
                     }
                 }
-                if indexPath.section == 0 && task.parentList == listTitle && task.id == cell.id && task.name == cell.title.text {
-                    tasksList.removeAll(where: {$0.id == task.id})
-                    delIdx = task.position
-                    try! uiRealm.write {
-                        uiRealm.delete(task)
-                    }
-                } else if (indexPath.section == 1 && task.parentList == listTitle && task.id == cell.id && cell.title.text == task.name) {
-                    completedd = true
-                    completedTasks.removeAll(where: {$0.id == task.id})
-                    delIdx = task.position
-                    try! uiRealm.write {
-                        uiRealm.delete(task)
-                    }
-                }
-            }
-            
-            if delIdx != -1 {
-                for task in tasks {
-                    if task.parentList == listTitle && task.position > delIdx {
-                        try! uiRealm.write {
-                            task.position -= 1
+                
+                if delIdx != -1 {
+                    for task in tasks {
+                        if task.parentList == listTitle && task.position > delIdx {
+                            try! uiRealm.write {
+                                task.position -= 1
+                            }
                         }
                     }
                 }
-            }
-            
-            if completedd {
-                tableView.deleteRows(at: [indexPath], with: .fade)
-                for idx in 0..<completedTasks.count {
-                        let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 1)) as! TaskCell
-                        cell.path = IndexPath(item: idx, section: 1)
-                        cell.position = -1
-                        cell.completed = true
-                }
-            } else {
-                //BUG HERE
-                for idx in 0..<tasksList.count {
-                    if idx > delIdx {
-                        let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 0)) as! TaskCell
-                        cell.path = IndexPath(item: idx - 1, section: 0)
-                        cell.position = idx - 1
-                        cell.completed = false
+                
+                if completedd {
+                    tableView.deleteRows(at: [indexPath], with: .fade)
+                    for idx in 0..<completedTasks.count {
+                            let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 1)) as! TaskCell
+                            cell.path = IndexPath(item: idx, section: 1)
+                            cell.position = -1
+                            cell.completed = true
                     }
-                }
-                tableView.deleteRows(at: [indexPath], with: .fade)
+                } else {
+                    //BUG HERE
+                    for idx in 0..<tasksList.count {
+                        if idx > delIdx {
+                            let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 0)) as! TaskCell
+                            cell.path = IndexPath(item: idx - 1, section: 0)
+                            cell.position = idx - 1
+                            cell.completed = false
+                        }
+                    }
+                    tableView.deleteRows(at: [indexPath], with: .fade)
 
+                }
             }
-           
-        }
     }
   
 
@@ -432,14 +431,18 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
       }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
+        if listTitle == "Important" || listTitle == "Planned" || listTitle == "All Tasks" {
+            return false
+        } else {
+            return true
+        }
     }
 //
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         if editingCell {
             return UITableViewCell.EditingStyle.none
         } else {
-            return UITableViewCell.EditingStyle.delete
+                return UITableViewCell.EditingStyle.delete
         }
     }
 

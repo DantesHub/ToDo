@@ -757,22 +757,33 @@ class ListController: UIViewController, TaskViewDelegate {
                 formatter2.dateFormat = "h:mm a"
                 if planned {
                     if dateDueSelected == "" {
+                        formatter.dateFormat = "MMM dd,yyyy"
                         dateDueSelected = formatter.string(from: Date())
-                        task.planned = dateDueSelected + "-" + timeDueSelected
+                        task.planned = dateDueSelected + " " + timeDueSelected
                     } else if dateDueSelected.contains("-"){
+                        dateDueSelected = dateDueSelected.replacingOccurrences(of: "-", with: " ")
                         task.planned = dateDueSelected
                     } else {
-                        task.planned = dateDueSelected + "-" + timeDueSelected
+                        task.planned = dateDueSelected + " " + timeDueSelected
                     }
                     
                 } else if listTitle == "Planned" {
                     if dateDueSelected == "" {
-                        dateDueSelected = formatter.string(from: Date())
-                        task.planned = dateDueSelected + "-" + timeDueSelected
+                        formatter.dateFormat = "MMM dd,yyyy"
+                        if timeDueSelected == "" {
+                            let formatter4 = DateFormatter()
+                            formatter4.dateFormat = "MMM dd,yyyy h:mm a"
+                            dateDueSelected = formatter4.string(from: Date())
+                            task.planned = dateDueSelected + " " + timeDueSelected
+                        } else {
+                            dateDueSelected = formatter.string(from: Date())
+                        }
+                        task.planned = dateDueSelected + " " + timeDueSelected
                     } else if dateDueSelected.contains("-"){
+                        dateDueSelected = dateDueSelected.replacingOccurrences(of: "-", with: " ")
                         task.planned = dateDueSelected
                     } else {
-                        task.planned = dateDueSelected + "-" + timeDueSelected
+                        task.planned = dateDueSelected + " " + timeDueSelected
                     }
                 }
                 
@@ -781,9 +792,10 @@ class ListController: UIViewController, TaskViewDelegate {
                         dateReminderSelected = formatter.string(from: Date())
                         task.reminder = dateReminderSelected + "-" + timeReminderSelected
                     } else if dateReminderSelected.contains("-"){
+                        dateReminderSelected = dateReminderSelected.replacingOccurrences(of: "-", with: " ")
                         task.reminder = dateReminderSelected
                     } else {
-                        task.reminder = dateReminderSelected + "-" + timeReminderSelected
+                        task.reminder = dateReminderSelected + " " + timeReminderSelected
                     }
                     createReminderNotification(id: id)
                 }
