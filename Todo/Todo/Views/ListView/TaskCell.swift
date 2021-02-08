@@ -14,6 +14,7 @@ protocol TaskViewDelegate {
     func reloadTable()
     func createObservers()
     func resignResponder()
+    func reloadMainTable()
 }
 
 class TaskCell: UITableViewCell {
@@ -77,7 +78,7 @@ class TaskCell: UITableViewCell {
         circle.width(28)
         circle.height(28)
         circle.leading(to: self, offset: 15)
-        circle.top(to: self, offset: 10)
+        circle.centerY(to: self, offset: -10)
         circle.isUserInteractionEnabled = true
         let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
         cellTapped.cancelsTouchesInView = false
@@ -90,16 +91,14 @@ class TaskCell: UITableViewCell {
         title.top(to: self, offset: 14)
         title.trailing(to: self, offset: -40)
         title.leadingToTrailing(of: circle, offset: 5)
-        title.adjustsFontSizeToFitWidth = false
-//        title.numberOfLines = 3
-        title.lineBreakMode = .byTruncatingTail
+       
         
         if !editingCell {
             self.contentView.addSubview(star)
             star.width(30)
             star.height(30)
             star.trailing(to: self, offset: -15)
-            star.top(to: self, offset: 10)
+            star.centerY(to: self, offset: -8)
             let starGest = UITapGestureRecognizer(target: self, action: #selector(tappedStar))
             star.isUserInteractionEnabled = true
             star.addGestureRecognizer(starGest)
@@ -151,9 +150,8 @@ class TaskCell: UITableViewCell {
             configureCircle()
         }
         
-        
-        bottomView.frame = CGRect(x: 0, y: 48, width: UIScreen.main.bounds.width - 20 , height: 26)
-        bottomView.layer.cornerRadius = 10
+        bottomView.frame = CGRect(x: 0, y: title.text!.count <= 33 ? 48 : title.text!.count <= 66 ? 68 : 88 , width: UIScreen.main.bounds.width - 20 , height: 26)
+        bottomView.roundCorners(corners: [.bottomLeft,.bottomRight], radius: 10)
         bottomView.backgroundColor = medGray
         self.contentView.addSubview(bottomView)
         let cellTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCell))
@@ -168,11 +166,11 @@ class TaskCell: UITableViewCell {
         let dot = RoundView()
         if listLabel.text != "" {
             bottomView.addSubview(dot)
-            dot.width(5)
-            dot.height(5)
+            dot.width(3)
+            dot.height(3)
             dot.leadingAnchor.constraint(equalTo: listLabel.trailingAnchor, constant: 5).isActive = true
             dot.top(to: bottomView, offset: 12)
-            dot.backgroundColor = .black
+            dot.backgroundColor = .gray
         }
         var completed = 0
         if allSteps.count != 0 {
@@ -187,16 +185,16 @@ class TaskCell: UITableViewCell {
         steps.leadingAnchor.constraint(equalTo: listLabel.text != "" ? dot.trailingAnchor : listLabel.trailingAnchor, constant: 0).isActive = true
         steps.top(to: bottomView, offset: 5)
         steps.font = UIFont(name: "OpenSans-Regular", size: 13)
-        steps.textColor = .darkGray
+        steps.textColor = .gray
         
         let dot2 = RoundView()
         if steps.text != "" {
             bottomView.addSubview(dot2)
-            dot2.width(5)
-            dot2.height(5)
+            dot2.width(3)
+            dot2.height(3)
             dot2.leadingAnchor.constraint(equalTo: steps.trailingAnchor, constant: 8).isActive = true
             dot2.top(to: bottomView, offset: 12)
-            dot2.backgroundColor = .black
+            dot2.backgroundColor = .gray
         }
         
         if prioritized != 0 {
@@ -214,9 +212,9 @@ class TaskCell: UITableViewCell {
                 break
             }
             if color == UIColor.clear {
-                priority.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 10, height: 12))
+                priority.image = UIImage(named: "flag")?.resize(targetSize: CGSize(width: 8, height: 10))
             } else {
-                priority.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 10, height: 12)).withTintColor(color!)
+                priority.image = UIImage(named: "flagFilled")?.resize(targetSize: CGSize(width: 8, height: 10)).withTintColor(color!)
             }
         }
         
@@ -233,14 +231,14 @@ class TaskCell: UITableViewCell {
         
         let dot3 = RoundView()
         bottomView.addSubview(calendar)
-        calendar.top(to: bottomView, offset: 5)
+        calendar.top(to: bottomView, offset: 6)
         if prioritized != 0 && (taskPlannedDate != "" || reminderDate.text != "" || repeatTask != "") {
             bottomView.addSubview(dot3)
-            dot3.width(5)
-            dot3.height(5)
+            dot3.width(3)
+            dot3.height(3)
             dot3.leadingAnchor.constraint(equalTo: priority.trailingAnchor, constant: 8).isActive = true
             dot3.top(to: bottomView, offset: 12)
-            dot3.backgroundColor = .black
+            dot3.backgroundColor = .gray
             calendar.leadingAnchor.constraint(equalTo: dot3.trailingAnchor, constant: 5).isActive = true
         } else if steps.text != "" {
             calendar.leadingAnchor.constraint(equalTo: dot2.trailingAnchor, constant: 5).isActive = true
@@ -253,7 +251,7 @@ class TaskCell: UITableViewCell {
         let dot4 = RoundView()
         bottomView.addSubview(plannedDate)
         bottomView.addSubview(bell)
-        bell.top(to: bottomView, offset: 5)
+        bell.top(to: bottomView, offset: 6)
         if taskPlannedDate != "" {
             let newDatee = taskPlannedDate.replacingOccurrences(of: "-", with: " ")
             let newDate = Date().getDifference(date: newDatee, task: true)
@@ -263,24 +261,24 @@ class TaskCell: UITableViewCell {
                 plannedDate.text = newDate
             }
 
-            calendar.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 15, height: 15))
+            calendar.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 12, height: 12)).withTintColor(.gray)
             plannedDate.leadingAnchor.constraint(equalTo: calendar.trailingAnchor, constant: 5).isActive = true
             plannedDate.top(to: bottomView, offset: 5)
             plannedDate.font = UIFont(name: "OpenSans-Regular", size: 12)
             plannedDate.textColor = .gray
             if reminderDate.text != "" || repeatTask != "" {
                 bottomView.addSubview(dot4)
-                dot4.width(5)
-                dot4.height(5)
+                dot4.width(3)
+                dot4.height(3)
                 dot4.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor, constant: 8).isActive = true
                 dot4.top(to: bottomView, offset: 12)
-                dot4.backgroundColor = .black
+                dot4.backgroundColor = .gray
             }
         }
         
         let dot5 = RoundView()
         if reminderDate.text != "" {
-            bell.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 15, height: 15))
+            bell.image = UIImage(named: "bell")?.resize(targetSize: CGSize(width: 12, height: 12)).withTintColor(.gray)
             if plannedDate.text != "" {
                 bell.leadingAnchor.constraint(equalTo: dot4.trailingAnchor, constant: 5).isActive = true
             } else if prioritized != 0 {
@@ -295,18 +293,18 @@ class TaskCell: UITableViewCell {
             
             if repeatTask != "" {
                 bottomView.addSubview(dot5)
-                dot5.width(5)
-                dot5.height(5)
+                dot5.width(3)
+                dot5.height(3)
                 dot5.leadingAnchor.constraint(equalTo: bell.trailingAnchor, constant: 8).isActive = true
                 dot5.top(to: bottomView, offset: 12)
-                dot5.backgroundColor = .black
+                dot5.backgroundColor = .gray
             }
         }
         
         bottomView.addSubview(repeatImage)
         repeatImage.top(to: bottomView, offset: 7)
         if repeatTask != "" {
-            repeatImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 11, height: 11))
+            repeatImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 11, height: 11)).withTintColor(.gray)
             if reminderDate.text != "" {
                 repeatImage.leadingAnchor.constraint(equalTo: dot5.trailingAnchor, constant: 5).isActive = true
             } else if plannedDate.text != "" {
@@ -359,7 +357,7 @@ class TaskCell: UITableViewCell {
         bullet.height(25)
         bullet.layer.borderWidth = 4
         bullet.layer.borderColor = UIColor.white.cgColor
-        bullet.backgroundColor = .darkGray
+        bullet.backgroundColor = .black
         bullet.center(in: circle)
     }
     
@@ -526,9 +524,8 @@ class TaskCell: UITableViewCell {
                 star.image = UIImage(named: task.favorited ? "starfilled" : "star")?.resize(targetSize: CGSize(width: 27, height: 27)).withTintColor(.gray)
             }
         }
-        if listTitle == "Important" {
-            taskCellDelegate?.reloadTable()
-        }
+        taskCellDelegate?.reloadTable()
+        taskCellDelegate?.reloadMainTable()
     }
     
     

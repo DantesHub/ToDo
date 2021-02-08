@@ -21,6 +21,13 @@ extension UIViewController {
                        }, completion: nil)
     }
 }
+extension UIDevice {
+    var hasNotch: Bool {
+        let bottom = UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0
+        return bottom > 0
+    }
+}
+
 
 extension UITableView {
     var scrolledToTop: Bool {
@@ -166,7 +173,6 @@ extension Date {
         } else {
             return date
         }
-        return "fdasf"
     }
     func getWeekDaysInEnglish() -> [String] {
        var calendar = Calendar(identifier: .gregorian)
@@ -400,6 +406,12 @@ extension UIView {
             self.alpha = 0.3
         }, completion: completion)
     }
+    func roundCorners(corners: UIRectCorner, radius: CGFloat) {
+         let path = UIBezierPath(roundedRect: bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+         let mask = CAShapeLayer()
+         mask.path = path.cgPath
+         layer.mask = mask
+     }
 }
 
 

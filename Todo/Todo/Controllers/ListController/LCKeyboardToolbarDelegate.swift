@@ -1,5 +1,9 @@
 import UIKit
-
+//TODO
+// - ipod touch prices arent appearing
+// - ipad ui
+// - BUG
+// - delete bug 
 extension ListController: KeyboardToolbarDelegate, ReloadSlider {
     @objc func keyboardWillShow(notification: NSNotification) {
          print("keyboard will show")
@@ -9,7 +13,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
              let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
              if stabilize {
                 print(self.addTaskField.frame.origin.y, lastKeyboardHeight, keyboardSize.height, "fdas")
-                self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - view.frame.height/13.784
+                self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - view.frame.height/(UIScreen.main.nativeBounds.height == 1136 ? 13 : 13.784)
              }
              addedStep = true
              keyboard2 = true
@@ -61,6 +65,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                 var height: CGFloat = 5
                 switch UIScreen.main.nativeBounds.height {
                case 1136:
+                height = 4.5
                    print("iPhone 5 or 5S or 5C")
                case 1334:
                    height = 5
@@ -84,11 +89,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                  lastKeyboardHeight = keyboardSize.height
              }
          }
-            
      }
-    
-    
-    
     
     @objc func keyboardWillHide(notification: NSNotification) {
         print("hiding")
@@ -132,8 +133,10 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
         case .reminder:
             addTaskField.resignFirstResponder()
             if UserDefaults.standard.bool(forKey: "isPro") == false {
+                let sub = SubscriptionController()
+                sub.idx = 4
                 tappedOutside3()
-                self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+                self.navigationController?.present(sub, animated: true, completion: nil)
                 return
             }
             reminder = true

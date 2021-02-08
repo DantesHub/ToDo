@@ -18,7 +18,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let window = UIWindow(windowScene: windowScene)
         let controller = MainViewController()
-        
+        UserDefaults.standard.setValue(true, forKey: "isPro")
         if UserDefaults.standard.value(forKey: "lastOpened") == nil {
             mainIsRoot = true
         } else {

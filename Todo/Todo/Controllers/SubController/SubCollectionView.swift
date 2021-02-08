@@ -16,7 +16,24 @@ extension SubscriptionController: UICollectionViewDelegate, UICollectionViewData
             return 4
         }
     }
-    
+
+    internal func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+      if !onceOnly {
+        let indexToScrollTo = IndexPath(item: idx, section: 0)
+        self.topCollectionView.scrollToItem(at: indexToScrollTo, at: .right, animated: false)
+        onceOnly = true
+        self.startTimer()
+      } else {
+        if collectionView == topCollectionView {
+            var newDots = dots.map { $0 }
+            let selectedDot = newDots.remove(at: indexPath.row)
+            selectedDot.backgroundColor = .black
+            for dot in newDots {
+                dot.backgroundColor = .lightGray
+            }
+        }
+      }
+    }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == topCollectionView {
@@ -50,16 +67,7 @@ extension SubscriptionController: UICollectionViewDelegate, UICollectionViewData
         }
         return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     }
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        if collectionView == topCollectionView {
-            var newDots = dots.map { $0 }
-            let selectedDot = newDots.remove(at: indexPath.row)
-            selectedDot.backgroundColor = .black
-            for dot in newDots {
-                dot.backgroundColor = .lightGray
-            }
-        }
-    }
+
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         if collectionView == bottomCollectionView {

@@ -21,9 +21,10 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
         if textView == headerTitle {
             createTappedDone(title: true)
         } else if textView == noteTextField {
+            createTappedDone(note: true)
         }
     }
-    public func createTappedDone(title: Bool = false, step: Bool = false) {
+    public func createTappedDone(title: Bool = false, step: Bool = false, note: Bool = false) {
         let done = UIButton(type: .system)
         done.setTitle("Done", for: .normal)
         done.setTitleColor(.systemBlue, for: .normal)
@@ -34,8 +35,18 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
             done.addTarget(self, action: #selector(doneEditingList), for: .touchUpInside)
         } else if step {
             done.addTarget(self, action: #selector(doneEditingStep), for: .touchUpInside)
+        } else if note {
+            done.addTarget(self, action: #selector(doneEditingNote), for: .touchUpInside)
         }
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: done)]
+    }
+    @objc func doneEditingNote() {
+        noteTextField.resignFirstResponder()
+        try! uiRealm.write {
+            taskObject.note = noteTextField.text ?? ""
+        }
+        configureNavBar()
+
     }
     @objc func doneEditingStep() {
         view.endEditing(true)
@@ -46,28 +57,24 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
     }
     @objc func doneEditingList() {
         headerTitle.resignFirstResponder()
+        taskTitle = headerTitle.text
         try! uiRealm.write {
             taskObject.name = headerTitle.text ?? ""
         }
+        stepsTableView.reloadData()
         delegate?.reloadTable()
         configureNavBar()
     }
 
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if UserDefaults.standard.bool(forKey: "isPro") == false {
-            noteTextField.resignFirstResponder()
-            view.endEditing(true)
-            self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
-            return true
-        }
-      
-        if let character = text.first, character.isNewline {
-            if textView == noteTextField {
-                textView.resignFirstResponder()
-                try! uiRealm.write {
-                    taskObject.note = noteTextField.text ?? ""
-                }
-                return false
+        if textView == noteTextField {
+            if UserDefaults.standard.bool(forKey: "isPro") == false {
+                let sub = SubscriptionController()
+                sub.idx = 6
+                noteTextField.resignFirstResponder()
+                view.endEditing(true)
+                self.navigationController?.present(sub, animated: true, completion: nil)
+                return true
             }
         }
         return true
@@ -82,7 +89,7 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
                 step.done = false
                 self.steps.append(step)
                 heightConstraint?.isActive = false
-                heightConstraint = stepsTableView.heightAnchor.constraint(equalToConstant: CGFloat(130 + (60 * steps.count)))
+                heightConstraint = stepsTableView.heightAnchor.constraint(equalToConstant: CGFloat(150 + (60 * steps.count)))
                 heightConstraint?.isActive = true
                 self.stepsTableView.reloadData()
                 taskObject.steps.append(step)

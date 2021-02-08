@@ -90,12 +90,15 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 selectedListImage = photos[indexPath.row]
                 selectedListBackground = UIColor.clear
             } else {
+                if UserDefaults.standard.bool(forKey: "isPro") == true {
                 cell.tappedColor()
                 if customizeSelection == "Background Color" {
                     selectedListBackground = backgroundColors[indexPath.row]
                     selectedListImage = ""
                 } else {
                     selectedListTextColor = textColors[indexPath.row]
+                }
+                    return false
                 }
             }
             return true
@@ -230,14 +233,24 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 //upload custom photo
                 if indexPath.row == 0 {
                     if UserDefaults.standard.bool(forKey: "isPro") == false {
-                        self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+                        creating = true
+                        stabilize = true
+                        bigTextField.becomeFirstResponder()
+                        let sub = SubscriptionController()
+                        sub.idx = 2
+                        self.navigationController?.present(sub, animated: true, completion: nil)
                         return
                     }
                     uploadPhoto()
                 }
             } else if customizeSelection == "Text Color" {
                 if UserDefaults.standard.bool(forKey: "isPro") == false {
-                    self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+                    creating = true
+                    stabilize = true
+                    bigTextField.becomeFirstResponder()
+                    let sub = SubscriptionController()
+                    sub.idx = 2
+                    self.navigationController?.present(sub, animated: true, completion: nil)
                     return
                 }
             }
@@ -466,7 +479,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             sortType = sortOptions[row]
             listObject.sortType = sortOptions[row]
         }
-        self.tableViewTop?.constant = 120
+        self.tableViewTop?.constant = 145
         let range = NSMakeRange(0, self.tableView.numberOfSections)
         let sections = NSIndexSet(indexesIn: range)
         self.tableView.reloadSections(sections as IndexSet, with: .automatic)
@@ -479,7 +492,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             slideUpViewTapped()
             if headerView.isHidden {
                 self.navigationItem.title = ""
-                tableViewTop?.constant = sortType != "" ? 120 : 80
+                tableViewTop?.constant = sortType != "" ? 145 : 105
                 tableView.setContentOffset(.init(x: 0, y: -80), animated: true)
                 self.headerView.isHidden = false
             }
@@ -489,6 +502,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             bigTextField.becomeFirstResponder()
             createTappedDone(tag: 1)
         case "Select Tasks":
+            
             editingCell = true
             slideUpViewTapped()
             self.headerView.isHidden = true

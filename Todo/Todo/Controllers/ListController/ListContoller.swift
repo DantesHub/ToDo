@@ -59,7 +59,7 @@ class ListController: UIViewController, TaskViewDelegate {
     var frameView = UIView()
     var tappedIcon = ""
     var favorited = false
-
+    var dateLabel = UILabel()
     var sortType = ""
     var added50ToReminder = false
     var added50ToDueDate = false
@@ -124,6 +124,7 @@ class ListController: UIViewController, TaskViewDelegate {
     let slideUpViewHeight: CGFloat = 350
     var completedExpanded = true
     var reversed = true
+    var photoSelected = false
     let lists = uiRealm.objects(ListObject.self)
     var accessBool = false
     var listObject: ListObject = ListObject()
@@ -145,6 +146,9 @@ class ListController: UIViewController, TaskViewDelegate {
     var filteredTasks = [TaskObject]()
     var filteredCompletedTasks = [TaskObject]()
     var searching = false
+     var image: UIImage?
+     var croppedRect = CGRect.zero
+     var croppedAngle = 0
     //MARK: - init
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -171,7 +175,6 @@ class ListController: UIViewController, TaskViewDelegate {
         configureUI()
         
         if !creating {
-            print("setting")
             UserDefaults.standard.set(listTitle, forKey: "lastOpened")
         }
         
@@ -410,7 +413,7 @@ class ListController: UIViewController, TaskViewDelegate {
         
         let addToList = BoxOption()
         footer.addSubview(addToList)
-        addToList.image = "list"
+        addToList.image = "move"
         addToList.createImage()
         addToList.label.text = "Add To List"
         addToList.centerX(to: footer)
@@ -626,7 +629,9 @@ class ListController: UIViewController, TaskViewDelegate {
     
     @objc func tappedAddTask() {
         if tasksList.count + completedTasks.count == 14  && UserDefaults.standard.bool(forKey: "isPro") == false{
-                self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+            let sub = SubscriptionController()
+            sub.idx = 1
+            self.navigationController?.present(sub, animated: true, completion: nil)
             return
         }
         addTaskField.becomeFirstResponder()
@@ -859,13 +864,16 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func tappedOutside() {
-        if !creating {
-            self.view.endEditing(true)
-            if !editingCell {
-                configureNavBar()
+        if !editingCell {
+            if !creating {
+                self.view.endEditing(true)
+                if !editingCell {
+                    configureNavBar()
+                }
             }
+            cancelSearch()
         }
-        cancelSearch()
+  
     }
     
     func createTableHeader() {
@@ -874,19 +882,30 @@ class ListController: UIViewController, TaskViewDelegate {
         headerView.addSubview(bigTextField)
         bigTextField.becomeFirstResponder()
         bigTextField.delegate = self
-        bigTextField.font = UIFont(name: "OpenSans-Regular", size: 40)
+        bigTextField.font = UIFont(name: "OpenSans-Bold", size: 40)
         bigTextField.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20).isActive = true
         bigTextField.centerY(to: headerView)
-        bigTextField.height(100)
+        bigTextField.height(40)
         bigTextField.placeholder = listTitle
         bigTextField.textColor = listTextColor
         bigTextField.text = listTitle
+        
+        headerView.addSubview(dateLabel)
+        dateLabel.topToBottom(of: bigTextField)
+        dateLabel.font = UIFont(name: "OpenSans-Regular", size: 20)
+        dateLabel.textColor = listTextColor
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMMM d"
+        dateLabel.text = formatter.string(from: Date())
+        dateLabel.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 20).isActive = true
+        dateLabel.height(20)
+        
         if !creating {
             bigTextField.isUserInteractionEnabled = false
         } else {
             createCustomListView()
         }
-        headerView.top(to: view, offset: 120)
+        headerView.top(to: view, offset: 125)
         headerView.leading(to: view, offset: 5)
     }
 
@@ -1126,7 +1145,7 @@ class ListController: UIViewController, TaskViewDelegate {
         customizeCollectionView.reloadData()
     }
     
-    func createTableView(top: CGFloat = 120) {
+    func createTableView(top: CGFloat = 145) {
         tableView.register(TaskCell.self, forCellReuseIdentifier: "list")
         tableView.register(UITableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: "completedHeader")
         tableView.separatorStyle = .singleLine
@@ -1134,7 +1153,7 @@ class ListController: UIViewController, TaskViewDelegate {
         tableView.leadingToSuperview(offset: 10)
         tableView.trailingToSuperview(offset: 10)
         tableView.bottomToSuperview()
-        tableViewTop = tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: sortType != "" ? top : 80)
+        tableViewTop = tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: sortType != "" ? top : 105)
         tableViewTop?.isActive = true
         tableView.showsVerticalScrollIndicator = false
         swipeDown.direction = .down
@@ -1159,27 +1178,32 @@ class ListController: UIViewController, TaskViewDelegate {
             case .down:
                 self.headerView.isHidden = false
                 if sortType != "" {
-                    self.tableViewTop?.constant = 120
+                    self.tableViewTop?.constant = 145
                 } else {
-                    self.tableViewTop?.constant = 80
+                    self.tableViewTop?.constant = 105
                 }
                 if tasksList.count + completedTasks.count <= 6  {
                     UIView.animate(withDuration: 0.4) {
                         self.tableView.layoutIfNeeded()
                     }
                 }
+                createHamburg()
                 navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
                 self.navigationItem.title = ""
             case .up:
                 self.headerView.isHidden = true
                 self.tableViewTop?.constant = sortType != "" ? -20 : -60
-                if tasksList.count + completedTasks.count <= 6 {
+                if tasksList.count + completedTasks.count <= 6 && UIDevice.current.hasNotch {
                     UIView.animate(withDuration: 0.4) {
                         self.tableView.layoutIfNeeded()
                     }
                 } else {
                     navigationController?.navigationBar.setBackgroundImage(darkFilter.image, for: UIBarMetrics.default)
                 }
+                let hamburg = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(tappedBack))
+                hamburg.image = UIImage(named: "Hamburger")?.resize(targetSize: CGSize(width: 25, height: 25)).withTintColor(.white)
+                hamburg.tintColor = .white
+                self.navigationItem.leftBarButtonItem = hamburg
                 self.navigationItem.title = listTitle
             default:
                 break
@@ -1189,7 +1213,6 @@ class ListController: UIViewController, TaskViewDelegate {
     
     @objc func tappedBack() {
             _ = navigationController?.popViewController(animated: true)
-       
         tasksList = []
         completedTasks = []
     }
@@ -1205,20 +1228,33 @@ class ListController: UIViewController, TaskViewDelegate {
         search.imageInsets = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: -10)
         search.image = UIImage(named: "search")?.resize(targetSize: CGSize(width: 25, height: 25))
         search.tintColor = .white
-        let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(tappedBack))
-        backButton.image = UIImage(named: "arrow")?.rotate(radians: -.pi/2)?.resize(targetSize: CGSize(width: 25, height: 25))
-        backButton.title = "Back"
-        backButton.tintColor = .white
-        self.navigationItem.leftBarButtonItem = backButton
-   
-
-     
+        createHamburg()
+//        backButton.tintColor = .white
         navigationItem.rightBarButtonItems = [elipsis, search]
         navigationController?.navigationBar.barTintColor = .clear
         navigationController?.navigationBar.isTranslucent = true
     }
     
-    
+    func createHamburg() {
+        let circle = RoundView(frame: CGRect(x: 0, y: 0, width: 45, height: 45))
+        circle.backgroundColor = .white
+        let hamburg = UIImageView()
+        hamburg.image = UIImage(named: "Hamburger")?.resize(targetSize: CGSize(width: 35, height: 35)).withTintColor(.black)
+        hamburg.backgroundColor = .white
+        circle.addSubview(hamburg)
+        hamburg.frame.size = CGSize(width: 27, height: 30)
+        hamburg.center =  CGPoint(x:22.5, y:22.5)
+
+        hamburg.isUserInteractionEnabled = true
+        let circleGest = UITapGestureRecognizer(target: self, action: #selector(tappedBack))
+        circle.addGestureRecognizer(circleGest)
+        let backButton = UIBarButtonItem()
+        backButton.customView = circle
+        backButton.target = self
+        backButton.action = #selector(tappedBack)
+        //        backButton.tintColor = .white
+        self.navigationItem.leftBarButtonItem = backButton
+    }
     
     @objc func searchTapped() {
         navigationItem.titleView = searchBar
@@ -1240,9 +1276,9 @@ class ListController: UIViewController, TaskViewDelegate {
         navigationItem.titleView = .none
         headerView.isHidden = false
         if sortType != "" {
-            self.tableViewTop?.constant = 120
+            self.tableViewTop?.constant = 145
         } else {
-            self.tableViewTop?.constant = 80
+            self.tableViewTop?.constant = 105
         }
         if !creating {
             configureNavBar()

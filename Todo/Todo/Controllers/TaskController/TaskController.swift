@@ -41,7 +41,7 @@ class TaskController: UIViewController, ReloadSlider {
         return iv
     }()
     var path = IndexPath()
-    let headerTitle = UITextView()
+    var headerTitle = UITextView()
     var id = ""
     var notes = ""
     var selectedRepeat = ""
@@ -110,11 +110,13 @@ class TaskController: UIViewController, ReloadSlider {
         super.viewDidLoad()
         overrideUserInterfaceStyle = .light
         IQKeyboardManager.shared.enable = true
+        UIFont.overrideInitialize()
         getSteps()
         configureUI()
+        
         createObserver()
     }
-    
+
     func createObserver() {
         let center: NotificationCenter = NotificationCenter.default
         center.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
@@ -207,12 +209,13 @@ class TaskController: UIViewController, ReloadSlider {
         self.stackView.addArrangedSubview(stepsTableView)
         stepsTableView.register(StepCell.self, forCellReuseIdentifier: "stepCell")
         stepsTableView.delegate = self
-        heightConstraint = stepsTableView.heightAnchor.constraint(equalToConstant: CGFloat(130 + steps.count * 60))
+        heightConstraint = stepsTableView.heightAnchor.constraint(equalToConstant: CGFloat(150 + steps.count * 60))
         heightConstraint?.isActive = true
         stepsTableView.dataSource = self
         stepsTableView.backgroundColor = .white
         stepsTableView.estimatedRowHeight = 60
         stepsTableView.separatorStyle = .none
+        stepsTableView.isScrollEnabled = false
     }
     
     func configureNavBar() {
@@ -233,6 +236,7 @@ class TaskController: UIViewController, ReloadSlider {
         window?.addSubview(containerView)
         containerView.alpha = 0
         if createSlider {
+            slideUpView.overrideUserInterfaceStyle = .light
             slideUpView.frame = CGRect(x: 0, y: (window?.frame.height)!, width: screenSize.width, height: slideUpViewHeight + (repeatt ? 100 : 0))
             slideUpView.register(TaskSlideCell.self, forCellWithReuseIdentifier: K.taskSlideCell)
             slideUpView.register(SliderSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
@@ -334,6 +338,7 @@ class TaskController: UIViewController, ReloadSlider {
                 star.image = UIImage(named: result.favorited ? "starfilled" : "star")?.resize(targetSize: CGSize(width: 30, height: 30))
             }
         }
+        delegate?.reloadMainTable()
         delegate?.reloadTable()
     }
     
@@ -361,11 +366,14 @@ class TaskController: UIViewController, ReloadSlider {
         }
         
         let titleText = taskTitle
+        print("bro wtf")
+        completed = false
+        delegate?.reloadTable()
+        path = IndexPath(row: toTop ? 0 : tasksList.count - 1, section: 0)
+        headerTitle.removeFromSuperview()
         headerTitle.attributedText = .none
         headerTitle.text = titleText
-        delegate?.reloadTable()
-        completed = false
-        path = IndexPath(row: toTop ? 0 : tasksList.count - 1, section: 0)
+        stepsTableView.reloadData()
     }
     
     @objc func tappedCircle() {
@@ -374,7 +382,6 @@ class TaskController: UIViewController, ReloadSlider {
         var delTaskPosition = 0
         let totalTasks = tasksList.count
         var repeats = ""
-        print(tasksList.count, "aloha")
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
                 try! uiRealm.write {
                     taskObject.completed = true
@@ -467,7 +474,6 @@ class TaskController: UIViewController, ReloadSlider {
                 }
             }
         }
-       
         if repeats == "" {
             delegate?.reloadTable()
             completed = true

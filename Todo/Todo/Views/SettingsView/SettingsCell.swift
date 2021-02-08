@@ -61,7 +61,7 @@ class SettingsCell: UITableViewCell {
             cellTitle.centerY(to: self)
         }
    
-        cellTitle.font = UIFont(name: "OpenSans-Regular", size: 20)
+        cellTitle.font = UIFont(name: "OpenSans-Regular", size: 17)
         cellTitle.textColor = UIColor.black
         if sectionNumber == 1 {
             self.addSubview(toggler)

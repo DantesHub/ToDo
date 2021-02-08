@@ -15,6 +15,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             selectAll.label.text = "Select All"
         }
     }
+    
     func reloadTaskTableView(at: IndexPath, checked: Bool, repeats: String = "") {
         if checked {
             let task = completedTasks.remove(at: at.row)
@@ -113,48 +114,50 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             label.layer.cornerRadius = 10
             label.addTarget(self, action: #selector(tappedCompleted), for: .touchUpInside)
         } else if section == 0 && sortType != "" {
-            let label = UIButton()
-            label.width(min: sortType != "Priority" && sortType != "Due Date" ? 180 : 130, max: 500, priority: .defaultHigh, isActive: true)
-            label.titleLabel?.font = UIFont(name: "OpenSans-Regular", size: 20)
-            label.titleLabel?.textColor = .white
-            label.titleLabel?.adjustsFontSizeToFitWidth = true
-            label.setTitle(sortType, for: .normal)
-            if !reversed {
-                label.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 22)), for: .normal)
-            } else {
-                label.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 22)).rotate(radians: .pi), for: .normal)
-            }
-                if UIScreen.main.nativeBounds.height == 1792 {
-                    if sortType == "Creation Date" || sortType == "Alphabetically" {
-                        label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 11, right: 0)
-                    }
+            if  !editingCell {
+                let label = UIButton()
+                label.width(min: sortType != "Priority" && sortType != "Due Date" ? 180 : 130, max: 500, priority: .defaultHigh, isActive: true)
+                label.titleLabel?.font = UIFont(name: "OpenSans-Regular", size: 20)
+                label.titleLabel?.textColor = .white
+                label.titleLabel?.adjustsFontSizeToFitWidth = true
+                label.setTitle(sortType, for: .normal)
+                if !reversed {
+                    label.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 22)), for: .normal)
                 } else {
-                    if sortType == "Creation Date" || sortType == "Alphabetically" {
-                        label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-                    }
+                    label.setImage(UIImage(named: "arrow")?.withTintColor(.white).resize(targetSize: CGSize(width: 20, height: 22)).rotate(radians: .pi), for: .normal)
                 }
-            
-            label.titleEdgeInsets = UIEdgeInsets(top: 10, left: 14, bottom: sortType != "Priority" ? 10 : 12, right: 0)
+                    if UIScreen.main.nativeBounds.height == 1792 {
+                        if sortType == "Creation Date" || sortType == "Alphabetically" {
+                            label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 11, right: 0)
+                        }
+                    } else {
+                        if sortType == "Creation Date" || sortType == "Alphabetically" {
+                            label.titleEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+                        }
+                    }
+                
+                label.titleEdgeInsets = UIEdgeInsets(top: 10, left: 14, bottom: sortType != "Priority" ? 10 : 12, right: 0)
 
-            completedView.addSubview(label)
-            label.top(to: completedView, offset: 5)
-            label.leadingAnchor.constraint(equalTo: completedView.leadingAnchor, constant: 5).isActive = true
-            label.backgroundColor = UIColor.black.withAlphaComponent(0.6)
-            //            label.width(tableView.frame.width * 0.35)
-            label.height(28)
-            label.layer.cornerRadius = 10
-            label.addTarget(self, action: #selector(tappedReverse), for: .touchUpInside)
-            
-            let xButton = UIButton()
-            completedView.addSubview(xButton)
-            xButton.width(28)
-            xButton.height(28)
-            xButton.top(to: completedView, offset: 5)
-            xButton.leadingAnchor.constraint(equalTo: label.trailingAnchor, constant: 5).isActive = true
-            xButton.backgroundColor = UIColor.black.withAlphaComponent(0.6)
-            xButton.setImage(UIImage(named: "x")?.withTintColor(.white).resize(targetSize: CGSize(width: 30, height: 30)), for: .normal)
-            xButton.addTarget(self, action: #selector(tappedX), for: .touchUpInside)
-            xButton.layer.cornerRadius = 10
+                completedView.addSubview(label)
+                label.top(to: completedView, offset: 5)
+                label.leadingAnchor.constraint(equalTo: completedView.leadingAnchor, constant: 5).isActive = true
+                label.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+                //            label.width(tableView.frame.width * 0.35)
+                label.height(28)
+                label.layer.cornerRadius = 10
+                label.addTarget(self, action: #selector(tappedReverse), for: .touchUpInside)
+                
+                let xButton = UIButton()
+                completedView.addSubview(xButton)
+                xButton.width(28)
+                xButton.height(28)
+                xButton.top(to: completedView, offset: 5)
+                xButton.leadingAnchor.constraint(equalTo: label.trailingAnchor, constant: 5).isActive = true
+                xButton.backgroundColor = UIColor.black.withAlphaComponent(0.6)
+                xButton.setImage(UIImage(named: "x")?.withTintColor(.white).resize(targetSize: CGSize(width: 30, height: 30)), for: .normal)
+                xButton.addTarget(self, action: #selector(tappedX), for: .touchUpInside)
+                xButton.layer.cornerRadius = 10
+            }
         }
         
         return completedView
@@ -174,7 +177,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                 task.position = idx
             }
         }
-        tableViewTop?.constant = 80
+        tableViewTop?.constant = 105
         let range = NSMakeRange(0, self.tableView.numberOfSections)
         let sections = NSIndexSet(indexesIn: range)
         self.tableView.reloadSections(sections as IndexSet, with: .automatic)
@@ -279,6 +282,9 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         }
         cell.allSteps = task.steps.map { $0 }
         cell.title.text = task.name
+        cell.title.numberOfLines = 3
+        cell.title.lineBreakMode = .byTruncatingTail
+        cell.title.sizeToFit()
         cell.prioritized = task.priority
         cell.taskPlannedDate = task.planned
         cell.path = indexPath
@@ -309,17 +315,18 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         cell.preservesSuperviewLayoutMargins = false
         cell.layoutMargins = UIEdgeInsets.zero
     }
-
+//
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//        if indexPath.section == 0 {
-//            if tasksList[indexPath.row].name.count > 33 {
-//                return 100
-//            } else {
-//                return 80
-//            }
-//        }
-        return 80; //Choose your custom row height
+        if indexPath.section == 0 {
+            if tasksList[indexPath.row].name.count > 66 {
+                return 120
+            } else if tasksList[indexPath.row].name.count > 33 {
+                return 100
+            }
+        }
+        return 80 //Choose your custom row height
     }
+
     
     
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
@@ -426,7 +433,6 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                 let cell = tableView.cellForRow(at: indexPath!) as! TaskCell
                 cell.clipsToBounds = true
                 cell.layer.cornerRadius = 10
-
         }
       }
     
@@ -437,6 +443,10 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             return true
         }
     }
+    func reloadMainTable() {
+        reloadDelegate?.reloadTableView()
+    }
+    
 //
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         if editingCell {

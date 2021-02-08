@@ -24,6 +24,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         self.tableView.reloadData()
     }
     
+    
     func reloadStepsTable() {
         getSteps()
         heightConstraint?.isActive = false
@@ -45,53 +46,55 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
     }
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if tableView == stepsTableView {
-            let stepsHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.width, height: taskTitle.count > 16 ? 160 : 80))
-            stepsHeaderView.backgroundColor = .white
-            circle.width(35)
-            circle.height(35)
-            circle.backgroundColor = .white
-            circle.layer.borderWidth = 2
-            circle.layer.borderColor = UIColor.darkGray.cgColor
-            stepsHeaderView.addSubview(circle)
-            circle.leading(to: stepsHeaderView, offset: 25)
-            circle.centerY(to: stepsHeaderView)
-            let circleTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCircle))
-            circle.addGestureRecognizer(circleTapped)
-            circle.isUserInteractionEnabled = true
-            let priColor = K.getColor(priority)
-            circle.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.70, additionalBrightness: 0.25)
+            let stepsHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: self.tableView.frame.width, height: taskTitle.count > 20 ?  taskTitle.count > 40 ? 260 : 160 : 80))
+                       headerTitle = UITextView()
+                       stepsHeaderView.backgroundColor = .white
+                       circle.width(35)
+                       circle.height(35)
+                       circle.backgroundColor = .white
+                       circle.layer.borderWidth = 2
+                       circle.layer.borderColor = UIColor.darkGray.cgColor
+                       stepsHeaderView.addSubview(circle)
+                       circle.leading(to: stepsHeaderView, offset: 25)
+                       circle.centerY(to: stepsHeaderView)
+                       let circleTapped = UITapGestureRecognizer(target: self, action: #selector(tappedCircle))
+                       circle.addGestureRecognizer(circleTapped)
+                       circle.isUserInteractionEnabled = true
+                       let priColor = K.getColor(priority)
+                       circle.backgroundColor = priColor.modified(withAdditionalHue: 0.00, additionalSaturation: -0.70, additionalBrightness: 0.25)
 
-            if priColor == UIColor.clear {
-                circle.layer.borderColor = listTextColor == .white ? UIColor.darkGray.cgColor : listTextColor.cgColor
-            } else {
-                circle.layer.borderColor = priColor.cgColor
-            }
-            
-            
-            if completed {
-                configureCircle(priColor)
-            }
-            stepsHeaderView.addSubview(headerTitle)
-            headerTitle.leadingToTrailing(of: circle, offset: 15)
-            headerTitle.trailingToSuperview(offset: 40)
-            headerTitle.height(min: stepsHeaderView.frame.height == 80 ? 50 : 80, max:  160, priority: .defaultHigh, isActive: true)
-            headerTitle.centerY(to: stepsHeaderView)
+                       if priColor == UIColor.clear {
+                           circle.layer.borderColor = listTextColor == .white ? UIColor.darkGray.cgColor : listTextColor.cgColor
+                       } else {
+                           circle.layer.borderColor = priColor.cgColor
+                       }
+                       
+                       
+                       if completed {
+                           configureCircle(priColor)
+                       }
+                       stepsHeaderView.addSubview(headerTitle)
+                       headerTitle.leadingToTrailing(of: circle, offset: 15)
+                       headerTitle.trailingToSuperview(offset: 40)
+                       headerTitle.height(min: stepsHeaderView.frame.height == 80 ? 50 : stepsHeaderView.frame.height == 160 ? 80 : 130 , max:  180, priority: .defaultHigh, isActive: true)
+                       headerTitle.centerY(to: stepsHeaderView)
 
-            headerTitle.sizeToFit()
-            headerTitle.textContainer.maximumNumberOfLines = 2
-            headerTitle.textContainer.lineBreakMode = .byTruncatingTail;
-            headerTitle.font = UIFont(name: "OpenSans-Bold", size: 23)
-            headerTitle.text = taskTitle
-            headerTitle.delegate = self
-            
-            star.image = UIImage(named: favorited ? "starfilled" : "star")?.resize(targetSize: CGSize(width: 30, height: 30))
-            stepsHeaderView.addSubview(star)
-            star.centerY(to: stepsHeaderView)
-            star.trailing(to: stepsHeaderView, offset: -25)
-            let starTapped = UITapGestureRecognizer(target: self, action: #selector(tappedStar))
-            star.addGestureRecognizer(starTapped)
-            star.isUserInteractionEnabled = true
-            return stepsHeaderView
+                       headerTitle.sizeToFit()
+                       headerTitle.textContainer.maximumNumberOfLines = 3
+                       headerTitle.textContainer.lineBreakMode = .byTruncatingTail;
+                       headerTitle.font = UIFont(name: "OpenSans-Bold", size: 23)
+                       headerTitle.attributedText = .none
+                       headerTitle.text = taskTitle
+                       headerTitle.delegate = self
+                       
+                       star.image = UIImage(named: favorited ? "starfilled" : "star")?.resize(targetSize: CGSize(width: 30, height: 30))
+                       stepsHeaderView.addSubview(star)
+                       star.centerY(to: stepsHeaderView)
+                       star.trailing(to: stepsHeaderView, offset: -25)
+                       let starTapped = UITapGestureRecognizer(target: self, action: #selector(tappedStar))
+                       star.addGestureRecognizer(starTapped)
+                       star.isUserInteractionEnabled = true
+                       return stepsHeaderView
         } else {
             return UIView(frame: .zero)
         }
@@ -99,6 +102,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
    
     func configureCircle(_ color: UIColor) {
         DispatchQueue.main.async { [self] in
+            print("fda")
             circle.addSubview(check)
             check.width(35)
             check.height(35)
@@ -110,11 +114,14 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             } else {
                 check.image = check.image?.withTintColor(color)
             }
-            let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: taskTitle)
-            attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
-            headerTitle.attributedText = attributeString
-            
-
+            if completed {
+                print("yogi")
+                let attributeString: NSMutableAttributedString =  NSMutableAttributedString(string: taskTitle)
+                attributeString.addAttribute(NSAttributedString.Key.strikethroughStyle, value: 2, range: NSMakeRange(0, attributeString.length))
+                headerTitle.attributedText = attributeString
+                headerTitle.font = UIFont(name: "OpenSans-Bold", size: 23)
+            }
+        
          }
     }
 
@@ -124,6 +131,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             stepsFooterView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 50))
             stepsFooterView.addSubview(plus)
             configureDefaultFooter()
+            stepsFooterView.backgroundColor = .white
             return stepsFooterView
         } else {
             return UIView(frame: .zero)
@@ -139,7 +147,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         addStepLabel.textColor = col
         addStepLabel.text = "Add Step"
         stepsFooterView.addSubview(addStepLabel)
-        addStepLabel.top(to: stepsFooterView)
+        addStepLabel.top(to: stepsFooterView, offset:  3)
         addStepLabel.leadingAnchor.constraint(equalTo: plus.trailingAnchor, constant: 15).isActive = true
         let tappedAddStep = UITapGestureRecognizer(target: self, action: #selector(addStep))
         stepsFooterView.addGestureRecognizer(tappedAddStep)
@@ -292,12 +300,18 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             return cell
         }
     }
+    func reloadMainTable() {
+        delegate?.reloadMainTable()
+    }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == self.tableView {
             if (defaultList[indexPath.row] == "Remind Me" || defaultList[indexPath.row] == "Repeat") && UserDefaults.standard.bool(forKey: "isPro") == false {
-                self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+                let sub = SubscriptionController(idx:  defaultList[indexPath.row] == "Remind Me" ? 4 : 5)
+                self.navigationController?.present(sub, animated: true, completion: nil)
                 return
             }
+            
+            
             tappedIcon = defaultList[indexPath.row]
             slideUpView.reloadData()
             self.view.endEditing(true)
@@ -312,14 +326,15 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
             stepCell.cellTitle.becomeFirstResponder()
         }
     }
-    
+ 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if tableView == stepsTableView {
-            return 80
+            return taskTitle.count > 20 ?  taskTitle.count > 40 ? 110 : 100 : 80
         } else {
             return 0
         }
     }
+
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         if tableView == stepsTableView {

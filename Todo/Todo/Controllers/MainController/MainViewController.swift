@@ -75,6 +75,7 @@ class MainViewController: UIViewController, ReloadDelegate {
             if purchaserInfo?.entitlements.all["premium"]?.isActive == true {
                 UserDefaults.standard.setValue(true, forKey: "isPro")
             } else {
+                print("dfa")
                 UserDefaults.standard.setValue(false, forKey: "isPro")
             }
         }
@@ -369,7 +370,9 @@ class MainViewController: UIViewController, ReloadDelegate {
     }
     @objc private func tappedAddList() {
         if lists.count == 8 && UserDefaults.standard.bool(forKey: "isPro") == false {
-            self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+            let sub = SubscriptionController()
+            sub.idx = 1
+            self.navigationController?.present(sub, animated: true, completion: nil)
             return
         }
         let controller = ListController()

@@ -15,5 +15,6 @@ target 'Todo' do
   pod 'Firebase/Crashlytics'
   pod "GWInfinitePickerView"
   pod 'IQKeyboardManagerSwift'
+  pod 'TOCropViewController'
   pod 'FBSDKCoreKit/Swift'
 end

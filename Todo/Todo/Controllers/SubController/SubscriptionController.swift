@@ -12,6 +12,13 @@ import Purchases
 import StoreKit
 
 class SubscriptionController: UIViewController {
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    init(idx: Int = 0) {
+        super.init(nibName: nil, bundle: nil)
+        self.idx = idx
+    }
     var topCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -23,7 +30,7 @@ class SubscriptionController: UIViewController {
         return cv
     }()
     var packagesAvailableForPurchase = [Purchases.Package]()
-    var topImages = ["group", "infinityGreen", "theme", "infinityGreen", "unlimitedReminder", "repeatBlue", "files"]
+    var topImages = ["group", "infinityGreen", "theme", "dueDate", "unlimitedReminder", "repeatBlue", "files"]
     var topTitles = ["Groups", "No Limits", "Advanced Customization", "Deadline Management", "Unlimited Reminder", "Repeat", "File & Notes"]
     var topDescs = ["Organize your lists into their own dedicated folders", "Be on time and set clear deadlines for your tasks", "Create as many Lists and Tasks as you wish","Get full access to premium wallpapers and customization tools","Receive smart notifications to fully manage your deadlines", "Automatise tasks creation with the repeat feature", "Add relevant information to your tasks"]
     var stories = [""]
@@ -40,14 +47,18 @@ class SubscriptionController: UIViewController {
         cv.backgroundColor = .white
         return cv
     }()
+    var idx = 0
     let yearlyBox = PriceBox()
     let monthlyBox = PriceBox()
     var continueButton = UIButton()
     var continueDesc = UILabel()
     var header = UIView()
+    var onceOnly = false
     let one = RoundView()
     let two = RoundView()
     let three = RoundView()
+    var startedTimer = false
+    
     let four = RoundView()
     let five = RoundView()
     let six = RoundView()
@@ -59,6 +70,8 @@ class SubscriptionController: UIViewController {
     var yearlyPrice: Double = 0
     var yearlyMonthlyPrice: Double = 0
     let locale = Locale.current
+
+    
     //MARK: - init
     override func viewDidLoad() {
         Purchases.shared.offerings { [self] (offerings, error) in
@@ -82,16 +95,39 @@ class SubscriptionController: UIViewController {
                         yearlyPrice = round(100 * Double(truncating: price))/100
                         yearlyMonthlyPrice = (round(100 * (yearlyPrice/12))/100) - 0.01
                     }
-                    print(monthlyPrice)
-
                 }
             }
-            configureUI()
         }
-        
+        configureUI()
+    }
+    func scroll() {
+    }
+    override func viewDidLayoutSubviews() {
     }
     //MARK: - helper funcs
-    private func configureUI() {
+    func startTimer() {
+        let _ =  Timer.scheduledTimer(timeInterval: 3.0, target: self, selector: #selector(self.scrollAutomatically), userInfo: nil, repeats: true)
+    }
+
+
+    @objc func scrollAutomatically(_ timer1: Timer) {
+            for cell in topCollectionView.visibleCells {
+                let indexPath: IndexPath? = topCollectionView.indexPath(for: cell)
+                if ((indexPath?.row)! < 6){
+                    let indexPath1: IndexPath?
+                    indexPath1 = IndexPath.init(row: (indexPath?.row)! + 1, section: 0)
+
+                    topCollectionView.scrollToItem(at: indexPath1!, at: .right, animated: true)
+                }  else{
+                    let indexPath1: IndexPath?
+                    indexPath1 = IndexPath.init(row: 0, section: 0)
+                    topCollectionView.scrollToItem(at: indexPath1!, at: .left, animated: true)
+                }
+
+            }
+        
+    }
+     func configureUI() {
         view.addSubview(header)
         header.leadingToSuperview()
         header.trailingToSuperview()
@@ -123,6 +159,7 @@ class SubscriptionController: UIViewController {
         topCollectionView.height(view.frame.height * 0.30)
         topCollectionView.delegate = self
         topCollectionView.dataSource = self
+
         dots = [one, two, three, four, five, six, seven]
         for dot in dots {
             view.addSubview(dot)
@@ -234,7 +271,10 @@ class SubscriptionController: UIViewController {
         privacy.addGestureRecognizer(privacyGest)
         let termsGest = UITapGestureRecognizer(target: self, action: #selector(tappedTerms))
         terms.addGestureRecognizer(termsGest)
+        print(idx, "jujutsu")
+        topCollectionView.scrollToItem(at: IndexPath(item: idx, section: 0), at: .right, animated: false)
     }
+
     @objc func tappedYearly()  {
         yearlyBox.selected = true
         yearlyBox.configure()

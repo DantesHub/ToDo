@@ -13,6 +13,7 @@ protocol TaskOptionProtocol {
     func resetVariable(type: String)
     func reloadTable()
     func reloadStepsTable()
+    func reloadMainTable()
 }
 class TaskOptionCell: UITableViewCell {
     var cellImage = UIImageView()
@@ -81,6 +82,7 @@ class TaskOptionCell: UITableViewCell {
                         result.planned = ""
                         result.repeated = ""
                     }
+                    delegate?.reloadMainTable()
                     delegate?.resetVariable(type: "Repeat")
                     cellTitle.text = "Add Due Date"
                 case "Repeat":
@@ -95,6 +97,7 @@ class TaskOptionCell: UITableViewCell {
                 }
             }
         }
+        
         delegate?.resetVariable(type: type)
         delegate?.reloadTable()
         cellTitle.textColor = .gray

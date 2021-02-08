@@ -218,6 +218,7 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         backArrow.addTarget(self, action: #selector(tappedRepeatPickerBack), for: .touchUpInside)
         set.addTarget(self, action: #selector(tappedRepeatPickerNext), for: .touchUpInside)
         set.setTitle("Done", for: .normal)
+        pickerView.overrideUserInterfaceStyle = .light
         pickerView.addSubview(set)
         pickerView.addSubview(backArrow)
         repeatTitle.text = "Repeat"
@@ -330,6 +331,7 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     }
                 }
             }
+            delegate?.reloadMainTable()
             delegate?.reloadTable()
             tableView.reloadData()
         }
@@ -447,6 +449,7 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         
         tappedOutside2()
         tableView.reloadData()
+        delegate?.reloadMainTable()
         delegate?.reloadTable()
     }
     

@@ -89,6 +89,7 @@ PODS:
   - RealmSwift (5.4.2):
     - Realm (= 5.4.2)
   - TinyConstraints (4.0.1)
+  - TOCropViewController (2.6.0)
 
 DEPENDENCIES:
   - FBSDKCoreKit/Swift
@@ -101,6 +102,7 @@ DEPENDENCIES:
   - Purchases
   - RealmSwift
   - TinyConstraints
+  - TOCropViewController
 
 SPEC REPOS:
   trunk:
@@ -125,6 +127,7 @@ SPEC REPOS:
     - Realm
     - RealmSwift
     - TinyConstraints
+    - TOCropViewController
 
 SPEC CHECKSUMS:
   FBSDKCoreKit: ada5c8a05188daefc9addb985c52b8a1b26da519
@@ -148,7 +151,8 @@ SPEC CHECKSUMS:
   Realm: ced868eb0254f8d33a21c06981355e5aa33bc005
   RealmSwift: aedc4363150f3c61f91ae0537ed116d2d080a4dd
   TinyConstraints: 8dd91295e56797648c7bc335dd20e1d91ec4c192
+  TOCropViewController: 3105367e808b7d3d886a74ff59bf4804e7d3ab38
 
-PODFILE CHECKSUM: 83651bb4b8cc810b35d91e0ae7a8355aee75bd56
+PODFILE CHECKSUM: 81cfef9fe42ee4948c27deb0c7c496a3865344be
 
 COCOAPODS: 1.10.0
