@@ -253,6 +253,16 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     self.navigationController?.present(sub, animated: true, completion: nil)
                     return
                 }
+            } else {
+                if UserDefaults.standard.bool(forKey: "isPro") == false {
+                    creating = true
+                    stabilize = true
+                    bigTextField.becomeFirstResponder()
+                    let sub = SubscriptionController()
+                    sub.idx = 2
+                    self.navigationController?.present(sub, animated: true, completion: nil)
+                    return
+                }
             }
             cell.isHighlighted = true
             collectionView.reloadData()

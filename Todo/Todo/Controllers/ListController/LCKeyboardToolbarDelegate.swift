@@ -13,7 +13,16 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
              let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
              if stabilize {
                 print(self.addTaskField.frame.origin.y, lastKeyboardHeight, keyboardSize.height, "fdas")
-                self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - view.frame.height/(UIScreen.main.nativeBounds.height == 1136 ? 13 : 13.784)
+                var h: CGFloat = 0
+                switch UIScreen.main.nativeBounds.height {
+                case 1136: h = 13
+                default:
+                    h = 13.784
+                }
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    h = 18
+                }
+                self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - view.frame.height/(h)
              }
              addedStep = true
              keyboard2 = true
@@ -29,7 +38,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                 var height: CGFloat =  6.5
                 switch UIScreen.main.nativeBounds.height {
                case 1136:
-                   print("iPhone 5 or 5S or 5C")
+                   height = 6
                case 1334:
                    height = 6.5
                case 1920, 2208:
@@ -42,10 +51,14 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                     height = 5.7
                case 2688:
                    height = 5.7
+                case 2732:
+                    height = 7
                case 1792:
                     height = 5.7
+                case 2388:
+                    height = 8
                default:
-                 height = 5
+                 height = 9
                }
                 if self.customizeListView.frame.origin.y == view.frame.height {
                     self.customizeListView.frame.origin.y = self.customizeListView.frame.origin.y - lastKeyboardHeight - (view.frame.height/height)
@@ -66,8 +79,8 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                 switch UIScreen.main.nativeBounds.height {
                case 1136:
                 height = 4.5
-                   print("iPhone 5 or 5S or 5C")
-               case 1334:
+                print("iPhone 5 or 5S or 5C")
+                case 1334:
                    height = 5
                case 1920, 2208:
                     height = 5.5
@@ -77,12 +90,17 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                     height = 4.5
                  case 2778:
                      height = 5.7
+                case 2388:
+                    height = 9 //ipad pro 11
+                case 2732:
+                     height = 10//ipad pro 13 in
                case 2688: // 11 pro max
                    height = 5
                case 1792: // iphone 11
                     height = 5
                default:
-                 height = 5
+                //ipad
+                 height = 9
                }
                 lastKeyboardHeight = keyboardSize.height + (view.frame.height/height)
              } else {
@@ -134,7 +152,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             addTaskField.resignFirstResponder()
             if UserDefaults.standard.bool(forKey: "isPro") == false {
                 let sub = SubscriptionController()
-                sub.idx = 4
+                sub.idx = 3
                 tappedOutside3()
                 self.navigationController?.present(sub, animated: true, completion: nil)
                 return

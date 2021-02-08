@@ -306,7 +306,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == self.tableView {
             if (defaultList[indexPath.row] == "Remind Me" || defaultList[indexPath.row] == "Repeat") && UserDefaults.standard.bool(forKey: "isPro") == false {
-                let sub = SubscriptionController(idx:  defaultList[indexPath.row] == "Remind Me" ? 4 : 5)
+                let sub = SubscriptionController(idx:  defaultList[indexPath.row] == "Remind Me" ? 3 : 4)
                 self.navigationController?.present(sub, animated: true, completion: nil)
                 return
             }

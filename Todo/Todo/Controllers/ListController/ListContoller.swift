@@ -192,7 +192,7 @@ class ListController: UIViewController, TaskViewDelegate {
         tableView.backgroundColor = .clear
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOutside))
         tapRecognizer.cancelsTouchesInView = false
-        self.tableView.addGestureRecognizer(tapRecognizer)
+        backgroundImage.addGestureRecognizer(tapRecognizer)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -891,7 +891,7 @@ class ListController: UIViewController, TaskViewDelegate {
         bigTextField.text = listTitle
         
         headerView.addSubview(dateLabel)
-        dateLabel.topToBottom(of: bigTextField)
+        dateLabel.topToBottom(of: bigTextField, offset: 5)
         dateLabel.font = UIFont(name: "OpenSans-Regular", size: 20)
         dateLabel.textColor = listTextColor
         let formatter = DateFormatter()

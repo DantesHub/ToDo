@@ -323,6 +323,12 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
             } else if tasksList[indexPath.row].name.count > 33 {
                 return 100
             }
+        } else if indexPath.section == 1 {
+            if completedTasks[indexPath.row].name.count > 66 {
+                return 120
+            } else if completedTasks[indexPath.row].name.count > 33 {
+                return 100
+            }
         }
         return 80 //Choose your custom row height
     }
@@ -420,9 +426,8 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                             cell.completed = false
                         }
                     }
-                    tableView.deleteRows(at: [indexPath], with: .fade)
-
                 }
+            tableView.deleteRows(at: [indexPath], with: .fade)
             }
     }
   

@@ -72,13 +72,15 @@ class MainViewController: UIViewController, ReloadDelegate {
         
         configureUI()
         Purchases.shared.purchaserInfo { (purchaserInfo, error) in
+            print(purchaserInfo?.activeSubscriptions)
             if purchaserInfo?.entitlements.all["premium"]?.isActive == true {
+                print("really?")
                 UserDefaults.standard.setValue(true, forKey: "isPro")
             } else {
                 print("dfa")
                 UserDefaults.standard.setValue(false, forKey: "isPro")
             }
-        }
+        } 
     }
     
     //MARK: - helper functions

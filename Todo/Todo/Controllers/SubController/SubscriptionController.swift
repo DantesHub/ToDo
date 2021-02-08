@@ -30,9 +30,9 @@ class SubscriptionController: UIViewController {
         return cv
     }()
     var packagesAvailableForPurchase = [Purchases.Package]()
-    var topImages = ["group", "infinityGreen", "theme", "dueDate", "unlimitedReminder", "repeatBlue", "files"]
-    var topTitles = ["Groups", "No Limits", "Advanced Customization", "Deadline Management", "Unlimited Reminder", "Repeat", "File & Notes"]
-    var topDescs = ["Organize your lists into their own dedicated folders", "Be on time and set clear deadlines for your tasks", "Create as many Lists and Tasks as you wish","Get full access to premium wallpapers and customization tools","Receive smart notifications to fully manage your deadlines", "Automatise tasks creation with the repeat feature", "Add relevant information to your tasks"]
+    var topImages = ["group", "infinityGreen", "theme", "unlimitedReminder", "repeatBlue", "files"]
+    var topTitles = ["Groups", "No Limits", "Advanced Customization", "Unlimited Reminder", "Repeat", "File & Notes"]
+    var topDescs = ["Organize your lists into their own dedicated folders", "Create as many Lists and Tasks as you wish","Get full access to premium wallpapers and customization tools","Receive smart notifications to fully manage your deadlines", "Automatise tasks creation with the repeat feature", "Add relevant information to your tasks"]
     var stories = [""]
     var bottomCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -62,7 +62,6 @@ class SubscriptionController: UIViewController {
     let four = RoundView()
     let five = RoundView()
     let six = RoundView()
-    let seven = RoundView()
     let successStories = UILabel()
     var dots = [RoundView]()
     let upgradeLabel = UILabel()
@@ -82,6 +81,7 @@ class SubscriptionController: UIViewController {
                     return
                 }
                 for i in 0...packages!.count - 1 {
+                    print("hol up")
                     let package = packages![i]
                     self.packagesAvailableForPurchase.append(package)
                     let product = package.product
@@ -160,22 +160,22 @@ class SubscriptionController: UIViewController {
         topCollectionView.delegate = self
         topCollectionView.dataSource = self
 
-        dots = [one, two, three, four, five, six, seven]
+        dots = [one, two, three, four, five, six]
         for dot in dots {
             view.addSubview(dot)
             dot.width(8)
             dot.height(8)
             dot.backgroundColor = .lightGray
-            dot.topToBottom(of: topCollectionView, offset: -25)
+            dot.topToBottom(of: topCollectionView, offset: UIDevice.current.hasNotch ? -25 : -15)
         }
         
         one.trailingToLeading(of: two, offset: -12)
+        one.backgroundColor = .black
         two.trailingToLeading(of: three, offset: -12)
         three.trailingToLeading(of: four, offset: -12)
         four.centerX(to: view)
         five.leadingToTrailing(of: four, offset: 12)
         six.leadingToTrailing(of: five, offset: 12)
-        seven.leadingToTrailing(of: six, offset: 12)
         
         
 //        successStories.text = "Success Stories"
@@ -193,15 +193,20 @@ class SubscriptionController: UIViewController {
         upgradeLabel.topToBottom(of: topCollectionView, offset: 40)
         view.addSubview(yearlyBox)
         yearlyBox.topToBottom(of: upgradeLabel, offset: 25)
-        yearlyBox.leading(to: view, offset: view.frame.width * 0.10)
-        yearlyBox.width(view.frame.width * 0.40)
         yearlyBox.height(view.frame.height * 0.20)
         yearlyBox.selected = true
         yearlyBox.priceLabel.text = "\(currencySymbol)\(yearlyPrice)"
         yearlyBox.yearly = true
+        yearlyBox.width = view.frame.width * 0.40 * 0.43
         yearlyBox.title.text = "Pay Yearly"
         yearlyBox.smallLabel.text = "(\(currencySymbol)\(yearlyMonthlyPrice)/mo)"
-        yearlyBox.width = view.frame.width * 0.40 * 0.43
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            yearlyBox.leading(to: view, offset: view.frame.width * 0.08)
+            yearlyBox.width(view.frame.width * 0.35)
+        } else {
+            yearlyBox.leading(to: view, offset: view.frame.width * 0.10)
+            yearlyBox.width(view.frame.width * 0.40)
+        }
         yearlyBox.height = view.frame.height * 0.20 * 0.13
         yearlyBox.configure()
         let yearlyGest = UITapGestureRecognizer(target: self, action: #selector(tappedYearly))
@@ -210,7 +215,6 @@ class SubscriptionController: UIViewController {
         view.addSubview(monthlyBox)
         monthlyBox.topToBottom(of: upgradeLabel, offset: 25)
         monthlyBox.leadingToTrailing(of: yearlyBox,offset: 5)
-        monthlyBox.width(view.frame.width * 0.40)
         monthlyBox.height(view.frame.height * 0.20)
         monthlyBox.selected = false
         monthlyBox.priceLabel.text = "\(currencySymbol)\(monthlyPrice)"
@@ -218,6 +222,11 @@ class SubscriptionController: UIViewController {
         monthlyBox.title.text = "Pay Monthly"
         monthlyBox.smallLabel.text = "(\(currencySymbol)\(monthlyPrice)/mo)"
         monthlyBox.width = view.frame.width * 0.40 * 0.43
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            monthlyBox.width(view.frame.width * 0.35)
+        } else {
+            monthlyBox.width(view.frame.width * 0.40)
+        }
         monthlyBox.height = view.frame.height * 0.20 * 0.13
         monthlyBox.configure()
         let monthlyGest = UITapGestureRecognizer(target: self, action: #selector(tappedMonthly))
@@ -289,7 +298,6 @@ class SubscriptionController: UIViewController {
     }
     
     @objc func tappedPrivacy() {
-        print("fda")
         if let url = URL(string: "http://alarmandcalm.fun/index.php/alarm-calm-privacy-policy/") {
             UIApplication.shared.open(url)
         }

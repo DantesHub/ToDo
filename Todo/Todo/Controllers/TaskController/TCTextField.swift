@@ -70,7 +70,7 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
         if textView == noteTextField {
             if UserDefaults.standard.bool(forKey: "isPro") == false {
                 let sub = SubscriptionController()
-                sub.idx = 6
+                sub.idx = 5
                 noteTextField.resignFirstResponder()
                 view.endEditing(true)
                 self.navigationController?.present(sub, animated: true, completion: nil)
@@ -96,6 +96,8 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
                 textField.text = ""
                 delegate?.reloadTable()
             }
+            stepsTableView.scrollToRow(at: IndexPath(row: steps.count - 1, section: 0), at: .bottom, animated: true)
+
         }
     }
     
