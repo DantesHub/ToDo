@@ -28,7 +28,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
              keyboard2 = true
              stabilize = false
          } else {
-             if keyboard == true || keyboard2 {
+             if keyboard == true || keyboard2 || addedStep {
                 lastKeyboardHeight = keyboardSize.height + (view.frame.height/10.5)
              } else {
                  lastKeyboardHeight = keyboardSize.height

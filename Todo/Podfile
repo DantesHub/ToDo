@@ -17,4 +17,5 @@ target 'Todo' do
   pod 'IQKeyboardManagerSwift'
   pod 'TOCropViewController'
   pod 'FBSDKCoreKit/Swift'
+  pod 'IHKeyboardAvoiding'
 end

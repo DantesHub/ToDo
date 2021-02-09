@@ -44,6 +44,7 @@ class TaskCell: UITableViewCell {
     var selectedCell = false
     var id = ""
     var notes = ""
+    var notesView = UIImageView()
     override var frame: CGRect {
             get {
                 return super.frame
@@ -51,7 +52,7 @@ class TaskCell: UITableViewCell {
             set (newFrame) {
                 var frame =  newFrame
                 frame.origin.y += 4
-                frame.size.height -= 2 * 5
+                frame.size.height -= 2 * 3
                 super.frame = frame
             }
         }
@@ -150,7 +151,7 @@ class TaskCell: UITableViewCell {
             configureCircle()
         }
         
-        bottomView.frame = CGRect(x: 0, y: title.text!.count <= 33 ? 48 : title.text!.count <= 66 ? 68 : 88 , width: UIScreen.main.bounds.width - 20 , height: 26)
+        bottomView.frame = CGRect(x: 0, y: title.text!.count <= 33 ? 48 : title.text!.count <= 66 ? 68 : 88 , width: UIScreen.main.bounds.width - 20 , height: 28)
         bottomView.roundCorners(corners: [.bottomLeft,.bottomRight], radius: 10)
         bottomView.backgroundColor = medGray
         self.contentView.addSubview(bottomView)
@@ -183,7 +184,7 @@ class TaskCell: UITableViewCell {
         }
         bottomView.addSubview(steps)
         steps.leadingAnchor.constraint(equalTo: listLabel.text != "" ? dot.trailingAnchor : listLabel.trailingAnchor, constant: 0).isActive = true
-        steps.top(to: bottomView, offset: 5)
+        steps.top(to: bottomView, offset: 2)
         steps.font = UIFont(name: "OpenSans-Regular", size: 13)
         steps.textColor = .gray
         
@@ -263,7 +264,7 @@ class TaskCell: UITableViewCell {
 
             calendar.image = UIImage(named: "calendarOne")?.resize(targetSize: CGSize(width: 12, height: 12)).withTintColor(.gray)
             plannedDate.leadingAnchor.constraint(equalTo: calendar.trailingAnchor, constant: 5).isActive = true
-            plannedDate.top(to: bottomView, offset: 5)
+            plannedDate.top(to: bottomView, offset: 3)
             plannedDate.font = UIFont(name: "OpenSans-Regular", size: 12)
             plannedDate.textColor = .gray
             if reminderDate.text != "" || repeatTask != "" {
@@ -305,6 +306,7 @@ class TaskCell: UITableViewCell {
         repeatImage.top(to: bottomView, offset: 7)
         if repeatTask != "" {
             repeatImage.image = UIImage(named: "repeat")?.resize(targetSize: CGSize(width: 11, height: 11)).withTintColor(.gray)
+            
             if reminderDate.text != "" {
                 repeatImage.leadingAnchor.constraint(equalTo: dot5.trailingAnchor, constant: 5).isActive = true
             } else if plannedDate.text != "" {
@@ -320,6 +322,33 @@ class TaskCell: UITableViewCell {
             }
         }
         
+        let dot6 = RoundView()
+        bottomView.addSubview(notesView)
+        notesView.image = UIImage(named: "notes")?.resize(targetSize: CGSize(width: 14, height: 14)).withTintColor(.gray)
+        if notes != "" {
+            notesView.top(to: bottomView, offset: 5)
+            if repeatTask != "" {
+                bottomView.addSubview(dot6)
+                dot6.width(3)
+                dot6.height(3)
+                dot6.top(to: bottomView, offset: 12)
+                dot6.backgroundColor = .gray
+                dot6.leadingToTrailing(of: repeatImage, offset: 8)
+                notesView.leadingToTrailing(of: dot6, offset: 5)
+            } else if reminderDate.text != "" {
+                notesView.leadingAnchor.constraint(equalTo: dot5.trailingAnchor, constant: 5).isActive = true
+            } else if plannedDate.text != "" {
+                notesView.leadingAnchor.constraint(equalTo: dot4.trailingAnchor, constant: 5).isActive = true
+            } else if prioritized != 0 {
+                notesView.leadingAnchor.constraint(equalTo: dot3.trailingAnchor, constant: 5).isActive = true
+            } else if steps.text != "" {
+                notesView.leadingAnchor.constraint(equalTo: dot2.trailingAnchor, constant: 5).isActive = true
+            } else if listLabel.text != "" {
+                notesView.leadingAnchor.constraint(equalTo: dot.trailingAnchor, constant: 5).isActive = true
+            } else {
+                notesView.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor, constant: 15).isActive = true
+            }
+        }
         if selectedCell {
             createSelectedCell()
         }

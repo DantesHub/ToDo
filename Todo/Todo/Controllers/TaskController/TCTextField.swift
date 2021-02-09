@@ -7,11 +7,13 @@
 //
 
 import UIKit
-
+import IQKeyboardManagerSwift
+import IHKeyboardAvoiding
 extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == addStepField {
             createNewStep(textField: textField)
+            tableViewScrollToBottom(animated: true)
         }
         return true
     }
@@ -46,6 +48,7 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
             taskObject.note = noteTextField.text ?? ""
         }
         configureNavBar()
+        delegate?.reloadTable()
 
     }
     @objc func doneEditingStep() {
@@ -95,13 +98,14 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
                 taskObject.steps.append(step)
                 textField.text = ""
                 delegate?.reloadTable()
+                addedStep = true
             }
-            stepsTableView.scrollToRow(at: IndexPath(row: steps.count - 1, section: 0), at: .bottom, animated: true)
-
         }
     }
     
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        KeyboardAvoiding.padding = 20
+        KeyboardAvoiding.avoidingView = stepsTableView.tableFooterView
         if keyboard == false {
             addedStep = true
         }

@@ -23,6 +23,10 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         }
         self.tableView.reloadData()
     }
+    func tableViewScrollToBottom(animated: Bool) {
+        let bottomOffset = CGPoint(x: 0, y: scrollView.contentSize.height - scrollView.bounds.size.height)
+        scrollView.setContentOffset(bottomOffset, animated: true)
+    }
     
     
     func reloadStepsTable() {

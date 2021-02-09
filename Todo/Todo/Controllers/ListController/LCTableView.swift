@@ -290,6 +290,7 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
         cell.path = indexPath
         cell.taskCellDelegate = self
         cell.favorited = task.favorited
+        cell.notes = task.note
         cell.reminderDate.text = task.reminder
         cell.completed = task.completed
         cell.repeatTask = task.repeated

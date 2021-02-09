@@ -72,6 +72,7 @@ PODS:
   - GoogleUtilities/UserDefaults (6.7.2):
     - GoogleUtilities/Logger
   - GWInfinitePickerView (1.1.1)
+  - IHKeyboardAvoiding (4.7)
   - IQKeyboardManagerSwift (6.5.6)
   - Layoutless (0.4.1)
   - nanopb (1.30906.0):
@@ -97,6 +98,7 @@ DEPENDENCIES:
   - Firebase/Crashlytics
   - FSCalendar
   - GWInfinitePickerView
+  - IHKeyboardAvoiding
   - IQKeyboardManagerSwift
   - Layoutless
   - Purchases
@@ -118,6 +120,7 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - GWInfinitePickerView
+    - IHKeyboardAvoiding
     - IQKeyboardManagerSwift
     - Layoutless
     - nanopb
@@ -142,6 +145,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: e85fb700c9b027079ce182c3d08e12e0f9618bb4
   GoogleUtilities: 7f2f5a07f888cdb145101d6042bc4422f57e70b3
   GWInfinitePickerView: 95b2012528f2723bbf7f97ba9178b6d38a82b63b
+  IHKeyboardAvoiding: 4cae0880c3975feffa278495df894c5166e71ad0
   IQKeyboardManagerSwift: c7df9d2deb356c04522f5c4b7b6e4ce4d8ed94fe
   Layoutless: ba4810c682855373bddc78d9408cc82f970541d0
   nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
@@ -153,6 +157,6 @@ SPEC CHECKSUMS:
   TinyConstraints: 8dd91295e56797648c7bc335dd20e1d91ec4c192
   TOCropViewController: 3105367e808b7d3d886a74ff59bf4804e7d3ab38
 
-PODFILE CHECKSUM: 81cfef9fe42ee4948c27deb0c7c496a3865344be
+PODFILE CHECKSUM: f96d8f11b49939860f9f893672fe2e1228099c96
 
 COCOAPODS: 1.10.0

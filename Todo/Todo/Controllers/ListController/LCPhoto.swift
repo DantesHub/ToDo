@@ -21,7 +21,6 @@ extension ListController: UIImagePickerControllerDelegate, UINavigationControlle
         if !nameTaken2 {
             let cropViewController = TOCropViewController(image: image)
             cropViewController.delegate = self
-//            present(cropViewController, animated: true, completion: nil)
             cropViewController.presentAnimatedFrom(self, view: nil, frame: view.bounds, setup: nil, completion: nil)
         }
    
@@ -40,7 +39,6 @@ extension ListController: UIImagePickerControllerDelegate, UINavigationControlle
             photoSelected = true
             stabilize = true
             bigTextField.becomeFirstResponder()
-            print(self.customizeListView.frame.origin.y)
             return
         }
     }
@@ -82,6 +80,7 @@ extension ListController: UIImagePickerControllerDelegate, UINavigationControlle
           picker.dismiss(animated: true, completion: nil)
       }
     func uploadPhoto() {
+        print("tagawa", listObject.name)
         if listObject.name == "" {
             let results = uiRealm.objects(ListObject.self)
             nameTaken2 = false
@@ -106,6 +105,7 @@ extension ListController: UIImagePickerControllerDelegate, UINavigationControlle
             listName = listObject.name
         }
         if !nameTaken2 {
+            print("waka", listName)
             if UIImagePickerController.isSourceTypeAvailable(.savedPhotosAlbum){
                 imagePicker.delegate = self
                 imagePicker.sourceType = .photoLibrary
