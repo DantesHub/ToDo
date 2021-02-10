@@ -21,6 +21,14 @@ class ListObject: Object {
     var groupPositions = List<GroupPosition>()
 }
 
+class PremadeList: Object {
+    @objc dynamic var name = ""
+    @objc dynamic var textColor = "white"
+    @objc dynamic var backgroundColor = ""
+    @objc dynamic var backgroundImage = "mountain"
+    @objc dynamic var customImage: String? = nil
+
+}
 
 
 class GroupPosition: Object {

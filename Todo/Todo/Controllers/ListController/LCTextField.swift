@@ -17,6 +17,7 @@ extension ListController: UITextFieldDelegate {
                 createNewList(tag: 1)
             }
         default:
+            hideKeyboard()
             tappedDone()
             break
         }
@@ -101,14 +102,17 @@ extension ListController: UITextFieldDelegate {
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if let char = string.cString(using: String.Encoding.utf8) {
-            let isBackSpace = strcmp(char, "\\b")
-            if (isBackSpace == -92) {
-                if bigTextField.text == "Untitled List" {
-                    bigTextField.text = ""
+        if textField == bigTextField {
+            if let char = string.cString(using: String.Encoding.utf8) {
+                let isBackSpace = strcmp(char, "\\b")
+                if (isBackSpace == -92) {
+                    if bigTextField.text == "Untitled List" {
+                        bigTextField.text = ""
+                    }
                 }
             }
         }
+      
         return true
     }
 

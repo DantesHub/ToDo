@@ -53,8 +53,10 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
     }
     @objc func doneEditingStep() {
         view.endEditing(true)
-        try! uiRealm.write {
-            editingStep.stepName = editingStepText
+        if UserDefaults.standard.bool(forKey: "isPro") == true {
+            try! uiRealm.write {
+                editingStep.stepName = editingStepText
+            }
         }
         configureNavBar()
     }
@@ -79,6 +81,12 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
                 self.navigationController?.present(sub, animated: true, completion: nil)
                 return true
             }
+        } else if textView == headerTitle {
+            if (text == "\n") {
+                doneEditingList()
+                return false
+            }
+         
         }
         return true
     }

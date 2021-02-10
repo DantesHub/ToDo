@@ -1,9 +1,7 @@
 import UIKit
-//TODO
-// - ipod touch prices arent appearing
-// - ipad ui
+//TODOman
 // - BUG
-// - delete bug 
+// - fast adding task makes it go flying up
 extension ListController: KeyboardToolbarDelegate, ReloadSlider {
     @objc func keyboardWillShow(notification: NSNotification) {
          print("keyboard will show")
@@ -13,7 +11,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
              let _: CGFloat = info[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber as! CGFloat
              if stabilize {
                 print(self.addTaskField.frame.origin.y, lastKeyboardHeight, keyboardSize.height, "fdas")
-                var h: CGFloat = 0
+                var h: CGFloat = 13.784
                 switch UIScreen.main.nativeBounds.height {
                 case 1136: h = 13
                 default:
@@ -63,7 +61,6 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                 if self.customizeListView.frame.origin.y == view.frame.height {
                     self.customizeListView.frame.origin.y = self.customizeListView.frame.origin.y - lastKeyboardHeight - (view.frame.height/height)
                 }
-             
             }
             createdNewList = true
             stabilize = false
@@ -102,17 +99,22 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                 //ipad
                  height = 9
                }
+                print("hova")
                 lastKeyboardHeight = keyboardSize.height + (view.frame.height/height)
              } else {
+                print("achoo")
                  lastKeyboardHeight = keyboardSize.height
              }
          }
      }
     
     @objc func keyboardWillHide(notification: NSNotification) {
-        print("hiding")
+        hideKeyboard()
+    }
+    func hideKeyboard() {
         self.addTaskField.frame.origin.y = self.view.frame.height
         self.customizeListView.frame.origin.y = self.view.frame.height
+    
     }
     func reloadSlider() {
         if tappedIcon == "List Options" {

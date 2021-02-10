@@ -559,6 +559,7 @@ class ListController: UIViewController, TaskViewDelegate {
             }
         }
         var notFound = true
+        
         for list in lists {
             if list.name == listTitle {
                 notFound = false
@@ -574,6 +575,20 @@ class ListController: UIViewController, TaskViewDelegate {
             }
         }
         
+        let premadeLists = uiRealm.objects(PremadeList.self)
+        if notFound {
+            for list in premadeLists {
+                if list.name == listTitle {
+                    notFound = false
+                    selectedListBackground = K.getListColor(list.backgroundColor)
+                    selectedListTextColor = K.getListColor(list.textColor)
+                    selectedListImage = list.backgroundImage
+                    if selectedListImage == "addPicture" {
+                        selectedImage = getSavedImage(named: list.name) ?? UIImage()
+                    }
+                }
+            }
+        }
         if notFound {
             if listTitle == "Important" {
                 selectedListImage = "redWall"
@@ -1045,6 +1060,29 @@ class ListController: UIViewController, TaskViewDelegate {
     }
      func updateTheme() {
         var foundList = false
+        let premadeLists = uiRealm.objects(PremadeList.self)
+        if listTitle == "Planned" || listTitle == "Important" || listTitle == "All Tasks" {
+            try! uiRealm.write {
+                for lst in premadeLists {
+                    if listTitle == lst.name {
+                        foundList = true
+                        lst.backgroundColor = K.getStringColor(selectedListBackground)
+                        if selectedListTextColor != UIColor.clear {
+                            lst.textColor = K.getStringColor(selectedListTextColor)
+                        } else {
+                            lst.textColor = "white"
+                        }
+                        if selectedListBackground == UIColor.clear && selectedListImage == "" {
+                            lst.backgroundImage = "mountain"
+                        } else {
+                            lst.backgroundImage = selectedListImage
+                        }
+                        changeTheme()
+                    }
+                }
+            }
+        }
+        
         try! uiRealm.write {
             for list in lists  {
                 if list.name == listTitle {
@@ -1066,7 +1104,7 @@ class ListController: UIViewController, TaskViewDelegate {
         }
         if !foundList { // one of the default lists
             try! uiRealm.write {
-                let lst = ListObject()
+                let lst = PremadeList()
                 lst.name = listTitle
                 if selectedListTextColor != UIColor.clear {
                     lst.textColor = K.getStringColor(selectedListTextColor)

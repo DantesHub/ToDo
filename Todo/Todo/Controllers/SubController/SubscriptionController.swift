@@ -106,7 +106,7 @@ class SubscriptionController: UIViewController {
     }
     //MARK: - helper funcs
     func startTimer() {
-        let _ =  Timer.scheduledTimer(timeInterval: 3.0, target: self, selector: #selector(self.scrollAutomatically), userInfo: nil, repeats: true)
+        let _ =  Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(self.scrollAutomatically), userInfo: nil, repeats: true)
     }
 
 

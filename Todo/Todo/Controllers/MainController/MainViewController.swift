@@ -74,10 +74,8 @@ class MainViewController: UIViewController, ReloadDelegate {
         Purchases.shared.purchaserInfo { (purchaserInfo, error) in
             print(purchaserInfo?.activeSubscriptions)
             if purchaserInfo?.entitlements.all["premium"]?.isActive == true {
-                print("really?")
                 UserDefaults.standard.setValue(true, forKey: "isPro")
             } else {
-                print("dfa")
                 UserDefaults.standard.setValue(false, forKey: "isPro")
             }
         } 
@@ -94,24 +92,26 @@ class MainViewController: UIViewController, ReloadDelegate {
         var results = uiRealm.objects(ListGroup.self)
         results = results.sorted(byKeyPath: "position", ascending: true)
         for result in results {
-            let groupList = List<ListObject>()
-            for _ in 0..<result.lists.count {
-                groupList.append(ListObject())
-            }
-            for list in result.lists {
-                for position in list.groupPositions {
-                    if position.groupName == result.name {
-                        groupList[position.groupPosition] = list
+            
+                let groupList = List<ListObject>()
+                for _ in 0..<result.lists.count {
+                    groupList.append(ListObject())
+                }
+                for list in result.lists {
+                    for position in list.groupPositions {
+                        if position.groupName == result.name {
+                            groupList[position.groupPosition] = list
+                        }
                     }
                 }
-            }
-            try! uiRealm.write {
-                result.lists = groupList
-            }
+                try! uiRealm.write {
+                    result.lists = groupList
+                }
+                
+                groups.append(result)
             
-            groups.append(result)
         }
-        let listResults = uiRealm.objects(ListObject.self)
+        var listResults = uiRealm.objects(ListObject.self)
         let sortedListResults = listResults.sorted {
             $0.position < $1.position
         }

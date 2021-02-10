@@ -392,6 +392,7 @@ extension TaskController: UICollectionViewDelegate, UICollectionViewDataSource, 
         timePicker?.sizeToFit()
         timePicker = UIDatePicker(frame: CGRect(x: 25, y: 25, width: self.view.bounds.width, height: pickerView.frame.height))
         timePicker?.datePickerMode = .time
+        timePicker?.overrideUserInterfaceStyle = .light
         
         if #available(iOS 13.4, *) {
             timePicker?.preferredDatePickerStyle = .wheels

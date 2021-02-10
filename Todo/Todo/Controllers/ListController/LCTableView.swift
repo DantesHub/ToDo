@@ -411,25 +411,16 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                 
                 if completedd {
                     tableView.deleteRows(at: [indexPath], with: .fade)
-                    for idx in 0..<completedTasks.count {
-                            let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 1)) as! TaskCell
-                            cell.path = IndexPath(item: idx, section: 1)
-                            cell.position = -1
-                            cell.completed = true
-                    }
+                    tableView.reloadData()
+
                 } else {
                     //BUG HERE
                     for idx in 0..<tasksList.count {
-                        if idx > delIdx {
-                            let cell = self.tableView.cellForRow(at: IndexPath(item: idx, section: 0)) as! TaskCell
-                            cell.path = IndexPath(item: idx - 1, section: 0)
-                            cell.position = idx - 1
-                            cell.completed = false
-                        }
-                    }
+                    tableView.deleteRows(at: [indexPath], with: .fade)
+                    tableView.reloadData()
                 }
-            tableView.deleteRows(at: [indexPath], with: .fade)
             }
+        }
     }
   
 

@@ -267,12 +267,13 @@ class TaskCell: UITableViewCell {
             plannedDate.top(to: bottomView, offset: 3)
             plannedDate.font = UIFont(name: "OpenSans-Regular", size: 12)
             plannedDate.textColor = .gray
+            bottomView.addSubview(dot4)
+            dot4.width(3)
+            dot4.height(3)
+            dot4.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor, constant: 8).isActive = true
+            dot4.top(to: bottomView, offset: 12)
+            dot4.backgroundColor = medGray
             if reminderDate.text != "" || repeatTask != "" {
-                bottomView.addSubview(dot4)
-                dot4.width(3)
-                dot4.height(3)
-                dot4.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor, constant: 8).isActive = true
-                dot4.top(to: bottomView, offset: 12)
                 dot4.backgroundColor = .gray
             }
         }
@@ -338,6 +339,7 @@ class TaskCell: UITableViewCell {
             } else if reminderDate.text != "" {
                 notesView.leadingAnchor.constraint(equalTo: dot5.trailingAnchor, constant: 5).isActive = true
             } else if plannedDate.text != "" {
+                dot4.backgroundColor = .gray
                 notesView.leadingAnchor.constraint(equalTo: dot4.trailingAnchor, constant: 5).isActive = true
             } else if prioritized != 0 {
                 notesView.leadingAnchor.constraint(equalTo: dot3.trailingAnchor, constant: 5).isActive = true
