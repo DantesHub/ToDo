@@ -10,7 +10,7 @@ import UIKit
 import StoreKit
 import Purchases
 import MessageUI
-
+import AppsFlyerLib
 extension SettingsController: UITableViewDataSource, UITableViewDelegate, MFMailComposeViewControllerDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
@@ -53,7 +53,13 @@ extension SettingsController: UITableViewDataSource, UITableViewDelegate, MFMail
         if indexPath.section == 2 && indexPath.row == 0 {
             SKStoreReviewController.requestReview()
         } else if indexPath.section == 0 {
-            self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
+            if !UserDefaults.standard.bool(forKey: "isPro") {
+                AppsFlyerLib.shared().logEvent(name: "Sub_From_Settings", values: [AFEventParamContent: "true"])
+                let controller = SubscriptionController()
+                controller.tappedStar = true
+                self.navigationController?.present(controller, animated: true, completion: nil)
+            }
+   
         } else if indexPath.section == 2 && indexPath.row == 2 {
             let alertController = UIAlertController(title: "", message: "", preferredStyle: UIAlertController.Style.alert)
             let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default, handler: {

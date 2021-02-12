@@ -9,6 +9,7 @@
 import UIKit
 import IQKeyboardManagerSwift
 import IHKeyboardAvoiding
+import AppsFlyerLib
 extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == addStepField {
@@ -44,20 +45,21 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
     }
     @objc func doneEditingNote() {
         noteTextField.resignFirstResponder()
-        try! uiRealm.write {
-            taskObject.note = noteTextField.text ?? ""
+        if UserDefaults.standard.bool(forKey: "isPro") == true {
+            try! uiRealm.write {
+                taskObject.note = noteTextField.text ?? ""
+            }
+            delegate?.reloadTable()
         }
         configureNavBar()
-        delegate?.reloadTable()
 
     }
     @objc func doneEditingStep() {
         view.endEditing(true)
-        if UserDefaults.standard.bool(forKey: "isPro") == true {
             try! uiRealm.write {
                 editingStep.stepName = editingStepText
             }
-        }
+        
         configureNavBar()
     }
     @objc func doneEditingList() {
@@ -74,6 +76,7 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if textView == noteTextField {
             if UserDefaults.standard.bool(forKey: "isPro") == false {
+                AppsFlyerLib.shared().logEvent(name: "Sub_From_Notes", values: [AFEventParamContent: "true"])
                 let sub = SubscriptionController()
                 sub.idx = 5
                 noteTextField.resignFirstResponder()

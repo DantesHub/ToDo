@@ -1,10 +1,13 @@
 import UIKit
+import AppsFlyerLib
 //TODOman
 // - BUG
 // - fast adding task makes it go flying up
+var setKeyboard = false
+var smallKeyboard:CGFloat = 0
+
 extension ListController: KeyboardToolbarDelegate, ReloadSlider {
     @objc func keyboardWillShow(notification: NSNotification) {
-         print("keyboard will show")
          let info:NSDictionary = notification.userInfo! as NSDictionary
          let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
          if !creating {
@@ -20,16 +23,17 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                 if UIDevice.current.userInterfaceIdiom == .pad {
                     h = 18
                 }
-                self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - lastKeyboardHeight - view.frame.height/(h)
+                self.addTaskField.frame.origin.y = self.addTaskField.frame.origin.y - keyboardHeight - view.frame.height/(h)
              }
              addedStep = true
              keyboard2 = true
              stabilize = false
          } else {
+            var lastKeyboardHeight2: CGFloat = 0
              if keyboard == true || keyboard2 || addedStep {
-                lastKeyboardHeight = keyboardSize.height + (view.frame.height/10.5)
+                lastKeyboardHeight2 = keyboardSize.height + (view.frame.height/10.5)
              } else {
-                 lastKeyboardHeight = keyboardSize.height
+                 lastKeyboardHeight2 = keyboardSize.height
                  keyboard2 = true
              }
             if stabilize {
@@ -56,57 +60,39 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                 case 2388:
                     height = 8
                default:
-                 height = 9
+                 height = 8
                }
-                if self.customizeListView.frame.origin.y == view.frame.height {
-                    self.customizeListView.frame.origin.y = self.customizeListView.frame.origin.y - lastKeyboardHeight - (view.frame.height/height)
+                switch UIScreen.main.bounds.height {
+                case 1366:
+                    height = 8
+                case 1194:
+                    height = 7
+                default:
+                    print("yoman")
                 }
+                if self.customizeListView.frame.origin.y == view.frame.height {
+                }
+                self.customizeListView.frame.origin.y = self.customizeListView.frame.origin.y - lastKeyboardHeight2 - (view.frame.height/height)
+
             }
             createdNewList = true
             stabilize = false
          }
      }
      
-     @objc func keyboardWillChangeFrame(notification: NSNotification) {
-         let info:NSDictionary = notification.userInfo! as NSDictionary
-         let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
-         if !creating {
-             if addedStep || createdNewList  {
-                var height: CGFloat = 5
-                switch UIScreen.main.nativeBounds.height {
-               case 1136:
-                height = 4.5
-                print("iPhone 5 or 5S or 5C")
-                case 1334:
-                   height = 5
-               case 1920, 2208:
-                    height = 5.5
-                case 2436: // 11 pro
-                 height = 4.5
-                 case 2532://iphone 12
-                    height = 4.5
-                 case 2778:
-                     height = 5.7
-                case 2388:
-                    height = 9 //ipad pro 11
-                case 2732:
-                     height = 10//ipad pro 13 in
-               case 2688: // 11 pro max
-                   height = 5
-               case 1792: // iphone 11
-                    height = 5
-               default:
-                //ipad
-                 height = 9
-               }
-                print("hova")
-                lastKeyboardHeight = keyboardSize.height + (view.frame.height/height)
-             } else {
-                print("achoo")
-                 lastKeyboardHeight = keyboardSize.height
-             }
-         }
-     }
+//     @objc func keyboardWillChangeFrame(notification: NSNotification) {
+//         let info:NSDictionary = notification.userInfo! as NSDictionary
+//         let keyboardSize = (info[UIResponder.keyboardFrameBeginUserInfoKey] as! NSValue).cgRectValue
+//         if !creating {
+//             if addedStep || createdNewList  {
+//             } else {
+//                //first add task
+//                lastKeyboardHeight = keyboardSize.height
+//                smallKeyboard = keyboardSize.height
+//                print(smallKeyboard)
+//             }
+//         }
+//     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
         hideKeyboard()
@@ -153,6 +139,10 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
         case .reminder:
             addTaskField.resignFirstResponder()
             if UserDefaults.standard.bool(forKey: "isPro") == false {
+                AppsFlyerLib.shared().logEvent(name: "Sub_From_Reminder", values: [AFEventParamContent: "true"])
+                let controller = SubscriptionController()
+                controller.tappedStar = true
+                self.navigationController?.present(controller, animated: true, completion: nil)
                 let sub = SubscriptionController()
                 sub.idx = 3
                 tappedOutside3()

@@ -293,7 +293,7 @@ class TaskCell: UITableViewCell {
                 bell.leadingAnchor.constraint(equalTo: plannedDate.trailingAnchor, constant: 20).isActive = true
             }
             
-            if repeatTask != "" {
+            if repeatTask != "" || notes != "" {
                 bottomView.addSubview(dot5)
                 dot5.width(3)
                 dot5.height(3)

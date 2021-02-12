@@ -409,17 +409,10 @@ extension ListController: UITableViewDataSource, UITableViewDelegate, UIGestureR
                     }
                 }
                 
-                if completedd {
                     tableView.deleteRows(at: [indexPath], with: .fade)
                     tableView.reloadData()
-
-                } else {
-                    //BUG HERE
-                    for idx in 0..<tasksList.count {
-                    tableView.deleteRows(at: [indexPath], with: .fade)
-                    tableView.reloadData()
-                }
-            }
+              
+            
         }
     }
   

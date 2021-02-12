@@ -10,6 +10,7 @@ import UIKit
 import RealmSwift
 import FSCalendar
 import Photos
+import AppsFlyerLib
 class MyImageBlob {
     var data: NSData?
 }
@@ -235,7 +236,9 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     if UserDefaults.standard.bool(forKey: "isPro") == false {
                         creating = true
                         stabilize = true
+                        selectedListImage = "mountain"
                         bigTextField.becomeFirstResponder()
+                        AppsFlyerLib.shared().logEvent(name: "Sub_From_Wallpaper_Photo", values: [AFEventParamContent: "true", AFEventParamCountry: "\(Locale.current.regionCode ?? "Not Available")"])
                         let sub = SubscriptionController()
                         sub.idx = 2
                         self.navigationController?.present(sub, animated: true, completion: nil)
@@ -248,6 +251,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     creating = true
                     stabilize = true
                     bigTextField.becomeFirstResponder()
+                    AppsFlyerLib.shared().logEvent(name: "Sub_From_Text_color", values: [AFEventParamContent: "true", AFEventParamCountry: "\(Locale.current.regionCode ?? "Not Available")"])
                     let sub = SubscriptionController()
                     sub.idx = 2
                     self.navigationController?.present(sub, animated: true, completion: nil)
@@ -258,6 +262,7 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                     creating = true
                     stabilize = true
                     bigTextField.becomeFirstResponder()
+                    AppsFlyerLib.shared().logEvent(name: "Sub_From_Wallpaper_Color", values: [AFEventParamContent: "true", AFEventParamCountry: "\(Locale.current.regionCode ?? "Not Available")"])
                     let sub = SubscriptionController()
                     sub.idx = 2
                     self.navigationController?.present(sub, animated: true, completion: nil)
@@ -512,7 +517,6 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
             bigTextField.becomeFirstResponder()
             createTappedDone(tag: 1)
         case "Select Tasks":
-            
             editingCell = true
             slideUpViewTapped()
             self.headerView.isHidden = true
@@ -710,7 +714,6 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
         slideUpViewTapped()
         pickerView.removeFromSuperview()
         addTaskField.becomeFirstResponder()
-    
     }
     
     @objc func calendarNext() {

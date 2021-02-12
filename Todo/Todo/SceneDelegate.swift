@@ -8,16 +8,24 @@
 
 import UIKit
 import Purchases
+import AppsFlyerLib
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     func scene(_ scene: UIScene,
                willConnectTo session: UISceneSession,
                options connectionOptions: UIScene.ConnectionOptions) {
+        // Processing Universal Link from the killed state
+        if let userActivity = connectionOptions.userActivities.first {
+          self.scene(scene, continue: userActivity)
+        }
+      // Processing URI-scheme from the killed state
+          self.scene(scene, openURLContexts: connectionOptions.urlContexts)
+          guard let _ = (scene as? UIWindowScene) else { return }
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
         let controller = MainViewController()
-        UserDefaults.standard.setValue(true, forKey: "isPro")
         if UserDefaults.standard.value(forKey: "lastOpened") == nil {
             mainIsRoot = true
         } else {
@@ -27,9 +35,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         self.window = window
         window.makeKeyAndVisible()
-   
+        
     }
-    
+
+        func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+            AppsFlyerLib.shared().continue(userActivity, restorationHandler: nil)
+        }
+        
+        func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+            if let url = URLContexts.first?.url {
+                AppsFlyerLib.shared().handleOpen(url, options: nil)
+            }
+        }
+
     
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.

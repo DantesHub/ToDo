@@ -13,6 +13,7 @@ import Layoutless
 import RealmSwift
 import Realm
 import Purchases
+import AppsFlyerLib
 var mainIsRoot = false
 var lists = [ListObject]()
 var groups = [ListGroup]()
@@ -324,6 +325,7 @@ class MainViewController: UIViewController, ReloadDelegate {
     @objc func tappedAddGroup() {
         let isPro = UserDefaults.standard.bool(forKey: "isPro")
         if isPro == true {
+            addedStep = true
             let alertController = UIAlertController(title: "Add New Group", message: "", preferredStyle: UIAlertController.Style.alert)
             alertController.overrideUserInterfaceStyle = .light
             alertController.addTextField { (textField : UITextField!) -> Void in
@@ -367,12 +369,13 @@ class MainViewController: UIViewController, ReloadDelegate {
             self.present(alertController, animated: true, completion: nil)
             return
         }
-        
+        AppsFlyerLib.shared().logEvent(name: "Sub_From_Group", values: [AFEventParamContent: "true", AFEventParamCountry: "\(Locale.current.regionCode ?? "Not Available")"])
         self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
     }
     @objc private func tappedAddList() {
         if lists.count == 8 && UserDefaults.standard.bool(forKey: "isPro") == false {
             let sub = SubscriptionController()
+            AppsFlyerLib.shared().logEvent(name: "Sub_From_Limit_Lists", values: [AFEventParamContent: "true"])
             sub.idx = 1
             self.navigationController?.present(sub, animated: true, completion: nil)
             return

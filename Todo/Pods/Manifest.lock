@@ -1,4 +1,7 @@
 PODS:
+  - AppsFlyerFramework (6.2.0):
+    - AppsFlyerFramework/Main (= 6.2.0)
+  - AppsFlyerFramework/Main (6.2.0)
   - FBSDKCoreKit/Basics (6.5.2)
   - FBSDKCoreKit/Core (6.5.2):
     - FBSDKCoreKit/Basics
@@ -93,6 +96,7 @@ PODS:
   - TOCropViewController (2.6.0)
 
 DEPENDENCIES:
+  - AppsFlyerFramework
   - FBSDKCoreKit/Swift
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -108,6 +112,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - AppsFlyerFramework
     - FBSDKCoreKit
     - Firebase
     - FirebaseAnalytics
@@ -133,6 +138,7 @@ SPEC REPOS:
     - TOCropViewController
 
 SPEC CHECKSUMS:
+  AppsFlyerFramework: c3703808c411779d9e54681efdc262f82d8d49d0
   FBSDKCoreKit: ada5c8a05188daefc9addb985c52b8a1b26da519
   Firebase: 47176280bfba198e531f909cfb1612dad216cb96
   FirebaseAnalytics: 3c2fee6a922023ccfda7af87e4e641bad1fc11ba
@@ -157,6 +163,6 @@ SPEC CHECKSUMS:
   TinyConstraints: 8dd91295e56797648c7bc335dd20e1d91ec4c192
   TOCropViewController: 3105367e808b7d3d886a74ff59bf4804e7d3ab38
 
-PODFILE CHECKSUM: f96d8f11b49939860f9f893672fe2e1228099c96
+PODFILE CHECKSUM: ab18d17be6763b3df4868f1b6da003995b0786cd
 
 COCOAPODS: 1.10.0

@@ -1,7 +1,7 @@
 
 
 import UIKit
-
+import AppsFlyerLib
 extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOptionProtocol {
     func createDone() {
         createTappedDone(title: false, step: true)
@@ -310,6 +310,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == self.tableView {
             if (defaultList[indexPath.row] == "Remind Me" || defaultList[indexPath.row] == "Repeat") && UserDefaults.standard.bool(forKey: "isPro") == false {
+                AppsFlyerLib.shared().logEvent(name: defaultList[indexPath.row] == "Remind Me" ? "Sub_From_Reminder" : "Sub_From_Repeat", values: [AFEventParamContent: "true", AFEventParamCountry: "\(Locale.current.regionCode ?? "Not Available")"])
                 let sub = SubscriptionController(idx:  defaultList[indexPath.row] == "Remind Me" ? 3 : 4)
                 self.navigationController?.present(sub, animated: true, completion: nil)
                 return

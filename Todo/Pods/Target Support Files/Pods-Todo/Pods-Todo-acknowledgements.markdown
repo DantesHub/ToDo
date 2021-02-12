@@ -1,6 +1,10 @@
 # Acknowledgements
 This application makes use of the following third party libraries:
 
+## AppsFlyerFramework
+
+Copyright 2018 AppsFlyer Ltd. All rights reserved.
+
 ## FBSDKCoreKit
 
 Copyright (c) 2014-present, Facebook, Inc. All rights reserved.

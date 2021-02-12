@@ -32,7 +32,7 @@ var createdNewList = false
 var editingCell = false
 var selectedDict: [String: Bool] = [String:Bool]()
 var listTextColor = UIColor.white
-
+import AppsFlyerLib
 class ListController: UIViewController, TaskViewDelegate {
     //MARK: - instance variables
     let formatter: DateFormatter = {
@@ -40,6 +40,7 @@ class ListController: UIViewController, TaskViewDelegate {
         formatter.dateFormat = "MMM dd,yyyy"
         return formatter
     }()
+
     let footer = UIView()
     var calendar = FSCalendar()
     var timePicker: UIDatePicker?
@@ -149,8 +150,44 @@ class ListController: UIViewController, TaskViewDelegate {
      var image: UIImage?
      var croppedRect = CGRect.zero
      var croppedAngle = 0
+    var keyboardHeight: CGFloat {
+        get {
+            var height: CGFloat = 312
+            switch UIScreen.main.nativeBounds.height {
+           case 1136:
+                height = 350
+           // print("iPhone 5 or 5S or 5C")
+            case 1334: //iphone 8
+               height = 350
+           case 1920, 2208:
+                height = 356
+              //iphone 8 plus
+            case 2436, 2532, 2778, 2388, 2732, 2688, 1792:
+                height = 420
+                // 11 pro
+                //iphone 12
+                //iphone 12 pro max
+                // iphone 11
+           default:
+                //ipad
+                height = 400
+           }
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                switch UIScreen.main.bounds.height {
+                case 1366:
+                    height = 480
+                default:
+                    print("yoman")
+                }
+            }
+            return height
+        }
+       
+    }
+
     //MARK: - init
     override func viewDidLoad() {
+        print(UIScreen.main.bounds.height, "dsf")
         super.viewDidLoad()
         overrideUserInterfaceStyle = .light
         IQKeyboardManager.shared.enable = false
@@ -294,11 +331,11 @@ class ListController: UIViewController, TaskViewDelegate {
         let center: NotificationCenter = NotificationCenter.default
         center.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         center.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        center.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+//        center.addObserver(self, selector: #selector(keyboardWillChangeFrame(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
     func removeObservers() {
-        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+//        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -645,6 +682,7 @@ class ListController: UIViewController, TaskViewDelegate {
     @objc func tappedAddTask() {
         if tasksList.count + completedTasks.count == 14  && UserDefaults.standard.bool(forKey: "isPro") == false{
             let sub = SubscriptionController()
+            AppsFlyerLib.shared().logEvent(name: "Sub_From_Limit_Tasks", values: [AFEventParamContent: "true", AFEventParamCountry: "\(Locale.current.regionCode ?? "Not Available")"])
             sub.idx = 1
             self.navigationController?.present(sub, animated: true, completion: nil)
             return

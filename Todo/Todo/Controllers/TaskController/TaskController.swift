@@ -531,7 +531,6 @@ class TaskController: UIViewController, ReloadSlider {
         createdLabel.font = UIFont(name: "OpenSans-Regular", size: 18)
         createdLabel.textColor = .gray
 
-        print(createdAt)
         let dash = createdAt.firstIndex(of: "-")
         let newStr = createdAt[..<dash!]
         createdLabel.text = "Created on \(newStr)"

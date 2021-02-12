@@ -17,7 +17,6 @@ extension ListController: UITextFieldDelegate {
                 createNewList(tag: 1)
             }
         default:
-            hideKeyboard()
             tappedDone()
             break
         }

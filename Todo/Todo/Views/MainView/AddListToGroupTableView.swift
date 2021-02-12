@@ -299,6 +299,9 @@ extension AddListToGroupTableView: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
        filterContentForSearchText(searchBar.text!)
     }
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        addedStep = true
+    }
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         isFiltering = !isSearchBarEmpty
         if isFiltering == false {

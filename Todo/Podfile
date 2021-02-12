@@ -18,4 +18,5 @@ target 'Todo' do
   pod 'TOCropViewController'
   pod 'FBSDKCoreKit/Swift'
   pod 'IHKeyboardAvoiding'
+  pod 'AppsFlyerFramework'
 end
