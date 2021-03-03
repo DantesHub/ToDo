@@ -64,6 +64,7 @@ class SubscriptionController: UIViewController {
     let six = RoundView()
     let successStories = UILabel()
     var dots = [RoundView]()
+    var limitTasks = false
     let upgradeLabel = UILabel()
     var monthlyPrice: Double = 0
     var yearlyPrice: Double = 0
@@ -73,6 +74,7 @@ class SubscriptionController: UIViewController {
     
     //MARK: - init
     override func viewDidLoad() {
+        yearlyBox.selected = true
         AppsFlyerLib.shared().logEvent(name: "Sub_From_All", values: [AFEventParamContent: "true"])
         Purchases.shared.offerings { [self] (offerings, error) in
             if let offerings = offerings {
@@ -326,10 +328,10 @@ class SubscriptionController: UIViewController {
         Purchases.shared.purchasePackage(package) { [self] (transaction, purchaserInfo, error, userCancelled) in
             if purchaserInfo?.entitlements.all["premium"]?.isActive == true {
                 // Unlock that great "pro" content
-                AppsFlyerLib.shared().logEvent(name: yearlyBox.selected ? "Yearly_Started" : "Monthly_Started", values:
+                let event = logEvent()
+                AppsFlyerLib.shared().logEvent(name: event, values:
                                                 [
                                                     AFEventParamRevenue:  yearlyBox.selected ? yearlyPrice : monthlyPrice,
-                                                    AFEventParamContent: tappedStar ? "From Settings" : topTitles[idx],
                                                     AFEventParamCurrency:"\(locale.currencyCode!)"
                                                 ])
                 UserDefaults.standard.setValue(true, forKey: "isPro")
@@ -340,6 +342,18 @@ class SubscriptionController: UIViewController {
             }
         }
     }
+    func logEvent() -> String{
+        let lst = ["Group", "Limit_Lists", "Wallpaper", "Reminder", "Repeat", "Notes"]
+        var event = yearlyBox.selected ? "Yearly_Started_From_" : "Monthly_Started_From_"
+            if limitTasks {
+                event = event + "Limit_Tasks"
+            } else if tappedStar {
+                event = event + "Settings"
+            } else {
+                event = event + lst[idx]
+            }
+        return event
+        }
     
     @objc func tappedBack() {
         presentingViewController?.dismiss(animated: true, completion: nil)

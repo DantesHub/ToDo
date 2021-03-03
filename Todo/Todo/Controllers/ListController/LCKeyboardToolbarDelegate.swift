@@ -140,13 +140,10 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             addTaskField.resignFirstResponder()
             if UserDefaults.standard.bool(forKey: "isPro") == false {
                 AppsFlyerLib.shared().logEvent(name: "Sub_From_Reminder", values: [AFEventParamContent: "true"])
-                let controller = SubscriptionController()
-                controller.tappedStar = true
-                self.navigationController?.present(controller, animated: true, completion: nil)
                 let sub = SubscriptionController()
                 sub.idx = 3
-                tappedOutside3()
                 self.navigationController?.present(sub, animated: true, completion: nil)
+                tappedOutside3()
                 return
             }
             reminder = true

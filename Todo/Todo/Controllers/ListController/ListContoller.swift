@@ -683,6 +683,7 @@ class ListController: UIViewController, TaskViewDelegate {
         if tasksList.count + completedTasks.count == 14  && UserDefaults.standard.bool(forKey: "isPro") == false{
             let sub = SubscriptionController()
             AppsFlyerLib.shared().logEvent(name: "Sub_From_Limit_Tasks", values: [AFEventParamContent: "true", AFEventParamCountry: "\(Locale.current.regionCode ?? "Not Available")"])
+            sub.limitTasks = true
             sub.idx = 1
             self.navigationController?.present(sub, animated: true, completion: nil)
             return
