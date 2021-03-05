@@ -40,6 +40,7 @@ class TaskController: UIViewController, ReloadSlider {
         iv.isUserInteractionEnabled = true
         return iv
     }()
+    var listTextColor = UIColor.white
     var path = IndexPath()
     var headerTitle = UITextView()
     var id = ""

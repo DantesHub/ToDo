@@ -31,8 +31,10 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
          } else {
             var lastKeyboardHeight2: CGFloat = 0
              if keyboard == true || keyboard2 || addedStep {
+                print("gomu")
                 lastKeyboardHeight2 = keyboardSize.height + (view.frame.height/10.5)
              } else {
+                print("captain")
                  lastKeyboardHeight2 = keyboardSize.height
                  keyboard2 = true
              }
@@ -68,11 +70,12 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
                 case 1194:
                     height = 7
                 default:
-                    print("yoman")
+                    break
                 }
                 if self.customizeListView.frame.origin.y == view.frame.height {
                 }
                 self.customizeListView.frame.origin.y = self.customizeListView.frame.origin.y - lastKeyboardHeight2 - (view.frame.height/height)
+                print(self.customizeListView.frame.origin.y, "idiots")
 
             }
             createdNewList = true
@@ -141,7 +144,7 @@ extension ListController: KeyboardToolbarDelegate, ReloadSlider {
             if UserDefaults.standard.bool(forKey: "isPro") == false {
                 AppsFlyerLib.shared().logEvent(name: "Sub_From_Reminder", values: [AFEventParamContent: "true"])
                 let sub = SubscriptionController()
-                sub.idx = 3
+                sub.idx = 2
                 self.navigationController?.present(sub, animated: true, completion: nil)
                 tappedOutside3()
                 return

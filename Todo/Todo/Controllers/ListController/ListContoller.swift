@@ -4,6 +4,8 @@ import TinyConstraints
 import RealmSwift
 import FSCalendar
 import IQKeyboardManagerSwift
+import StoreKit
+
 protocol ReloadDelegate {
     func reloadTableView()
 }
@@ -31,7 +33,6 @@ var addedStep = false
 var createdNewList = false
 var editingCell = false
 var selectedDict: [String: Bool] = [String:Bool]()
-var listTextColor = UIColor.white
 import AppsFlyerLib
 class ListController: UIViewController, TaskViewDelegate {
     //MARK: - instance variables
@@ -75,7 +76,7 @@ class ListController: UIViewController, TaskViewDelegate {
         return cv
     }()
     var backgroundImage: UIImageView = {
-        let img = UIImage(named: "mountainBackground")
+        let img = UIImage(named: "")
         let iv = UIImageView(image: img)
         iv.isUserInteractionEnabled = true
         return iv
@@ -88,6 +89,7 @@ class ListController: UIViewController, TaskViewDelegate {
     }()
     var selectedListImage = ""
     var selectedListBackground = UIColor.clear
+    var listTextColor = UIColor.white
     var pickUpSection = 0
     var dueDateTapped = false
     var pickerTitle = UILabel()
@@ -115,9 +117,9 @@ class ListController: UIViewController, TaskViewDelegate {
     var imagePicker = UIImagePickerController()
     let window = UIApplication.shared.keyWindow
     let selectAll = BoxOption()
-    var photos: [String] = ["addPicture", "campfire", "mountain", "nature", "forest", "rain", "seaside", "seaside2", "space"]
-    var backgroundColors:[UIColor] = [blue, purple, darkRed, darkOrange, darkGreen, turq, gray]
-    var textColors:[UIColor] = [.white, blue, purple, darkRed, darkOrange, darkGreen, turq, gray]
+    var photos: [String] = ["addPicture", "campfire", "mountain", "nature", "forest", "rain", "seaside", "seaside2", "space", "mountainSnow", "river", "yoga", "pinkForest", "orangeForest", "grass", "mountainNight", "alps", "flower"]
+    var backgroundColors:[UIColor] = [blue, purple, darkRed, darkOrange, darkGreen, turq, gray, nightPurple, mintBlue, purp, lightOrange, darkPink, superLightOrange, yellow, green2, actualMint, greg]
+    var textColors:[UIColor] = [.white, blue, purple, darkRed, darkOrange, darkGreen, turq, gray, nightPurple, mintBlue, purp, lightOrange, darkPink, superLightOrange, yellow, green2, actualMint, greg]
     var backgroundButton = UIButton()
     var photoButton = UIButton()
     var textButton = UIButton()
@@ -177,7 +179,7 @@ class ListController: UIViewController, TaskViewDelegate {
                 case 1366:
                     height = 480
                 default:
-                    print("yoman")
+                   break
                 }
             }
             return height
@@ -215,6 +217,14 @@ class ListController: UIViewController, TaskViewDelegate {
             UserDefaults.standard.set(listTitle, forKey: "lastOpened")
         }
         
+        //ask for review
+        let defaults = UserDefaults.standard
+        var launched = defaults.integer(forKey: "launchNumber")
+        if launched == 3 {
+            SKStoreReviewController.requestReview()
+            launched += 1
+            defaults.setValue(launched, forKey: "launchNumber")
+        }
     }
     
     var scrollHeight: CGFloat = 100
@@ -293,7 +303,7 @@ class ListController: UIViewController, TaskViewDelegate {
         
         if creating {
             addTaskField.isHidden = true
-            
+            backgroundImage.backgroundColor = blue
             createTappedDone()
         }
         
@@ -680,7 +690,7 @@ class ListController: UIViewController, TaskViewDelegate {
     }
     
     @objc func tappedAddTask() {
-        if tasksList.count + completedTasks.count == 14  && UserDefaults.standard.bool(forKey: "isPro") == false{
+        if tasksList.count + completedTasks.count == 7  && UserDefaults.standard.bool(forKey: "isPro") == false{
             let sub = SubscriptionController()
             AppsFlyerLib.shared().logEvent(name: "Sub_From_Limit_Tasks", values: [AFEventParamContent: "true", AFEventParamCountry: "\(Locale.current.regionCode ?? "Not Available")"])
             sub.limitTasks = true
@@ -1112,7 +1122,7 @@ class ListController: UIViewController, TaskViewDelegate {
                             lst.textColor = "white"
                         }
                         if selectedListBackground == UIColor.clear && selectedListImage == "" {
-                            lst.backgroundImage = "mountain"
+                            lst.backgroundColor = "blue"
                         } else {
                             lst.backgroundImage = selectedListImage
                         }
@@ -1133,7 +1143,7 @@ class ListController: UIViewController, TaskViewDelegate {
                         list.textColor = "white"
                     }
                     if selectedListBackground == UIColor.clear && selectedListImage == "" {
-                        list.backgroundImage = "mountain"
+                        list.backgroundColor = "blue"
                     } else {
                         list.backgroundImage = selectedListImage
                     }

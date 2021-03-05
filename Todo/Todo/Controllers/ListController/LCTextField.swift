@@ -90,6 +90,7 @@ extension ListController: UITextFieldDelegate {
         }
     }
     func helpers() {
+        dateLabel.textColor = listTextColor
         addTaskField.isHidden = false
         photoButton.removeFromSuperview()
         backgroundButton.removeFromSuperview()

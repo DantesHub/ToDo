@@ -28,6 +28,7 @@ class StepCell: UITableViewCell {
     var id = ""
     var taskDelegate: TaskViewDelegate?
     var delegate: TaskOptionProtocol?
+    var listTextColor = UIColor.white
     let check: UIImageView = {
         let iv = UIImageView()
         iv.image = UIImage(named: "circleCheck")?.resize(targetSize: CGSize(width: 25, height: 25))

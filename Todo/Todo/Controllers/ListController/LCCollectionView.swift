@@ -91,7 +91,6 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 selectedListImage = photos[indexPath.row]
                 selectedListBackground = UIColor.clear
             } else {
-                if UserDefaults.standard.bool(forKey: "isPro") == true {
                 cell.tappedColor()
                 if customizeSelection == "Background Color" {
                     selectedListBackground = backgroundColors[indexPath.row]
@@ -99,9 +98,8 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 } else {
                     selectedListTextColor = textColors[indexPath.row]
                 }
-                    return false
+                    return true
                 }
-            }
             return true
         } else {
             return true
@@ -152,14 +150,16 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
                 var cellImage = ""
                 var colorIn = false
                 let bg = lists[indexPath.row].backgroundImage
-                let bc = lists[indexPath.row].backgroundColor
+                var bc = lists[indexPath.row].backgroundColor
                 if bg != "" {
                     cellImage = bg == "addPicture" ? lists[indexPath.row].name : bg
                 } else if bc != "" {
                     cellImage = "circle"
                     colorIn = true
                 } else {
-                    cellImage = "mountain"
+                    cellImage = "circle"
+                    colorIn = true
+                    bc = "blue"
                 }
                 
                 if bg == "addPicture" {
@@ -233,40 +233,8 @@ extension ListController: UICollectionViewDelegate, UICollectionViewDataSource, 
          
                 //upload custom photo
                 if indexPath.row == 0 {
-                    if UserDefaults.standard.bool(forKey: "isPro") == false {
-                        creating = true
-                        stabilize = true
-                        selectedListImage = "mountain"
-                        bigTextField.becomeFirstResponder()
-                        AppsFlyerLib.shared().logEvent(name: "Sub_From_Wallpaper_Photo", values: [AFEventParamContent: "true", AFEventParamCountry: "\(Locale.current.regionCode ?? "Not Available")"])
-                        let sub = SubscriptionController()
-                        sub.idx = 2
-                        self.navigationController?.present(sub, animated: true, completion: nil)
-                        return
-                    }
+           
                     uploadPhoto()
-                }
-            } else if customizeSelection == "Text Color" {
-                if UserDefaults.standard.bool(forKey: "isPro") == false {
-                    creating = true
-                    stabilize = true
-                    bigTextField.becomeFirstResponder()
-                    AppsFlyerLib.shared().logEvent(name: "Sub_From_Text_color", values: [AFEventParamContent: "true", AFEventParamCountry: "\(Locale.current.regionCode ?? "Not Available")"])
-                    let sub = SubscriptionController()
-                    sub.idx = 2
-                    self.navigationController?.present(sub, animated: true, completion: nil)
-                    return
-                }
-            } else {
-                if UserDefaults.standard.bool(forKey: "isPro") == false {
-                    creating = true
-                    stabilize = true
-                    bigTextField.becomeFirstResponder()
-                    AppsFlyerLib.shared().logEvent(name: "Sub_From_Wallpaper_Color", values: [AFEventParamContent: "true", AFEventParamCountry: "\(Locale.current.regionCode ?? "Not Available")"])
-                    let sub = SubscriptionController()
-                    sub.idx = 2
-                    self.navigationController?.present(sub, animated: true, completion: nil)
-                    return
                 }
             }
             cell.isHighlighted = true

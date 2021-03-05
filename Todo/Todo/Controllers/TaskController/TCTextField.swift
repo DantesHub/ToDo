@@ -78,7 +78,7 @@ extension TaskController:  UITextFieldDelegate, UITextViewDelegate {
             if UserDefaults.standard.bool(forKey: "isPro") == false {
                 AppsFlyerLib.shared().logEvent(name: "Sub_From_Notes", values: [AFEventParamContent: "true"])
                 let sub = SubscriptionController()
-                sub.idx = 5
+                sub.idx = 4
                 noteTextField.resignFirstResponder()
                 view.endEditing(true)
                 self.navigationController?.present(sub, animated: true, completion: nil)

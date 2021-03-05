@@ -19,6 +19,7 @@ import AppsFlyerLib
 var uiRealm = try! Realm()
 @UIApplicationMain
 
+ 
 class AppDelegate: UIResponder, UIApplicationDelegate{
     var window: UIWindow?
 
@@ -50,7 +51,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate{
 //                 UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .alert, .sound]) { _, _ in }
 //                 application.registerForRemoteNotifications()
 //             }
-        
         window?.rootViewController = UINavigationController(rootViewController: controller )
         window?.makeKeyAndVisible()
         sendLaunch()

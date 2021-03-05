@@ -30,9 +30,9 @@ class SubscriptionController: UIViewController {
         return cv
     }()
     var packagesAvailableForPurchase = [Purchases.Package]()
-    var topImages = ["group", "infinityGreen", "theme", "unlimitedReminder", "repeatBlue", "files"]
-    var topTitles = ["Groups", "No Limits", "Advanced Customization", "Unlimited Reminder", "Repeat", "File & Notes"]
-    var topDescs = ["Organize your lists into their own dedicated folders", "Create as many Lists and Tasks as you wish","Get full access to premium wallpapers and customization tools","Receive smart notifications to fully manage your deadlines", "Automatise tasks creation with the repeat feature", "Add relevant information to your tasks"]
+    var topImages = ["group", "infinityGreen", "unlimitedReminder", "repeatBlue", "files"]
+    var topTitles = ["Groups", "No Limits", "Unlimited Reminder", "Repeat", "File & Notes"]
+    var topDescs = ["Organize your lists into their own dedicated folders", "Create as many Lists and Tasks as you wish","Receive smart notifications to fully manage your deadlines", "Automatise tasks creation with the repeat feature", "Add relevant information to your tasks"]
     var stories = [""]
     var bottomCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -47,6 +47,7 @@ class SubscriptionController: UIViewController {
         cv.backgroundColor = .white
         return cv
     }()
+    var onboarding = false
     var idx = 0
     let yearlyBox = PriceBox()
     let monthlyBox = PriceBox()
@@ -70,6 +71,7 @@ class SubscriptionController: UIViewController {
     var yearlyPrice: Double = 0
     var yearlyMonthlyPrice: Double = 0
     let locale = Locale.current
+    var freeTrial = UILabel()
     
     
     //MARK: - init
@@ -93,8 +95,8 @@ class SubscriptionController: UIViewController {
                     print(price, "price", name, product.localizedTitle)
                     if name == "ios.premium.monthly.to.do.list.1" {
                         monthlyPrice = round(100 * Double(truncating: price))/100
-                        
-                    } else if name == "ios.premium.yearly.to.do.list.1" {
+    
+                    } else if name == "ios.premium.yearly.to.do.list.2" {
                         yearlyPrice = round(100 * Double(truncating: price))/100
                         yearlyMonthlyPrice = (round(100 * (yearlyPrice/12))/100) - 0.01
                     }
@@ -103,6 +105,20 @@ class SubscriptionController: UIViewController {
         }
         configureUI()
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if onboarding {
+            self.navigationItem.hidesBackButton = true
+            let cancel = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(goHome))
+            cancel.tintColor = .gray
+            self.navigationItem.leftBarButtonItems = [cancel]
+        }
+    }
+    @objc func goHome() {
+        AppsFlyerLib.shared().logEvent(name: "Onboarding_Step4_Paywall_Cancel_Clicked", values: [AFEventParamContent: "true"])
+        self.navigationController?.pushViewController(MainViewController(), animated: true)
+    }
+    
     func scroll() {
     }
     override func viewDidLayoutSubviews() {
@@ -133,22 +149,25 @@ class SubscriptionController: UIViewController {
         view.addSubview(header)
         header.leadingToSuperview()
         header.trailingToSuperview()
-        header.topToSuperview()
+        header.top(to: view, offset: onboarding ? 20 : 0)
         header.overrideUserInterfaceStyle = .light
         header.backgroundColor = .white
         header.height(view.frame.height * 0.08)
-        let headerTitle = UILabel()
-        headerTitle.font = UIFont(name: "OpenSans", size: 28)
-        headerTitle.text = "To Do Premium"
-        header.addSubview(headerTitle)
-        headerTitle.center(in: header)
-        
-        let backButton = UIButton()
-        backButton.setImage(UIImage(named: "arrow")?.resize(targetSize: CGSize(width: 30, height: 30)).rotate(radians: -.pi/2), for: .normal)
-        header.addSubview(backButton)
-        backButton.leading(to: header,offset: 15)
-        backButton.centerY(to: header)
-        backButton.addTarget(self, action: #selector(tappedBack), for: .touchUpInside)
+        if !onboarding {
+            let headerTitle = UILabel()
+            headerTitle.font = UIFont(name: "OpenSans", size: 28)
+            headerTitle.text = "To Do Premium"
+            header.addSubview(headerTitle)
+            headerTitle.center(in: header)
+            
+            let backButton = UIButton()
+            backButton.setImage(UIImage(named: "arrow")?.withTintColor(.lightGray).resize(targetSize: CGSize(width: 30, height: 30)).rotate(radians: -.pi/2), for: .normal)
+            header.addSubview(backButton)
+            backButton.leading(to: header,offset: 15)
+            backButton.centerY(to: header)
+            backButton.addTarget(self, action: #selector(tappedBack), for: .touchUpInside)
+        }
+      
         
         view.backgroundColor = .white
         view.addSubview(topCollectionView)
@@ -251,13 +270,15 @@ class SubscriptionController: UIViewController {
         view.addSubview(continueButton)
         continueButton.leading(to: view, offset: 30)
         continueButton.trailing(to: view, offset: -30)
-        continueButton.topToBottom(of: yearlyBox, offset: view.frame.height * 0.05)
+        continueButton.topToBottom(of: yearlyBox, offset: view.frame.height * 0.08)
         continueButton.titleLabel?.font = UIFont(name: "OpenSans-Bold", size: 20)
         continueButton.height(self.view.frame.height * 0.08)
         continueButton.setTitle("CONTINUE", for: .normal)
         continueButton.backgroundColor = lightPurple
         continueButton.layer.cornerRadius = 15
         continueButton.addTarget(self, action: #selector(tappedContinue), for: .touchUpInside)
+        
+        createFreeTrial()
         
         let privacy = UILabel()
         let terms = UILabel()
@@ -285,18 +306,28 @@ class SubscriptionController: UIViewController {
         print(idx, "jujutsu")
         topCollectionView.scrollToItem(at: IndexPath(item: idx, section: 0), at: .right, animated: false)
     }
+    func createFreeTrial() {
+        view.addSubview(freeTrial)
+        freeTrial.font = UIFont(name: "OpenSans", size: 15)
+        freeTrial.text = "7 days free, then \(locale.currencySymbol!)\(yearlyPrice)"
+        freeTrial.textColor = .systemBlue
+        freeTrial.centerXToSuperview()
+        freeTrial.bottomToTop(of: continueButton, offset: -5)
+    }
     
     @objc func tappedYearly()  {
         yearlyBox.selected = true
         yearlyBox.configure()
         monthlyBox.selected = false
         monthlyBox.configure()
+        createFreeTrial()
     }
     @objc func tappedMonthly() {
         monthlyBox.selected = true
         monthlyBox.configure()
         yearlyBox.selected = false
         yearlyBox.configure()
+        freeTrial.removeFromSuperview()
     }
     
     @objc func tappedPrivacy() {
@@ -337,18 +368,25 @@ class SubscriptionController: UIViewController {
                 UserDefaults.standard.setValue(true, forKey: "isPro")
                 self.dismiss(animated: true, completion: nil)
             } else if userCancelled {
-                AppsFlyerLib.shared().logEvent("cancelledPurchase", withValues: [AFEventParamEventStart: "cancelled", AFEventParamCurrency: "\(locale.currencyCode!)"])
+                let event = logEvent(cancelled: true)
+                AppsFlyerLib.shared().logEvent(event, withValues: [AFEventParamEventStart: "cancelled", AFEventParamCurrency: "\(locale.currencyCode!)"])
                 
             }
         }
     }
-    func logEvent() -> String{
-        let lst = ["Group", "Limit_Lists", "Wallpaper", "Reminder", "Repeat", "Notes"]
-        var event = yearlyBox.selected ? "Yearly_Started_From_" : "Monthly_Started_From_"
+    func logEvent(cancelled: Bool = false) -> String{
+        let lst = ["Group", "Limit_Lists", "Reminder", "Repeat", "Notes"]
+        var event = ""
+            event = yearlyBox.selected ? "Yearly_Started_From_" : "Monthly_Started_From_"
+        if cancelled {
+            event = "Cancelled" + event
+        }
             if limitTasks {
                 event = event + "Limit_Tasks"
             } else if tappedStar {
                 event = event + "Settings"
+            } else if onboarding {
+                event = event + "Onboarding"
             } else {
                 event = event + lst[idx]
             }

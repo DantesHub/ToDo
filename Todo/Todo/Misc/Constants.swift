@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import Purchases
 let superPurple = hexStringToUIColor(hex: "#A73CDE")
-var blue = hexStringToUIColor(hex: "4b68e9")
+var blue = hexStringToUIColor(hex: "#4B68E9")
 var purple = hexStringToUIColor(hex: "94609b")
 var darkRed = hexStringToUIColor(hex: "b3536c")
 var darkOrange = hexStringToUIColor(hex: "b3564e")
@@ -23,6 +23,19 @@ let lightGray = hexStringToUIColor(hex: "#EAEAEA")
 let green = hexStringToUIColor(hex: "#096408")
 let medGray = hexStringToUIColor(hex: "#EEEEEE")
 let orange = hexStringToUIColor(hex: "#F08802")
+
+let nightPurple = hexStringToUIColor(hex: "697ac9")
+let mintBlue = hexStringToUIColor(hex: "b4edf9")
+let purp = hexStringToUIColor(hex: "a26da8")
+let lightOrange = hexStringToUIColor(hex: "c1615a")
+let darkPink = hexStringToUIColor(hex: "c5647d")
+let superLightOrange = hexStringToUIColor(hex: "fcc198")
+let yellow = hexStringToUIColor(hex: "fce9a9")
+let green2 = hexStringToUIColor(hex: "4e8c89")
+let actualMint = hexStringToUIColor(hex: "bce8d7")
+let greg = hexStringToUIColor(hex: "909aa6")
+
+
 struct K {
     static let listGroupCell = "listGroupCell"
     static let taskSlideCell = "taskSlideCell"
@@ -41,6 +54,7 @@ struct K {
             return UIColor.clear
         }
     }
+    
     static func configurePurchases() {
         
     }
@@ -61,6 +75,26 @@ struct K {
             return turq
         case "gray":
             return gray
+        case "nightPurple":
+            return nightPurple
+        case "mintBlue":
+            return mintBlue
+        case "purp":
+            return purp
+        case "lightOrange":
+            return lightOrange
+        case "darkPink":
+            return darkPink
+        case "superLightOrange":
+            return superLightOrange
+        case "yellow":
+            return yellow
+        case "green2":
+            return green2
+        case "actualMint":
+            return actualMint
+        case "greg":
+            return greg
         case "darkGreen":
             return darkGreen
         default:
@@ -86,6 +120,26 @@ struct K {
             return "gray"
         case darkGreen:
             return "darkGreen"
+        case nightPurple:
+            return "nightPurple"
+        case mintBlue:
+            return "mintBlue"
+        case purp:
+            return "purp"
+        case lightOrange:
+            return "lightOrange"
+        case darkPink:
+            return "darkPink"
+        case superLightOrange:
+            return "superLightOrange"
+        case yellow:
+            return "yellow"
+        case green2:
+            return "green2"
+        case actualMint:
+            return "actualMint"
+        case greg:
+            return "greg"
         default:
             return ""
         }

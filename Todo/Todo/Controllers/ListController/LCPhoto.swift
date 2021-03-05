@@ -75,32 +75,35 @@ extension ListController: UIImagePickerControllerDelegate, UINavigationControlle
     }
     
       func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-         keyboard2 = false
-        
-          picker.dismiss(animated: true, completion: nil)
+        creating = true
+        keyboard2 = false
+        stabilize = true
+         picker.dismiss(animated: true, completion: nil)
+        selectedListImage = ""
+        selectedListBackground = blue
+        self.bigTextField.becomeFirstResponder()
       }
     func uploadPhoto() {
-        print("tagawa", listObject.name)
         if listObject.name == "" {
             let results = uiRealm.objects(ListObject.self)
             nameTaken2 = false
-            stabilize = true
             for result in results {
                 if result.name == bigTextField.text! {
                     nameTaken2 = true
                     //bug happens when I call this alert controlelr
                     let alertController = UIAlertController(title: "Please select a unique List Name First", message: "", preferredStyle: UIAlertController.Style.alert)
                     let okayAction = UIAlertAction(title: "Okay", style: UIAlertAction.Style.default) { [self] (action) in
-                        print(stabilize, self.customizeListView.frame.origin.y, "yolo")
-                        creating = true
                         return
                     }
 
                     alertController.addAction(okayAction)
-                    self.present(alertController, animated: true, completion: nil)
+                    let rootViewController: UIViewController =
+                        UIApplication.shared.windows.last!.rootViewController!
+                    rootViewController.present(alertController, animated: true, completion: nil)
                 }
             }
             listName = bigTextField.text!
+            
         } else {
             listName = listObject.name
         }

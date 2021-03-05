@@ -98,14 +98,18 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
         cell.configureLeading()
         var cellImage = ""
         var colorIn = false
+        var color = ""
         let bg = lists[indexPath.row].backgroundImage
         if bg != "" {
             cellImage = bg == "addPicture" ? lists[indexPath.row].name : bg
         } else if lists[indexPath.row].backgroundColor != "" {
             cellImage = "circle"
             colorIn = true
+            color = lists[indexPath.row].backgroundColor
         } else {
-            cellImage = "mountain"
+            cellImage = "circle"
+            colorIn = true
+            color = "blue"
         }
         var count = 0
         let results = uiRealm.objects(TaskObject.self)
@@ -126,7 +130,7 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
         } else {
             cell.cellImage.image = UIImage(named: cellImage)?.resize(targetSize: CGSize(width: 35, height: 35))
         }
-        if colorIn { cell.cellImage.image = cell.cellImage.image?.withTintColor(K.getListColor(lists[indexPath.row].backgroundColor))}
+        if colorIn { cell.cellImage.image = cell.cellImage.image?.withTintColor(K.getListColor(color))}
         return cell
     } else if tableView == groupTableView {
         let cell = tableView.dequeueReusableCell(withIdentifier: "groupCell", for: indexPath) as! GroupCell
@@ -134,14 +138,16 @@ func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> U
         var cellImage = ""
         var colorIn = false
         let bg = groups[indexPath.section].lists[indexPath.row].backgroundImage
-        let bc = groups[indexPath.section].lists[indexPath.row].backgroundColor
+        var bc = groups[indexPath.section].lists[indexPath.row].backgroundColor
         if bg != "" {
             cellImage = bg == "addPicture" ? groups[indexPath.section].lists[indexPath.row].name : bg
         } else if bc != "" {
             cellImage = "circle"
             colorIn = true
         } else {
-            cellImage = "mountain"
+            cellImage = "circle"
+            colorIn = true
+            bc = "blue"
         }
         var count = 0
         let results = uiRealm.objects(TaskObject.self)

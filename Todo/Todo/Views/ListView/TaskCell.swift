@@ -9,6 +9,8 @@
 import UIKit
 import TinyConstraints
 import RealmSwift
+import AppsFlyerLib
+
 protocol TaskViewDelegate {
     func reloadTaskTableView(at: IndexPath, checked: Bool, repeats: String)
     func reloadTable()
@@ -42,6 +44,7 @@ class TaskCell: UITableViewCell {
     var completed =  false
     var position = 0
     var selectedCell = false
+    var listTextColor = UIColor.white
     var id = ""
     var notes = ""
     var notesView = UIImageView()
@@ -112,6 +115,11 @@ class TaskCell: UITableViewCell {
     
     @objc func tappedCell() {
         if !editingCell {
+            if title.text == "Click here 🎯 to edit task" {
+                AppsFlyerLib.shared().logEvent(name: "Onboarding_Step4_1st_task_Clicked", values: [AFEventParamContent: "true"])
+            } else if title.text == "This task is completed 💯" {
+                AppsFlyerLib.shared().logEvent(name: "Onboarding_Step4_2nd_task_Clicked", values: [AFEventParamContent: "true"])
+            }
             let controller = TaskController()
             controller.notes = notes
             controller.plannedDate = taskPlannedDate
@@ -122,6 +130,7 @@ class TaskCell: UITableViewCell {
             controller.taskObject = taskObject
             controller.priority = prioritized
             controller.completed = completed
+            controller.listTextColor = listTextColor
             controller.path = path
             controller.createdAt = createdAt
             controller.repeatTask = repeatTask

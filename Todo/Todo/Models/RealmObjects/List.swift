@@ -14,7 +14,7 @@ class ListObject: Object {
     @objc dynamic var position = 0
     @objc dynamic var textColor = "white"
     @objc dynamic var backgroundColor = ""
-    @objc dynamic var backgroundImage = "mountain"
+    @objc dynamic var backgroundImage = ""
     @objc  dynamic var sortType = ""
     @objc dynamic var reversed = true
     @objc dynamic var customImage: String? = nil

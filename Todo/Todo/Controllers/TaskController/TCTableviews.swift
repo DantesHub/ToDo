@@ -328,6 +328,7 @@ extension TaskController: UITableViewDelegate, UITableViewDataSource, TaskOption
         } else {
             let stepCell = tableView.cellForRow(at: indexPath) as! StepCell
             editingStep = steps[indexPath.row]
+            stepCell.listTextColor = listTextColor
             stepCell.cellTitle.becomeFirstResponder()
         }
     }

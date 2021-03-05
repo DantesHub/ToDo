@@ -25,7 +25,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
-        let controller = MainViewController()
+        let defaults = UserDefaults.standard
+        var launched = defaults.integer(forKey: "launchNumber") ?? 0
+        launched = launched + 1
+        defaults.setValue(launched, forKey: "launchNumber")
+        let controller = launched == 1 ? WelcomeController() : MainViewController()
         if UserDefaults.standard.value(forKey: "lastOpened") == nil {
             mainIsRoot = true
         } else {

@@ -178,6 +178,8 @@ class MainViewController: UIViewController, ReloadDelegate {
         listHeader.addSubview(hr)
         createListSection()
         createGroupSection()
+        
+   
     }
     func createFooter() {
         view.insertSubview(footerView, aboveSubview: groupHeader)
@@ -373,7 +375,7 @@ class MainViewController: UIViewController, ReloadDelegate {
         self.navigationController?.present(SubscriptionController(), animated: true, completion: nil)
     }
     @objc private func tappedAddList() {
-        if lists.count == 8 && UserDefaults.standard.bool(forKey: "isPro") == false {
+        if lists.count == 3 && UserDefaults.standard.bool(forKey: "isPro") == false {
             let sub = SubscriptionController()
             AppsFlyerLib.shared().logEvent(name: "Sub_From_Limit_Lists", values: [AFEventParamContent: "true"])
             sub.idx = 1
@@ -393,7 +395,6 @@ class MainViewController: UIViewController, ReloadDelegate {
             plusIV.alpha = 1
             newListLabel.alpha = 1
         }
-        
     }
     
     
