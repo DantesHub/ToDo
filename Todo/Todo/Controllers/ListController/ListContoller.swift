@@ -117,9 +117,10 @@ class ListController: UIViewController, TaskViewDelegate {
     var imagePicker = UIImagePickerController()
     let window = UIApplication.shared.keyWindow
     let selectAll = BoxOption()
-    var photos: [String] = ["addPicture", "campfire", "mountain", "nature", "forest", "rain", "seaside", "seaside2", "space", "mountainSnow", "river", "yoga", "pinkForest", "orangeForest", "grass", "mountainNight", "alps", "flower"]
-    var backgroundColors:[UIColor] = [blue, purple, darkRed, darkOrange, darkGreen, turq, gray, nightPurple, mintBlue, purp, lightOrange, darkPink, superLightOrange, yellow, green2, actualMint, greg]
-    var textColors:[UIColor] = [.white, blue, purple, darkRed, darkOrange, darkGreen, turq, gray, nightPurple, mintBlue, purp, lightOrange, darkPink, superLightOrange, yellow, green2, actualMint, greg]
+    var photos: [String] = ["addPicture","mountainNight","alps", "forest","seaside2","river", "yoga","orangeForest", "flower", "seaside","campfire","mountainSnow","pinkForest", "nature",  "rain",  "space", "mountain",  "grass" ]
+    var backgroundColors:[UIColor] =  [blue, nightPurple, mintBlue, purple, purp,darkPink, darkRed, darkOrange,lightOrange, superLightOrange, yellow, darkGreen, turq, green2, actualMint,gray,greg]
+   
+    var textColors:[UIColor] = [.white, blue, nightPurple, mintBlue, purple, purp,darkPink, darkRed, darkOrange,lightOrange, superLightOrange, yellow, darkGreen, turq, green2, actualMint,gray,greg]
     var backgroundButton = UIButton()
     var photoButton = UIButton()
     var textButton = UIButton()

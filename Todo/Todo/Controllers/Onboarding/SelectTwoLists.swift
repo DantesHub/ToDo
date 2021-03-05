@@ -122,8 +122,10 @@ class SelectTwoListsController: UIViewController, PremadeDelegate{
         skipLabel.addGestureRecognizer(skipGest)
         skipLabel.adjustsFontSizeToFitWidth = true
         skipLabel.centerX(to: view)
+        skipLabel.isUserInteractionEnabled = true
         skipLabel.topToBottom(of: continueButton, offset: 20)
         skipLabel.width(view.frame.width * 0.10)
+        skipLabel.addGestureRecognizer(skipGest)
                 
     }
     //MARK: - helper functions
@@ -158,6 +160,7 @@ class SelectTwoListsController: UIViewController, PremadeDelegate{
     }
     
     @objc func tappedSkip() {
+        AppsFlyerLib.shared().logEvent(name: "Sub_From_Onboarding", values: [AFEventParamContent: "true"])
         AppsFlyerLib.shared().logEvent(name: "Onboarding_Step2_Skip_Clicked", values: [AFEventParamContent: "true"])
         let controller = SubscriptionController()
         controller.onboarding = true
@@ -166,6 +169,7 @@ class SelectTwoListsController: UIViewController, PremadeDelegate{
     
     @objc func tappedContinue() {
         if selectedLists <= 2 && selectedLists >= 1 {
+            AppsFlyerLib.shared().logEvent(name: "Sub_From_Onboarding", values: [AFEventParamContent: "true"])
             AppsFlyerLib.shared().logEvent(name: "Onboarding_Step2_Continue_Clicked", values: [AFEventParamContent: "true"])
             let controller = SubscriptionController()
             controller.onboarding = true

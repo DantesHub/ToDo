@@ -115,7 +115,7 @@ class SubscriptionController: UIViewController {
         }
     }
     @objc func goHome() {
-        AppsFlyerLib.shared().logEvent(name: "Onboarding_Step4_Paywall_Cancel_Clicked", values: [AFEventParamContent: "true"])
+        AppsFlyerLib.shared().logEvent(name: "Onboarding_Step3_Paywall_Cancel_Clicked", values: [AFEventParamContent: "true"])
         self.navigationController?.pushViewController(MainViewController(), animated: true)
     }
     
@@ -347,7 +347,7 @@ class SubscriptionController: UIViewController {
         var package = packagesAvailableForPurchase[0]
         if yearlyBox.selected {
             package = packagesAvailableForPurchase.last { (package) -> Bool in
-                return package.product.productIdentifier == "ios.premium.yearly.to.do.list.1"
+                return package.product.productIdentifier == "ios.premium.yearly.to.do.list.2"
             }!
             
         } else {
@@ -365,11 +365,21 @@ class SubscriptionController: UIViewController {
                                                     AFEventParamRevenue:  yearlyBox.selected ? yearlyPrice : monthlyPrice,
                                                     AFEventParamCurrency:"\(locale.currencyCode!)"
                                                 ])
+            
+                AppsFlyerLib.shared().logEvent(name: yearlyBox.selected ? "Yearly_Started_From_All" : "Monthly_Started_From_All", values:
+                                                [
+                                                    AFEventParamContent: "true"
+                                                ])
                 UserDefaults.standard.setValue(true, forKey: "isPro")
-                self.dismiss(animated: true, completion: nil)
+                if onboarding {
+                    self.navigationController?.pushViewController(MainViewController(), animated: true)
+                } else {
+                    self.dismiss(animated: true, completion: nil)
+                }
             } else if userCancelled {
                 let event = logEvent(cancelled: true)
                 AppsFlyerLib.shared().logEvent(event, withValues: [AFEventParamEventStart: "cancelled", AFEventParamCurrency: "\(locale.currencyCode!)"])
+                AppsFlyerLib.shared().logEvent(yearlyBox.selected ? "cancelledPurchase_yearly" : "cancelledPurchase_monthly", withValues: [AFEventParamEventStart: "cancelled", AFEventParamCurrency: "\(locale.currencyCode!)"])
                 
             }
         }

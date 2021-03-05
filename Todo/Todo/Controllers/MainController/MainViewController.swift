@@ -73,7 +73,6 @@ class MainViewController: UIViewController, ReloadDelegate {
         
         configureUI()
         Purchases.shared.purchaserInfo { (purchaserInfo, error) in
-            print(purchaserInfo?.activeSubscriptions)
             if purchaserInfo?.entitlements.all["premium"]?.isActive == true {
                 UserDefaults.standard.setValue(true, forKey: "isPro")
             } else {
@@ -302,9 +301,18 @@ class MainViewController: UIViewController, ReloadDelegate {
                     premadeListTapped = true
                 }
             }
-            controller.navigationController?.isNavigationBarHidden = false
-            self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
-            self.navigationController?.pushViewController(controller, animated: false)
+            let existingLists = uiRealm.objects(ListObject.self)
+            var doesExist = false
+            for lst in existingLists {
+                if lst.name == listTitle {
+                    doesExist = true
+                }
+            }
+            if doesExist {
+                controller.navigationController?.isNavigationBarHidden = false
+                self.navigationController?.view.layer.add(CATransition().popFromRight(), forKey: nil)
+                self.navigationController?.pushViewController(controller, animated: false)
+            }
         }
     }
     
